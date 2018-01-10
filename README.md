@@ -9,7 +9,7 @@ You also need to install the [ESP8266 Arduino Core and Library](https://github.c
 Actually this version can only send and receive messages.
 
 ### Simple usage
-See the EchoBot example provided.
+See the EchoBot example provided in the [examples folder](https://github.com/shurillu/CTBot/tree/master/examples).
 
 ### Reference
 Coming soon

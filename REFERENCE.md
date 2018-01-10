@@ -37,4 +37,4 @@ To send a message to a Telegram user, use the `sendMessage` member function
 myBot.sendMessage(telegramUserID,"message");
 ```
 ___
-# Data types
+### Data types

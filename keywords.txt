@@ -1,0 +1,26 @@
+CTBot			KEYWORD1
+
+
+setIP			KEYWORD2
+
+wifiConnect		KEYWORD2
+
+setTelegramToken	KEYWORD2
+
+useDNS			KEYWORD2
+
+enableUTF8		KEYWORD2
+Encoding		KEYWORD2
+
+setMaxConnectionRetries	KEYWORD2
+
+setStatusPin		KEYWORD2
+
+testConnection		KEYWORD2
+
+getMe			KEYWORD2
+
+getNewMessage		KEYWORD2
+
+sendMessage		KEYWORD2
+

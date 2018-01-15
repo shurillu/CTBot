@@ -61,4 +61,16 @@ where:
 
 Typically, you will use only the `id` field.
 ##### TBMessage
-`TBMessage` data type is used to store new fetched messages 
+`TBMessage` data type is used to store new fetched messages. The data structure contains:
+```c++
+uint32_t messageID;
+TBUser   sender;
+uint32_t date;
+String   text;
+```
+where:
++ `messageID` contains the unique message identifier associated to the received message
++ `sender` contains the sender data in a [TBUser](#tbuser) structure
++ `date` contains the sent message date in Unix time
++ `text` contains the sent message
+

@@ -2,13 +2,14 @@
 Here you can find an explanation of the functionalities provided and how to use the library.
 _**WORK IN PROGRESS**_
 ___
-### Table of contents
+## Table of contents
 + [Introduction and quick start](#introduction-and-quick.start)
 + [Data types](#data-types)
   + [TBUser](#tbuser)
   + [TBMessage](#tbmessage)
++ [Member functions](#memberfunctions)
 ___
-### Introduction and quick start
+## Introduction and quick start
 Once installed the library, you have to load it in your sketch...
 ```c++
 #include <CTBot.h>
@@ -39,9 +40,9 @@ To send a message to a Telegram user, use the `sendMessage` member function
 myBot.sendMessage(telegramUserID,"message");
 ```
 ___
-### Data types
+## Data types
 There are several usefully data structures used to store data typically sent by the Telegram Server.
-#### TBUser
+### TBUser
 `TBUser` data type is used to store user data like Telegram userID. The data structure contains:
 ```c++
 uint32_t id;
@@ -60,7 +61,7 @@ where:
 + `languageCode` contains the country code used by the user ID `id`
 
 Typically, you will use only the `id` field.
-#### TBMessage
+### TBMessage
 `TBMessage` data type is used to store new fetched messages. The data structure contains:
 ```c++
 uint32_t messageID;
@@ -73,4 +74,10 @@ where:
 + `sender` contains the sender data in a [TBUser](#tbuser) structure
 + `date` contains the date when the message was sent, in Unix time
 + `text` contains the received message
+___
+## Member functions
+
+
+
+
 

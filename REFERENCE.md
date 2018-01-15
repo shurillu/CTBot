@@ -41,7 +41,7 @@ myBot.sendMessage(telegramUserID,"message");
 ___
 ### Data types
 There are several usefully data structures used to store data typically sent by the Telegram Server.
-##### TBUser
+#### TBUser
 `TBUser` data type is used to store user data like Telegram userID. The data structure contains:
 ```c++
 uint32_t id;
@@ -60,7 +60,7 @@ where:
 + `languageCode` contains the country code used by the user ID `id`
 
 Typically, you will use only the `id` field.
-##### TBMessage
+#### TBMessage
 `TBMessage` data type is used to store new fetched messages. The data structure contains:
 ```c++
 uint32_t messageID;

@@ -3,18 +3,18 @@ Here you can find an explanation of the functionalities provided and how to use 
 _**WORK IN PROGRESS**_
 ___
 ## Table of contents
-+ [Introduction and quick start](#introduction-and-quick.start)
++ [Introduction and quick start](#introduction-and-quick-start)
 + [Data types](#data-types)
   + [TBUser](#tbuser)
   + [TBMessage](#tbmessage)
-+ [Basic functions](#basicfunctions)
-  + [wifiConnect()](#wifiConnect)
-  + [setTelegramToken()](#setTelegramToken)
++ [Basic functions](#basic-functions)
+  + [wifiConnect()](#wificonnect)
+  + [setTelegramToken()](#settelegramtoken)
   + [setIP()](#setIP)
-  + [testConnection()](#testConnection)
-  + [getNewMessage()](#getNewMessage)
-  + [sendMessage()](#sendMessage)
-+ [Configuration functions](#Configurationfunctions)
+  + [testConnection()](#testconnection)
+  + [getNewMessage()](#getnewmessage)
+  + [sendMessage()](#sendmessage)
++ [Configuration functions](#configuration-functions)
 ___
 ## Introduction and quick start
 Once installed the library, you have to load it in your sketch...

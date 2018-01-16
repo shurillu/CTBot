@@ -212,10 +212,10 @@ void loop() {
 ___
 ## Configuration functions
 When instantiated, a CTBot object is configured as follow:
-+ if the `wifiConnect()` method is executed, it wait until a connection with the specified WiFi network is established (locking operation). See [setMaxConnectionRetries()](#setMaxConnectionRetries).
-+ use the Telegram server static IP (149.154.167.198). See [useDNS()](#useDNS).
-+ the incoming messages are not converted to UTF8. See [enableUTF8Encoding()](#enableUTF8Encoding)
-+ the status pin is disabled
++ if the `wifiConnect()` method is executed, it wait until a connection with the specified WiFi network is established (locking operation). See [setMaxConnectionRetries()](#setmaxconnectionretries).
++ use the Telegram server static IP (149.154.167.198). See [useDNS()](#usedns).
++ the incoming messages are not converted to UTF8. See [enableUTF8Encoding()](#enableutf8encoding)
++ the status pin is disabled. See [setStatusPin()](#setstatuspin)
 
 With the wollowing member functions, is possible to change the behavior of the CTBot instantiated object.
 

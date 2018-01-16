@@ -99,7 +99,7 @@ Here you can find the basic member function. First you have to instantiate a CTB
 
 [back to TOC](#table-of-contents)
 ### `wifiConnect`
-`bool wifiConnect(String ssid, String password)` <br>
+`bool wifiConnect(String ssid, String password)` <br><br>
 Use this member function to connect the ESP8266 board to a WiFi Network.
 Parameters:
 + `ssid`: the WiFi Network SSID

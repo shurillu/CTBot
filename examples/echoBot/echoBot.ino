@@ -37,7 +37,7 @@ void loop() {
 
 	// if there is an incoming message...
 	if (myBot.getNewMessage(msg))
-		// ...reply it to the sender
+		// ...forward it to the sender
 		myBot.sendMessage(msg.sender.id, msg.text);
 	 
 	// wait 500 milliseconds

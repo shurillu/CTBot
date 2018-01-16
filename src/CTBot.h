@@ -2,20 +2,18 @@
 #ifndef CTBOT
 #define CTBOT
 
-
 #include <Arduino.h>
 #include "ESP8266WiFi.h"
 #include "WiFiClientSecure.h"
 #include "CTBotDataStructures.h"
 
 #define CTBOT_DEBUG_MODE  1  // enable debugmode -> print debug data on the Serial
-                                    // Zero -> debug disabled
+                             // Zero -> debug disabled
 #define CTBOT_BUFFER_SIZE 0  // json parser buffer size
-                                    // Zero -> dynamic allocation 
+                             // Zero -> dynamic allocation 
 
 // value for disabling the status pin. It is utilized for led notification on the board
 #define CTBOT_DISABLE_STATUS_PIN -1
-
 
 class CTBot
 {
@@ -48,6 +46,12 @@ private:
 	//   a string with the converted message in UTF8 
 	String toUTF8(String message);
 
+	// get some information about the bot
+	// params
+	//   user: the data structure that will contains the data retreived
+	// returns
+	//   true if no error occurred
+	bool getMe(TBUser &user);
 
 public:
 	// default constructor
@@ -112,13 +116,6 @@ public:
 	// returns
 	//    true if no error occurred
 	bool testConnection(void);
-
-	// get some information about the bot
-	// params
-	//   user: the data structure that will contains the data retreived
-	// returns
-	//   true if no error occurred
-	bool getMe(TBUser &user);
 
 	// get the first unread message from the queue. This is a destructive operation: once read, the message will be marked as read
 	// so a new getMessage will read the next message (if any).

@@ -15,6 +15,5 @@ typedef struct TBMessage {
 	TBUser   sender;
 	uint32_t date;
 	String   text;
-
 };
 

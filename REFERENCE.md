@@ -7,7 +7,14 @@ ___
 + [Data types](#data-types)
   + [TBUser](#tbuser)
   + [TBMessage](#tbmessage)
-+ [Member functions](#memberfunctions)
++ [Basic functions](#basicfunctions)
+  + [wifiConnect()](#wifiConnect)
+  + [setTelegramToken()](#setTelegramToken)
+  + [setIP()](#setIP)
+  + [testConnection()](#testConnection)
+  + [getNewMessage()](#getNewMessage)
+  + [sendMessage()](#sendMessage)
++ [Configuration functions](#Configurationfunctions)
 ___
 ## Introduction and quick start
 Once installed the library, you have to load it in your sketch...
@@ -22,7 +29,7 @@ You can connect to an Access Point by using the `wiFiConnect` member function...
 ```c++
 myBot.wifiConnect("mySSID", "myPassword");
 ```
-...and use the `setTelegramToken` member function to set your Telegram Bot token in order establish connections with it
+...and use the `setTelegramToken` member function to set your Telegram Bot token in order establish connections with the bot
 ```c++
 myBot.setTelegramToken("myTelegramBotToken");
 ```
@@ -39,10 +46,11 @@ To send a message to a Telegram user, use the `sendMessage` member function
 ```c++
 myBot.sendMessage(telegramUserID,"message");
 ```
+See the [echoBot example](https://github.com/shurillu/CTBot/blob/master/examples/echoBot/echoBot.ino) for further details.
 ___
 ## Data types
 There are several usefully data structures used to store data typically sent by the Telegram Server.
-### TBUser
+### `TBUser`
 `TBUser` data type is used to store user data like Telegram userID. The data structure contains:
 ```c++
 uint32_t id;
@@ -61,7 +69,7 @@ where:
 + `languageCode` contains the country code used by the user ID `id`
 
 Typically, you will use only the `id` field.
-### TBMessage
+### `TBMessage`
 `TBMessage` data type is used to store new fetched messages. The data structure contains:
 ```c++
 uint32_t messageID;
@@ -75,9 +83,217 @@ where:
 + `date` contains the date when the message was sent, in Unix time
 + `text` contains the received message
 ___
-## Member functions
+## Basic functions
+Here you can find the basic member function. First you have to instantiate a CTBot object, like `CTbot myBot`, then call the desired member function as `myBot.myDesiredFunction()`
+
+### wifiConnect
+`bool wifiConnect(String ssid, String password)`
+Use this member function to connect the ESP8266 board to a WiFi Network.
+Parameters:
++ `ssid`: the WiFi Network SSID
++ `password`: (optional) the password of the WiFi Network
+
+Return `true ` if a connection to the specified WiFi Network is established.
+Examples:
++ `wifiConnect("mySSID")`: connect to a WiFi network named _mySSID_
++ `wifiConnect("mySSID", "myPassword")`: connect to a WiFi network named _mySSID_ with password _myPassword_
+
+### setTelegramToken
+`void setTelegramToken(String token)`
+Set the Telegram Bot token. If you need infos about Telegram Bot and how to obtain a token, take a look  [here](https://core.telegram.org/bots#6-botfather).
+Parameters:
++ `token`: the token that identify the Telegram Bot
+
+Return none.
+Example:
++ `setTelegramToken("myTelegramBotToken")`
+
+### setIP
+`bool setIP(String ip, String gateway, String subnetMask, String dns1, String dns2)`
+By default, once connected the ESP8266 get the IP from the DHCP Server. With this function is possible to set the IP of the ESP8266 as a static IP.
+Parameters:
++ `ip`: the fixed IP address
++ `gateway`: the gateway address
++ `subnetMask`: the subnet mask
++ `dns1`: (optional) the first DNS
++ `dns2`: (optional) the second DNS
+
+Returns `true` if no error occurred and the static IP is set.
+Examples:
++ `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0")`: set a static IP (192.168.0.130), the gateway (192.168.0.254) and the subnet mask (255.255.255.0)
++ `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8")`: set a static IP (192.168.0.130), the gateway (192.168.0.254), the subnet mask (255.255.255.0) and the primary DNS (8.8.8.8)
++ `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8", "8.8.4.4")`: set a static IP (192.168.0.130), the gateway (192.168.0.254), the subnet mask (255.255.255.0), the primary DNS (8.8.8.8) and the secondary DNS (8.8.4.4)
+
+### testConnection
+`bool testConnection(void)`
+Check the connection between ESP8266 board and the Telegram server.
+Parameters: none
+Returns `true` if the ESP8266 is able to send/receive data to/from the Telegram server.
+Example:
+```c++
+#include "CTBot.h"
+CTBot myBot;
+void setup() {
+   Serial.begin(115200); // initialize the serial
+   myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+   myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
+   if(myBot.testConnection())
+      Serial.println("Connection OK");
+   else
+      Serial.println("Connectionk NOK");
+}
+void loop() {
+}
+```
+
+### getNewMessage
+`bool getNewMessage(TBMessage &message)`
+Get the first unread message from the message queue. This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any).
+Parameters:
++ `message`: a `TBMessage` data structure that will contains the message data retrieved
+
+Returns: `true` if there is a new message and fill the `message` parameter with the received message data. **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a `false` return value means that there are no valid data stored inside the 'message' parameter. See the foolowing example.
+Example:
+```c++
+#include "CTBot.h"
+CTBot myBot;
+void setup() {
+   Serial.begin(115200); // initialize the serial
+   myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+   myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
+}
+void loop() {
+   TBMessage msg; // a variable to store telegram message data
+   // check if there is a new incoming message
+   if(myBot.getNewMessage(msg)) {
+      // there is a valid message in msg -> print it
+      Serial.print("Received message from: ");
+      Serial.println(msg.sender.username);
+      Serial.print("Text: ");
+      Serial.println(msg.text);
+   } else {
+      // no valid message in msg
+      Serial.println("No new message");
+   }
+}
+```
+
+### sendMessage
+`bool sendMessage(uint32_t id, String message)`
+Send a message to the specified Telegram user ID.
+Parameters:
++ `id`: the recipient Telegram user ID
++ `message`: the message to send
+
+Returns: `true` if no error occurred.
+Example:
+```c++
+#include <CTBot.h>
+CTBot myBot;
+void setup() {
+   Serial.begin(115200); // initialize the serial
+   myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+   myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
+}
+void loop() {
+   TBMessage msg; // a variable to store telegram message data
+	// if there is an incoming message...
+	if (myBot.getNewMessage(msg))
+		// ...forward it to the sender
+		myBot.sendMessage(msg.sender.id, msg.text);
+	delay(500); // wait 500 milliseconds
+}
+```
+___
+## Configuration functions
+When instantiated, a CTBot object is configured as follow:
++ if the `wifiConnect()` method is executed, it wait until a connection with the specified WiFi network is established (locking operation). See [setMaxConnectionRetries()](#setMaxConnectionRetries).
++ use the Telegram server static IP (149.154.167.198). See [useDNS()](#useDNS).
++ the incoming messages are not converted to UTF8. See [enableUTF8Encoding()](#enableUTF8Encoding)
++ the status pin is disabled
+
+With the wollowing member functions, is possible to change the behavior of the CTBot instantiated object.
 
 
+### setMaxConnectionRetries
+`void setMaxConnectionRetries(uint8_t retries)`
+Set how many times the `wifiConnect()` method have to try to connect to the specified SSID. After each try, the `wifiConnect()` wait 500 milliseconds.
+A value of zero mean infinite retries.
+Default value is zero (infinite retries).
+Parameters:
++ `retries`: how many times wifiConnect have to try to connect. Zero means infinites tries (locking).
 
+Returns none.
+Example 1: finite retries
+```c++
+CTBot myBot;
+void setup() {
+   bool status;
+   Serial.begin(115200); // initialize the serial
+   myBot.setMaxConnectionRetries(15); // try 15 times to connect to the specified SSID (mySSID)
+   status = myBot.wifiConnect("mySSID", "myPassword"); // try connect (15 times) to the WiFi Network
+   if (status == true)
+      // connection successful!
+      Serial.println("Connection established!");
+   else
+      // after 15 tries, the ESP8266 can't connect to the specified SSID
+      Serial.println("Unable to connect to the WiFi network");
+}
+void loop() {
+}
+```
+Example 2: infinite retries
+```c++
+CTBot myBot;
+void setup() {
+   Serial.begin(115200); // initialize the serial
+   myBot.setMaxConnectionRetries(0); // try infinite times (default value) 
+                                     // to connect to the specified SSID in wifiConnect
+   myBot.wifiConnect("mySSID", "myPassword"); // try connect (infinite times) to the WiFi Network
 
+   // the rest of the code is executed ONLY if there is an established connection (wifiConnect() is locking). 
+}
+void loop() {
+}
+```
+
+### useDNS
+`void useDNS(bool value)`
+Define which kind of address (symbolic address or fixed IP) will be used to establish connections with the Telegram server.
+Default value is `false` (use fixed IP)
+Is better to use fixed IP when no DNS server are provided.
+Parameters:
++ `value`: set `true` if you want to use the URL style address "api.telegram.org" or set `false` if you want to use the fixed IP address "149.154.167.198".
+
+Returns none.
+Examples:
++ `useDNS(true)`: for every connection with the Telegram server, will be used the URL style address "api.telegram.org"
++ `useDNS(false)`: for every connection with the Telegram server, will be used the fixed IP address "149.154.167.198"
+
+### enableUTF8Encoding
+`void enableUTF8Encoding(bool value)`
+Tipically, Telegram server send incoming messages encoded with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server in this form \u20AC (UNICODE). For seome weird reasons, sometimes the backslash character disappears thus is impossible to decode correctly an incoming message.
+Encoding the received message with UTF8 encoding format will solve the problem.
+Encoding messages in UTF8 format will consume a bit of CPU time.
+Default value is `false` (no UTF8 conversion).
+Parameters:
++ `value`: set `true`to enable the UTF8 encoding for all incoming messages; set `false`to disable this feature.
+
+Returns none.
+Examples:
++ `enableUTF8Encoding(true)`: every incoming message will be encoded in UTF8
++ `enableUTF8Encoding(false)`: every incoming message is encoded as Telegram server do
+
+### setStatusPin
+`void setStatusPin(int8_t pin)`
+A status pin is used to send notification by connecting to the specified pin a LED (for example).
+Actually there are two notification:
++ during the connection process to a WiFi network, the status pin will blink regularly
++ every time a command is sent to the Telegram server, the status pin will blink.
+Default value is `CTBOT_DISABLE_STATUS_PIN` (status pin disable).
+Parameters:
++ `pin`: the Arduino like pin to use as status pin. to disable this feature, set to `CTBOT_DISABLE_STATUS_PIN`
+
+Example:
++ `setStatusPin(2)`: enable the status pin feature using the pin 2 (GPIO 4 - onboard LED of the ESP8266 chip)
 

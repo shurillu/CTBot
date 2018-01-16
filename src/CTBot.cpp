@@ -33,8 +33,6 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 		value += digit << (4 * (unicode.length() - (i + 1)));
 	}
 
-//	Serial.printf("%s - %08X\n", unicode.c_str(), value);
-
 	char buffer[2];
 	buffer[1] = 0x00;
 	utf8 = "";
@@ -61,16 +59,15 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 		maxValue = maxValue >> 1;
 	}
 	return(false);
-
 }
 
 CTBot::CTBot() {
-	m_wifiConnectionTries = 0;
-	m_statusPin           = CTBOT_DISABLE_STATUS_PIN;
-	m_token               = "";
-	m_lastUpdate          = 0;
-	m_useDNS              = false;
-	m_UTF8Encoding        = false;
+	m_wifiConnectionTries = 0;  // wait until connection to the AP is established (locking!)
+	m_statusPin           = CTBOT_DISABLE_STATUS_PIN; // status pin disabled
+	m_token               = ""; // no token
+	m_lastUpdate          = 0;  // not updated yet
+	m_useDNS              = false; // use static IP for Telegram Server
+	m_UTF8Encoding        = false; // no UTF8 encoded string conversion
 }
 
 CTBot::~CTBot() {
@@ -78,9 +75,6 @@ CTBot::~CTBot() {
 
 bool CTBot::sendCommand(String command, String parameters)
 {
-	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
-		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
-
 	// check for an already established connection
 	if (!m_telegramServer.connected()) {
 		if (m_useDNS) {
@@ -91,8 +85,6 @@ bool CTBot::sendCommand(String command, String parameters)
 				telegramServerIP.fromString(TELEGRAM_IP);
 				if (!m_telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
 					serialLog("\nUnable to connect to Telegram server");
-					if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
-						digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 					return(false);
 				} else {
 					serialLog("\nConnected using fixed IP\n");
@@ -108,8 +100,6 @@ bool CTBot::sendCommand(String command, String parameters)
 			telegramServerIP.fromString(TELEGRAM_IP);
 			if (!m_telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
 				serialLog("\nUnable to connect to Telegram server");
-				if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
-					digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 				return(false);
 			}
 			else
@@ -119,10 +109,15 @@ bool CTBot::sendCommand(String command, String parameters)
 	else 
 		serialLog("\nAlready connected\n");
 
-	// send the HTTP request
-	m_telegramServer.println("GET /bot" + m_token + (String)"/" + command + parameters);
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
+
+	// send the HTTP request
+	m_telegramServer.println("GET /bot" + m_token + (String)"/" + command + parameters);
+
+	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
+		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
+
 	return(true);
 }
 
@@ -379,7 +374,7 @@ bool CTBot::wifiConnect(String ssid, String password)
 		message = (String)"\nUnable to connect to " + ssid + (String)" network.\n";
 		serialLog(message);
 		if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
-			 digitalWrite(m_statusPin, HIGH);
+			 digitalWrite(m_statusPin, LOW);
 		return(false);
 	}
 }

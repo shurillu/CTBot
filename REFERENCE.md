@@ -10,11 +10,16 @@ ___
 + [Basic functions](#basic-functions)
   + [wifiConnect()](#wificonnect)
   + [setTelegramToken()](#settelegramtoken)
-  + [setIP()](#setIP)
+  + [setIP()](#setip)
   + [testConnection()](#testconnection)
   + [getNewMessage()](#getnewmessage)
   + [sendMessage()](#sendmessage)
 + [Configuration functions](#configuration-functions)
+  + [setMaxConnectionRetries()](#setmaxconnectionretries)
+  + [useDNS()](#usedns)
+  + [enableUTF8Encoding()](#enableutf8encoding)
+  + [setStatusPin()](#setstatuspin)
+
 ___
 ## Introduction and quick start
 Once installed the library, you have to load it in your sketch...

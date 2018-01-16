@@ -100,12 +100,12 @@ Here you can find the basic member function. First you have to instantiate a CTB
 [back to TOC](#table-of-contents)
 ### `wifiConnect`
 `bool wifiConnect(String ssid, String password)` <br><br>
-Use this member function to connect the ESP8266 board to a WiFi Network.
+Use this member function to connect the ESP8266 board to a WiFi Network. <br>
 Parameters:
 + `ssid`: the WiFi Network SSID
 + `password`: (optional) the password of the WiFi Network
 
-Return `true ` if a connection to the specified WiFi Network is established.
+Return `true ` if a connection to the specified WiFi Network is established. <br>
 Examples:
 + `wifiConnect("mySSID")`: connect to a WiFi network named _mySSID_
 + `wifiConnect("mySSID", "myPassword")`: connect to a WiFi network named _mySSID_ with password _myPassword_
@@ -113,18 +113,18 @@ Examples:
 [back to TOC](#table-of-contents)
 ### `setTelegramToken`
 `void setTelegramToken(String token)` <br><br>
-Set the Telegram Bot token. If you need infos about Telegram Bot and how to obtain a token, take a look  [here](https://core.telegram.org/bots#6-botfather).
+Set the Telegram Bot token. If you need infos about Telegram Bot and how to obtain a token, take a look  [here](https://core.telegram.org/bots#6-botfather). <br>
 Parameters:
 + `token`: the token that identify the Telegram Bot
 
-Return none.
+Return none. <br>
 Example:
 + `setTelegramToken("myTelegramBotToken")`
 
 [back to TOC](#table-of-contents)
 ### `setIP`
 `bool setIP(String ip, String gateway, String subnetMask, String dns1, String dns2)` <br><br>
-By default, once connected the ESP8266 get the IP from the DHCP Server. With this function is possible to set the IP of the ESP8266 as a static IP.
+By default, once connected the ESP8266 get the IP from the DHCP Server. With this function is possible to set the IP of the ESP8266 as a static IP. <br>
 Parameters:
 + `ip`: the fixed IP address
 + `gateway`: the gateway address
@@ -132,7 +132,7 @@ Parameters:
 + `dns1`: (optional) the first DNS
 + `dns2`: (optional) the second DNS
 
-Returns `true` if no error occurred and the static IP is set.
+Returns `true` if no error occurred and the static IP is set. <br>
 Examples:
 + `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0")`: set a static IP (192.168.0.130), the gateway (192.168.0.254) and the subnet mask (255.255.255.0)
 + `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8")`: set a static IP (192.168.0.130), the gateway (192.168.0.254), the subnet mask (255.255.255.0) and the primary DNS (8.8.8.8)
@@ -141,9 +141,9 @@ Examples:
 [back to TOC](#table-of-contents)
 ### `testConnection`
 `bool testConnection(void)` <br><br>
-Check the connection between ESP8266 board and the Telegram server.
+Check the connection between ESP8266 board and the Telegram server. <br>
 Parameters: none
-Returns `true` if the ESP8266 is able to send/receive data to/from the Telegram server.
+Returns `true` if the ESP8266 is able to send/receive data to/from the Telegram server. <br>
 Example:
 ```c++
 #include "CTBot.h"
@@ -164,11 +164,11 @@ void loop() {
 [back to TOC](#table-of-contents)
 ### `getNewMessage`
 `bool getNewMessage(TBMessage &message)` <br><br>
-Get the first unread message from the message queue. This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any).
+Get the first unread message from the message queue. This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any). <br>
 Parameters:
 + `message`: a `TBMessage` data structure that will contains the message data retrieved
 
-Returns: `true` if there is a new message and fill the `message` parameter with the received message data. **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a `false` return value means that there are no valid data stored inside the 'message' parameter. See the foolowing example.
+Returns: `true` if there is a new message and fill the `message` parameter with the received message data. **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a `false` return value means that there are no valid data stored inside the 'message' parameter. See the foolowing example. <br>
 Example:
 ```c++
 #include "CTBot.h"
@@ -197,12 +197,12 @@ void loop() {
 [back to TOC](#table-of-contents)
 ### `sendMessage`
 `bool sendMessage(uint32_t id, String message)` <br><br>
-Send a message to the specified Telegram user ID.
+Send a message to the specified Telegram user ID. <br>
 Parameters:
 + `id`: the recipient Telegram user ID
 + `message`: the message to send
 
-Returns: `true` if no error occurred.
+Returns: `true` if no error occurred. <br>
 Example:
 ```c++
 #include "CTBot.h"
@@ -237,12 +237,12 @@ With the wollowing member functions, is possible to change the behavior of the C
 ### `setMaxConnectionRetries`
 `void setMaxConnectionRetries(uint8_t retries)` <br><br>
 Set how many times the `wifiConnect()` method have to try to connect to the specified SSID. After each try, the `wifiConnect()` wait 500 milliseconds.
-A value of zero mean infinite retries.
-Default value is zero (infinite retries).
+A value of zero mean infinite retries. <br>
+Default value is zero (infinite retries). <br>
 Parameters:
 + `retries`: how many times wifiConnect have to try to connect. Zero means infinites tries (locking).
 
-Returns none.
+Returns none. <br>
 Example 1: finite retries
 ```c++
 #include "CTBot.h"
@@ -281,9 +281,9 @@ void loop() {
 [back to TOC](#table-of-contents)
 ### `useDNS`
 `void useDNS(bool value)` <br><br>
-Define which kind of address (symbolic address or fixed IP) will be used to establish connections with the Telegram server.
-Default value is `false` (use fixed IP)
-Is better to use fixed IP when no DNS server are provided.
+Define which kind of address (symbolic address or fixed IP) will be used to establish connections with the Telegram server. <br>
+Default value is `false` (use fixed IP) <br>
+Is better to use fixed IP when no DNS server are provided. <br>
 Parameters:
 + `value`: set `true` if you want to use the URL style address "api.telegram.org" or set `false` if you want to use the fixed IP address "149.154.167.198".
 
@@ -297,12 +297,12 @@ Examples:
 `void enableUTF8Encoding(bool value)` <br><br>
 Tipically, Telegram server encodes messages with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server encoded in this form \u20AC (UNICODE). For some weird reasons, the backslash character disappears and the message you get is u20AC thus is impossible to corretly decode an incoming message.
 Encoding the received message with UTF8 encoding format will solve the problem.
-Encoding messages in UTF8 format will consume a bit of CPU time.
-Default value is `false` (no UTF8 conversion).
+Encoding messages in UTF8 format will consume a bit of CPU time. <br>
+Default value is `false` (no UTF8 conversion). <br>
 Parameters:
 + `value`: set `true`to enable the UTF8 encoding for all incoming messages; set `false`to disable this feature.
 
-Returns none.
+Returns none. <br>
 Examples:
 + `enableUTF8Encoding(true)`: every incoming message will be encoded in UTF8
 + `enableUTF8Encoding(false)`: every incoming message is encoded as Telegram server do
@@ -314,10 +314,12 @@ A status pin is used to send notification by connecting to the specified pin a L
 Actually there are two notification:
 + during the connection process to a WiFi network, the status pin will blink regularly
 + every time a command is sent to the Telegram server, the status pin will blink.
-Default value is `CTBOT_DISABLE_STATUS_PIN` (status pin disable).
+
+Default value is `CTBOT_DISABLE_STATUS_PIN` (status pin disable). <br>
 Parameters:
 + `pin`: the Arduino like pin to use as status pin. to disable this feature, set to `CTBOT_DISABLE_STATUS_PIN`
 
+Returns none; <br>
 Example:
 + `setStatusPin(2)`: enable the status pin feature using the pin 2 (GPIO 4 - onboard LED of the ESP8266 chip)
 

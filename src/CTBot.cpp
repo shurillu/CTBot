@@ -358,7 +358,7 @@ bool CTBot::wifiConnect(String ssid, String password)
 		if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 			digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 		delay(500);
-		if (m_wifiConnectionTries != -1) tries++;
+		if (m_wifiConnectionTries != 0) tries++;
 	}
 
 
@@ -374,7 +374,7 @@ bool CTBot::wifiConnect(String ssid, String password)
 		message = (String)"\nUnable to connect to " + ssid + (String)" network.\n";
 		serialLog(message);
 		if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
-			 digitalWrite(m_statusPin, LOW);
+			 digitalWrite(m_statusPin, HIGH);
 		return(false);
 	}
 }

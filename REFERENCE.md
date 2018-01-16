@@ -21,10 +21,10 @@ ___
   + [setStatusPin()](#setstatuspin)
 
 ___
-## Introduction and quick start
+## Introduction and quick start [back to TOC](#table-of-contents)
 Once installed the library, you have to load it in your sketch...
 ```c++
-#include <CTBot.h>
+#include "CTBot.h"
 ```
 ...and instantiate a CTBot object
 ```c++
@@ -193,7 +193,7 @@ Parameters:
 Returns: `true` if no error occurred.
 Example:
 ```c++
-#include <CTBot.h>
+#include "CTBot.h"
 CTBot myBot;
 void setup() {
    Serial.begin(115200); // initialize the serial
@@ -231,6 +231,7 @@ Parameters:
 Returns none.
 Example 1: finite retries
 ```c++
+#include "CTBot.h"
 CTBot myBot;
 void setup() {
    bool status;
@@ -249,6 +250,7 @@ void loop() {
 ```
 Example 2: infinite retries
 ```c++
+#include "CTBot.h"
 CTBot myBot;
 void setup() {
    Serial.begin(115200); // initialize the serial
@@ -277,7 +279,7 @@ Examples:
 
 ### enableUTF8Encoding
 `void enableUTF8Encoding(bool value)`
-Tipically, Telegram server send incoming messages encoded with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server in this form \u20AC (UNICODE). For some weird reasons, sometimes the backslash character disappears thus is impossible to corretly decode an incoming message.
+Tipically, Telegram server encodes messages with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server encoded in this form \u20AC (UNICODE). For some weird reasons, the backslash character disappears and the message you get is u20AC thus is impossible to corretly decode an incoming message.
 Encoding the received message with UTF8 encoding format will solve the problem.
 Encoding messages in UTF8 format will consume a bit of CPU time.
 Default value is `false` (no UTF8 conversion).

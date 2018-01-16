@@ -5,12 +5,12 @@
  Description:  a simple example that check for incoming messages
                and reply the sender with the received message
 */
-#include <CTBot.h>
+#include "CTBot.h"
 CTBot myBot;
 
 String ssid  = "mySSID"    ; // REPLACE mySSID WITH YOUR WIFI SSID
 String pass  = "myPassword"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-String token = "myToken"   ; // REPLAYCE myToken WITH YOUR TELEGRAM BOT TOKEN
+String token = "myToken"   ; // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
 
 void setup() {

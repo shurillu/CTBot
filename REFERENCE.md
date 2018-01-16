@@ -112,7 +112,7 @@ Examples:
 
 [back to TOC](#table-of-contents)
 ### `setTelegramToken`
-`void setTelegramToken(String token)`
+`void setTelegramToken(String token)` <br><br>
 Set the Telegram Bot token. If you need infos about Telegram Bot and how to obtain a token, take a look  [here](https://core.telegram.org/bots#6-botfather).
 Parameters:
 + `token`: the token that identify the Telegram Bot
@@ -123,7 +123,7 @@ Example:
 
 [back to TOC](#table-of-contents)
 ### `setIP`
-`bool setIP(String ip, String gateway, String subnetMask, String dns1, String dns2)`
+`bool setIP(String ip, String gateway, String subnetMask, String dns1, String dns2)` <br><br>
 By default, once connected the ESP8266 get the IP from the DHCP Server. With this function is possible to set the IP of the ESP8266 as a static IP.
 Parameters:
 + `ip`: the fixed IP address
@@ -140,7 +140,7 @@ Examples:
 
 [back to TOC](#table-of-contents)
 ### `testConnection`
-`bool testConnection(void)`
+`bool testConnection(void)` <br><br>
 Check the connection between ESP8266 board and the Telegram server.
 Parameters: none
 Returns `true` if the ESP8266 is able to send/receive data to/from the Telegram server.
@@ -163,7 +163,7 @@ void loop() {
 
 [back to TOC](#table-of-contents)
 ### `getNewMessage`
-`bool getNewMessage(TBMessage &message)`
+`bool getNewMessage(TBMessage &message)` <br><br>
 Get the first unread message from the message queue. This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any).
 Parameters:
 + `message`: a `TBMessage` data structure that will contains the message data retrieved
@@ -196,7 +196,7 @@ void loop() {
 
 [back to TOC](#table-of-contents)
 ### `sendMessage`
-`bool sendMessage(uint32_t id, String message)`
+`bool sendMessage(uint32_t id, String message)` <br><br>
 Send a message to the specified Telegram user ID.
 Parameters:
 + `id`: the recipient Telegram user ID
@@ -235,7 +235,7 @@ With the wollowing member functions, is possible to change the behavior of the C
 
 [back to TOC](#table-of-contents)
 ### `setMaxConnectionRetries`
-`void setMaxConnectionRetries(uint8_t retries)`
+`void setMaxConnectionRetries(uint8_t retries)` <br><br>
 Set how many times the `wifiConnect()` method have to try to connect to the specified SSID. After each try, the `wifiConnect()` wait 500 milliseconds.
 A value of zero mean infinite retries.
 Default value is zero (infinite retries).
@@ -280,7 +280,7 @@ void loop() {
 
 [back to TOC](#table-of-contents)
 ### `useDNS`
-`void useDNS(bool value)`
+`void useDNS(bool value)` <br><br>
 Define which kind of address (symbolic address or fixed IP) will be used to establish connections with the Telegram server.
 Default value is `false` (use fixed IP)
 Is better to use fixed IP when no DNS server are provided.
@@ -294,7 +294,7 @@ Examples:
 
 [back to TOC](#table-of-contents)
 ### `enableUTF8Encoding`
-`void enableUTF8Encoding(bool value)`
+`void enableUTF8Encoding(bool value)` <br><br>
 Tipically, Telegram server encodes messages with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server encoded in this form \u20AC (UNICODE). For some weird reasons, the backslash character disappears and the message you get is u20AC thus is impossible to corretly decode an incoming message.
 Encoding the received message with UTF8 encoding format will solve the problem.
 Encoding messages in UTF8 format will consume a bit of CPU time.
@@ -309,7 +309,7 @@ Examples:
 
 [back to TOC](#table-of-contents)
 ### `setStatusPin`
-`void setStatusPin(int8_t pin)`
+`void setStatusPin(int8_t pin)` <br><br>
 A status pin is used to send notification by connecting to the specified pin a LED (for example).
 Actually there are two notification:
 + during the connection process to a WiFi network, the status pin will blink regularly

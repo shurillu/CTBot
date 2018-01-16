@@ -105,7 +105,7 @@ Parameters:
 + `ssid`: the WiFi Network SSID
 + `password`: (optional) the password of the WiFi Network
 
-Return `true ` if a connection to the specified WiFi Network is established. <br>
+Returns: `true ` if a connection to the specified WiFi Network is established. <br>
 Examples:
 + `wifiConnect("mySSID")`: connect to a WiFi network named _mySSID_
 + `wifiConnect("mySSID", "myPassword")`: connect to a WiFi network named _mySSID_ with password _myPassword_
@@ -117,7 +117,7 @@ Set the Telegram Bot token. If you need infos about Telegram Bot and how to obta
 Parameters:
 + `token`: the token that identify the Telegram Bot
 
-Return none. <br>
+Returns: none. <br>
 Example:
 + `setTelegramToken("myTelegramBotToken")`
 
@@ -132,7 +132,7 @@ Parameters:
 + `dns1`: (optional) the first DNS
 + `dns2`: (optional) the second DNS
 
-Returns `true` if no error occurred and the static IP is set. <br>
+Returns: `true` if no error occurred and the static IP is set. <br>
 Examples:
 + `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0")`: set a static IP (192.168.0.130), the gateway (192.168.0.254) and the subnet mask (255.255.255.0)
 + `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8")`: set a static IP (192.168.0.130), the gateway (192.168.0.254), the subnet mask (255.255.255.0) and the primary DNS (8.8.8.8)
@@ -142,8 +142,8 @@ Examples:
 ### `testConnection`
 `bool testConnection(void)` <br><br>
 Check the connection between ESP8266 board and the Telegram server. <br>
-Parameters: none
-Returns `true` if the ESP8266 is able to send/receive data to/from the Telegram server. <br>
+Parameters: none <br>
+Returns: `true` if the ESP8266 is able to send/receive data to/from the Telegram server. <br>
 Example:
 ```c++
 #include "CTBot.h"
@@ -168,7 +168,7 @@ Get the first unread message from the message queue. This is a destructive opera
 Parameters:
 + `message`: a `TBMessage` data structure that will contains the message data retrieved
 
-Returns: `true` if there is a new message and fill the `message` parameter with the received message data. **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a `false` return value means that there are no valid data stored inside the 'message' parameter. See the foolowing example. <br>
+Returns: `true` if there is a new message and fill the `message` parameter with the received message data. <br> **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a `false` return value means that there are no valid data stored inside the 'message' parameter. See the following example. <br>
 Example:
 ```c++
 #include "CTBot.h"
@@ -242,7 +242,7 @@ Default value is zero (infinite retries). <br>
 Parameters:
 + `retries`: how many times wifiConnect have to try to connect. Zero means infinites tries (locking).
 
-Returns none. <br>
+Returns: none. <br>
 Example 1: finite retries
 ```c++
 #include "CTBot.h"
@@ -287,7 +287,7 @@ Is better to use fixed IP when no DNS server are provided. <br>
 Parameters:
 + `value`: set `true` if you want to use the URL style address "api.telegram.org" or set `false` if you want to use the fixed IP address "149.154.167.198".
 
-Returns none.
+Returns: none. <br>
 Examples:
 + `useDNS(true)`: for every connection with the Telegram server, will be used the URL style address "api.telegram.org"
 + `useDNS(false)`: for every connection with the Telegram server, will be used the fixed IP address "149.154.167.198"
@@ -302,7 +302,7 @@ Default value is `false` (no UTF8 conversion). <br>
 Parameters:
 + `value`: set `true`to enable the UTF8 encoding for all incoming messages; set `false`to disable this feature.
 
-Returns none. <br>
+Returns: none. <br>
 Examples:
 + `enableUTF8Encoding(true)`: every incoming message will be encoded in UTF8
 + `enableUTF8Encoding(false)`: every incoming message is encoded as Telegram server do
@@ -319,7 +319,7 @@ Default value is `CTBOT_DISABLE_STATUS_PIN` (status pin disable). <br>
 Parameters:
 + `pin`: the Arduino like pin to use as status pin. to disable this feature, set to `CTBOT_DISABLE_STATUS_PIN`
 
-Returns none; <br>
+Returns: none. <br>
 Example:
 + `setStatusPin(2)`: enable the status pin feature using the pin 2 (GPIO 4 - onboard LED of the ESP8266 chip)
 

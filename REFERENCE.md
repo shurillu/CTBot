@@ -98,8 +98,8 @@ ___
 Here you can find the basic member function. First you have to instantiate a CTBot object, like `CTbot myBot`, then call the desired member function as `myBot.myDesiredFunction()`
 
 [back to TOC](#table-of-contents)
-### wifiConnect
-`bool wifiConnect(String ssid, String password)`
+### `wifiConnect`
+`bool wifiConnect(String ssid, String password)` <br>
 Use this member function to connect the ESP8266 board to a WiFi Network.
 Parameters:
 + `ssid`: the WiFi Network SSID
@@ -111,7 +111,7 @@ Examples:
 + `wifiConnect("mySSID", "myPassword")`: connect to a WiFi network named _mySSID_ with password _myPassword_
 
 [back to TOC](#table-of-contents)
-### setTelegramToken
+### `setTelegramToken`
 `void setTelegramToken(String token)`
 Set the Telegram Bot token. If you need infos about Telegram Bot and how to obtain a token, take a look  [here](https://core.telegram.org/bots#6-botfather).
 Parameters:
@@ -122,7 +122,7 @@ Example:
 + `setTelegramToken("myTelegramBotToken")`
 
 [back to TOC](#table-of-contents)
-### setIP
+### `setIP`
 `bool setIP(String ip, String gateway, String subnetMask, String dns1, String dns2)`
 By default, once connected the ESP8266 get the IP from the DHCP Server. With this function is possible to set the IP of the ESP8266 as a static IP.
 Parameters:
@@ -139,7 +139,7 @@ Examples:
 + `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8", "8.8.4.4")`: set a static IP (192.168.0.130), the gateway (192.168.0.254), the subnet mask (255.255.255.0), the primary DNS (8.8.8.8) and the secondary DNS (8.8.4.4)
 
 [back to TOC](#table-of-contents)
-### testConnection
+### `testConnection`
 `bool testConnection(void)`
 Check the connection between ESP8266 board and the Telegram server.
 Parameters: none
@@ -162,7 +162,7 @@ void loop() {
 ```
 
 [back to TOC](#table-of-contents)
-### getNewMessage
+### `getNewMessage`
 `bool getNewMessage(TBMessage &message)`
 Get the first unread message from the message queue. This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any).
 Parameters:
@@ -195,7 +195,7 @@ void loop() {
 ```
 
 [back to TOC](#table-of-contents)
-### sendMessage
+### `sendMessage`
 `bool sendMessage(uint32_t id, String message)`
 Send a message to the specified Telegram user ID.
 Parameters:
@@ -234,7 +234,7 @@ When instantiated, a CTBot object is configured as follow:
 With the wollowing member functions, is possible to change the behavior of the CTBot instantiated object.
 
 [back to TOC](#table-of-contents)
-### setMaxConnectionRetries
+### `setMaxConnectionRetries`
 `void setMaxConnectionRetries(uint8_t retries)`
 Set how many times the `wifiConnect()` method have to try to connect to the specified SSID. After each try, the `wifiConnect()` wait 500 milliseconds.
 A value of zero mean infinite retries.
@@ -279,7 +279,7 @@ void loop() {
 ```
 
 [back to TOC](#table-of-contents)
-### useDNS
+### `useDNS`
 `void useDNS(bool value)`
 Define which kind of address (symbolic address or fixed IP) will be used to establish connections with the Telegram server.
 Default value is `false` (use fixed IP)
@@ -293,7 +293,7 @@ Examples:
 + `useDNS(false)`: for every connection with the Telegram server, will be used the fixed IP address "149.154.167.198"
 
 [back to TOC](#table-of-contents)
-### enableUTF8Encoding
+### `enableUTF8Encoding`
 `void enableUTF8Encoding(bool value)`
 Tipically, Telegram server encodes messages with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server encoded in this form \u20AC (UNICODE). For some weird reasons, the backslash character disappears and the message you get is u20AC thus is impossible to corretly decode an incoming message.
 Encoding the received message with UTF8 encoding format will solve the problem.
@@ -308,7 +308,7 @@ Examples:
 + `enableUTF8Encoding(false)`: every incoming message is encoded as Telegram server do
 
 [back to TOC](#table-of-contents)
-### setStatusPin
+### `setStatusPin`
 `void setStatusPin(int8_t pin)`
 A status pin is used to send notification by connecting to the specified pin a LED (for example).
 Actually there are two notification:

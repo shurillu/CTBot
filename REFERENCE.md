@@ -277,7 +277,7 @@ Examples:
 
 ### enableUTF8Encoding
 `void enableUTF8Encoding(bool value)`
-Tipically, Telegram server send incoming messages encoded with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server in this form \u20AC (UNICODE). For seome weird reasons, sometimes the backslash character disappears thus is impossible to decode correctly an incoming message.
+Tipically, Telegram server send incoming messages encoded with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server in this form \u20AC (UNICODE). For some weird reasons, sometimes the backslash character disappears thus is impossible to corretly decode an incoming message.
 Encoding the received message with UTF8 encoding format will solve the problem.
 Encoding messages in UTF8 format will consume a bit of CPU time.
 Default value is `false` (no UTF8 conversion).

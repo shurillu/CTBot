@@ -1,6 +1,5 @@
 # Reference
-Here you can find an explanation of the functionalities provided and how to use the library.
-_**WORK IN PROGRESS**_
+Here you can find an explanation of the functionalities provided and how to use the library. Check the [examples folder](https://github.com/shurillu/CTBot/tree/master/examples) for demos and examples.
 ___
 ## Table of contents
 + [Introduction and quick start](#introduction-and-quick-start)
@@ -43,7 +42,7 @@ In order to receive messages, declare a `TBMessage` variable...
 TBMessage msg;
 ```
 ...and execute the `getNewMessage` member fuction. 
-The `getNewMessage` return `true` if there is a new message and store it in the `msg` variable.
+The `getNewMessage` return `true` if there is a new message and store it in the `msg` variable. See the [TBMessage](#tbmessage) data type for further details.
 ```c++
 myBot.getNewMessage(msg);
 ```
@@ -68,18 +67,18 @@ String   username;
 String   languageCode;
 ```
 where:
-+ `id` is the unique Telegram Bot user ID
++ `id` is the unique Telegram user ID
 + `isBot` tells if the user ID `id` refers to a bot (`true` value) or not (`false ` value)
 + `firstName` contains the first name (if provided) of the user ID `id`
 + `lastName` contains the last name (if provided) of the user ID `id`
 + `username` contains the username of the user ID `id`
 + `languageCode` contains the country code used by the user ID `id`
 
-Typically, you will use only the `id` field.
+Typically, you will use predominantly the `id` field.
 
 [back to TOC](#table-of-contents)
 ### `TBMessage`
-`TBMessage` data type is used to store new fetched messages. The data structure contains:
+`TBMessage` data type is used to store new messages. The data structure contains:
 ```c++
 uint32_t messageID;
 TBUser   sender;
@@ -100,7 +99,7 @@ Here you can find the basic member function. First you have to instantiate a CTB
 [back to TOC](#table-of-contents)
 ### `wifiConnect`
 `bool wifiConnect(String ssid, String password)` <br><br>
-Use this member function to connect the ESP8266 board to a WiFi Network. <br>
+Use this member function to connect the ESP8266 board to a WiFi Network. By default, it's a locking operation (the execution is locked until the connection is established), see [setMaxConnectionRetries()](#setmaxconnectionretries) for further details. <br>
 Parameters:
 + `ssid`: the WiFi Network SSID
 + `password`: (optional) the password of the WiFi Network
@@ -132,11 +131,11 @@ Parameters:
 + `dns1`: (optional) the first DNS
 + `dns2`: (optional) the second DNS
 
-Returns: `true` if no error occurred and the static IP is set. <br>
+Returns: `true` if no error occurred. <br>
 Examples:
-+ `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0")`: set a static IP (192.168.0.130), the gateway (192.168.0.254) and the subnet mask (255.255.255.0)
-+ `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8")`: set a static IP (192.168.0.130), the gateway (192.168.0.254), the subnet mask (255.255.255.0) and the primary DNS (8.8.8.8)
-+ `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8", "8.8.4.4")`: set a static IP (192.168.0.130), the gateway (192.168.0.254), the subnet mask (255.255.255.0), the primary DNS (8.8.8.8) and the secondary DNS (8.8.4.4)
++ `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0")`: set the static IP _192.168.0.130_, the gateway _192.168.0.254_ and the subnet mask _255.255.255.0_
++ `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8")`: set the static IP _192.168.0.130_, the gateway _192.168.0.254_, the subnet mask _255.255.255.0_ and the primary DNS _8.8.8.8_
++ `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8", "8.8.4.4")`: set the static IP _192.168.0.130_, the gateway _192.168.0.254_, the subnet mask _255.255.255.0_, the primary DNS _8.8.8.8_ and the secondary DNS _8.8.4.4_
 
 [back to TOC](#table-of-contents)
 ### `testConnection`
@@ -168,7 +167,7 @@ Get the first unread message from the message queue. This is a destructive opera
 Parameters:
 + `message`: a `TBMessage` data structure that will contains the message data retrieved
 
-Returns: `true` if there is a new message and fill the `message` parameter with the received message data. <br> **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a `false` return value means that there are no valid data stored inside the 'message' parameter. See the following example. <br>
+Returns: `true` if there is a new message and fill the `message` parameter with the received message data. <br> **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a `false` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
 Example:
 ```c++
 #include "CTBot.h"
@@ -191,6 +190,7 @@ void loop() {
       // no valid message in msg
       Serial.println("No new message");
    }
+   delay(500); // wait 500 milliseconds
 }
 ```
 
@@ -226,10 +226,10 @@ void loop() {
 ___
 ## Configuration functions
 When instantiated, a CTBot object is configured as follow:
-+ if the `wifiConnect()` method is executed, it wait until a connection with the specified WiFi network is established (locking operation). See [setMaxConnectionRetries()](#setmaxconnectionretries).
-+ use the Telegram server static IP (149.154.167.198). See [useDNS()](#usedns).
-+ the incoming messages are not converted to UTF8. See [enableUTF8Encoding()](#enableutf8encoding)
-+ the status pin is disabled. See [setStatusPin()](#setstatuspin)
++ If the `wifiConnect()` method is executed, it wait until a connection with the specified WiFi network is established (locking operation). See [setMaxConnectionRetries()](#setmaxconnectionretries).
++ Use the Telegram server static IP (149.154.167.198). See [useDNS()](#usedns).
++ The incoming messages are not converted to UTF8. See [enableUTF8Encoding()](#enableutf8encoding).
++ The status pin is disabled. See [setStatusPin()](#setstatuspin).
 
 With the wollowing member functions, is possible to change the behavior of the CTBot instantiated object.
 
@@ -295,7 +295,7 @@ Examples:
 [back to TOC](#table-of-contents)
 ### `enableUTF8Encoding`
 `void enableUTF8Encoding(bool value)` <br><br>
-Tipically, Telegram server encodes messages with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server encoded in this form \u20AC (UNICODE). For some weird reasons, the backslash character disappears and the message you get is u20AC thus is impossible to corretly decode an incoming message.
+Tipically, Telegram server encodes messages with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server encoded in this form \u20AC (UNICODE). For some weird reasons, the backslash character disappears and the message you get is u20AC thus is impossible to correctly decode an incoming message.
 Encoding the received message with UTF8 encoding format will solve the problem.
 Encoding messages in UTF8 format will consume a bit of CPU time. <br>
 Default value is `false` (no UTF8 conversion). <br>
@@ -310,14 +310,14 @@ Examples:
 [back to TOC](#table-of-contents)
 ### `setStatusPin`
 `void setStatusPin(int8_t pin)` <br><br>
-A status pin is used to send notification by connecting to the specified pin a LED (for example).
+A status pin is used to send blinking notification by connecting to the specified pin to a LED.
 Actually there are two notification:
-+ during the connection process to a WiFi network, the status pin will blink regularly
-+ every time a command is sent to the Telegram server, the status pin will blink.
++ During the connection process to a WiFi network, the status pin will blink regularly.
++ Every time a command is sent to the Telegram server, the status pin will pulse.
 
 Default value is `CTBOT_DISABLE_STATUS_PIN` (status pin disable). <br>
 Parameters:
-+ `pin`: the Arduino like pin to use as status pin. to disable this feature, set to `CTBOT_DISABLE_STATUS_PIN`
++ `pin`: the Arduino like pin to use as status pin. to disable this feature, set it to `CTBOT_DISABLE_STATUS_PIN`
 
 Returns: none. <br>
 Example:

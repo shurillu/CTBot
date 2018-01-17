@@ -1,7 +1,7 @@
 /*
  Name:		   echoBot.ino
- Created:	   12/21/2017 11:01:36 AM
- Author:	   Stefano Ledda
+ Created:	   12/21/2017
+ Author:	   Stefano Ledda <shurillu@tiscalinet.it>
  Description:  a simple example that check for incoming messages
                and reply the sender with the received message
 */

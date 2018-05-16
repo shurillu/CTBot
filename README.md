@@ -21,3 +21,8 @@ See the EchoBot example provided in the [examples folder](https://github.com/shu
 ### Future work
 * Add Telegram custom keyboard
 * Add ESP32 support & testing
+
+### Changelog
+*1.0.1 Better performance, new algorithm for Telegram server queries: now sending and receiving messages requires almost no time.
+*1.0.0 Initial version
+

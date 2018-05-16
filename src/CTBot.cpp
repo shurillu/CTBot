@@ -1,4 +1,6 @@
 #include <ArduinoJson.h>
+#include "ESP8266WiFi.h"
+#include "WiFiClientSecure.h"
 #include "CTBot.h"
 
 #define TELEGRAM_URL  "api.telegram.org"
@@ -10,7 +12,6 @@ inline void CTBot::serialLog(String message) {
 	Serial.print(message);
 #endif
 }
-
 
 bool unicodeToUTF8(String unicode, String &utf8) {
 	uint32_t value = 0;
@@ -73,52 +74,78 @@ CTBot::CTBot() {
 CTBot::~CTBot() {
 }
 
-bool CTBot::sendCommand(String command, String parameters)
+String CTBot::sendCommand(String command, String parameters)
 {
+	WiFiClientSecure telegramServer;
+
 	// check for an already established connection
-	if (!m_telegramServer.connected()) {
-		if (m_useDNS) {
-			// try to connect with URL
-			if (!m_telegramServer.connect(TELEGRAM_URL, TELEGRAM_PORT)) {
-				// no way, try to connect with fixed IP
-				IPAddress telegramServerIP;
-				telegramServerIP.fromString(TELEGRAM_IP);
-				if (!m_telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-					serialLog("\nUnable to connect to Telegram server");
-					return(false);
-				} else {
-					serialLog("\nConnected using fixed IP\n");
-					useDNS(false);
-				}
-			}
-			else
-				serialLog("\nConnected using DNS\n");
-		}
-		else {
-			// try to connect with fixed IP
-			IPAddress telegramServerIP; // (149, 154, 167, 198);
+	if (m_useDNS) {
+		// try to connect with URL
+		if (!telegramServer.connect(TELEGRAM_URL, TELEGRAM_PORT)) {
+			// no way, try to connect with fixed IP
+			IPAddress telegramServerIP;
 			telegramServerIP.fromString(TELEGRAM_IP);
-			if (!m_telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
+			if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
 				serialLog("\nUnable to connect to Telegram server");
-				return(false);
+				return("");
 			}
-			else
+			else {
 				serialLog("\nConnected using fixed IP\n");
+				useDNS(false);
+			}
 		}
-	} 
-	else 
-		serialLog("\nAlready connected\n");
+		else
+			serialLog("\nConnected using DNS\n");
+	}
+	else {
+		// try to connect with fixed IP
+		IPAddress telegramServerIP; // (149, 154, 167, 198);
+		telegramServerIP.fromString(TELEGRAM_IP);
+		if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
+			serialLog("\nUnable to connect to Telegram server");
+			return("");
+		}
+		else
+			serialLog("\nConnected using fixed IP\n");
+	}
 
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
 	// send the HTTP request
-	m_telegramServer.println("GET /bot" + m_token + (String)"/" + command + parameters);
+	telegramServer.println("GET /bot" + m_token + (String)"/" + command + parameters);
 
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
-	return(true);
+	String response;
+	int curlyCounter; // count the open/closed curly bracket for identify the json
+	bool skipCounter = false; // for filtering curly bracket inside a text message
+	curlyCounter = -1;
+	response = "";
+
+	while (telegramServer.connected()) {
+		while (telegramServer.available()) {
+			int c = telegramServer.read();
+			response += (char)c;
+			if (c == '"')
+				skipCounter = !skipCounter;
+			if (!skipCounter) {
+				if (c == '{') {
+					if (curlyCounter == -1)
+						curlyCounter = 1;
+					else
+						curlyCounter++;
+				}
+				else if (c == '}')
+					curlyCounter--;
+				if (curlyCounter == 0) {
+					return(response);
+				}
+			}
+		}
+	}
+	return(response);
 }
 
 String CTBot::toUTF8(String message)
@@ -189,8 +216,9 @@ bool CTBot::testConnection(void){
 }
 
 bool CTBot::getMe(TBUser &user) {
-
-	if (!sendCommand("getMe"))
+	String response;
+	response = sendCommand("getMe");
+	if (response.length() == 0)
 		return(false);
 
 #if CTBOT_BUFFER_SIZE > 0
@@ -198,7 +226,7 @@ bool CTBot::getMe(TBUser &user) {
 #else
 	DynamicJsonBuffer jsonBuffer;
 #endif
-	JsonObject& root = jsonBuffer.parse(m_telegramServer);
+	JsonObject& root = jsonBuffer.parse(response);
 
 #if CTBOT_DEBUG_MODE > 0
 	root.printTo(Serial);
@@ -209,10 +237,10 @@ bool CTBot::getMe(TBUser &user) {
 	if (ok) {
 		user.id           = root["result"]["id"];
 		user.isBot        = root["result"]["is_bot"];
-		user.firstName    = (const String&)root["result"]["first_name"];
-		user.lastName     = (const String&)root["result"]["last_name"];
-		user.username     = (const String&)root["result"]["username"];
-		user.languageCode = (const String&)root["result"]["language_code"];
+		user.firstName    = root["result"]["first_name"].asString();
+		user.lastName     = root["result"]["last_name"].asString();
+		user.username     = root["result"]["username"].asString();
+		user.languageCode = root["result"]["language_code"].asString();
 	}
 	else {
 		return(false);
@@ -222,15 +250,15 @@ bool CTBot::getMe(TBUser &user) {
 
 bool CTBot::getNewMessage(TBMessage &message) {
 
+	String response;
 	String parameters;
 	char buf[10];
 	ultoa(m_lastUpdate, buf, 10);
+	parameters = "?limit=1&allowed_updates=message";
 	if (m_lastUpdate != 0)
-		parameters = (String)"?offset=" + (String)buf + (String)"limit=1&allowed_updates=message";
-	else
-		parameters = "?limit=1&allowed_updates=message";
-	
-	if (!sendCommand("getUpdates", parameters))
+		parameters += "&offset=" + (String)buf;
+	response = sendCommand("getUpdates", parameters);
+	if (response.length() == 0)
 		return(false);
 
 #if CTBOT_BUFFER_SIZE > 0
@@ -239,13 +267,11 @@ bool CTBot::getNewMessage(TBMessage &message) {
 	DynamicJsonBuffer jsonBuffer;
 #endif
 
-	String msg = "";
-	msg = m_telegramServer.readString();
 
 	if (m_UTF8Encoding)
-		msg = toUTF8(msg);
+		response = toUTF8(response);
 
-	JsonObject& root = jsonBuffer.parse(msg);
+	JsonObject& root = jsonBuffer.parse(response);
 
 #if CTBOT_DEBUG_MODE > 0
 	root.printTo(Serial);
@@ -260,12 +286,12 @@ bool CTBot::getNewMessage(TBMessage &message) {
 	updateID = root["result"][0]["update_id"];
 	if (updateID == 0)
 		return(false);
-	
-	m_lastUpdate = updateID+1;
+
+	m_lastUpdate            = updateID + 1;
 	message.messageID       = root["result"][0]["message"]["message_id"];
 	message.sender.id       = root["result"][0]["message"]["from"]["id"];
-	message.sender.username = (const String&)root["result"][0]["message"]["from"]["username"];
-	message.text            = (const String&)root["result"][0]["message"]["text"];
+	message.sender.username = root["result"][0]["message"]["from"]["username"].asString();
+	message.text            = root["result"][0]["message"]["text"].asString();
 	message.date            = root["result"][0]["message"]["date"];
 
 	return(true);
@@ -273,12 +299,15 @@ bool CTBot::getNewMessage(TBMessage &message) {
 
 bool CTBot::sendMessage(uint32_t id, String message)
 {
+	String response;
 	String parameters;
 
 	char strID[10];
 	ultoa(id, strID, 10);
 	parameters = (String)"?chat_id=" + (String)strID + (String)"&text=" + message;
-	if (!sendCommand("sendMessage", parameters))
+
+	response = sendCommand("sendMessage", parameters);
+	if (response.length() == 0)
 		return(false);
 
 #if CTBOT_BUFFER_SIZE > 0
@@ -286,7 +315,7 @@ bool CTBot::sendMessage(uint32_t id, String message)
 #else
 	DynamicJsonBuffer jsonBuffer;
 #endif
-	JsonObject& root = jsonBuffer.parse(m_telegramServer);
+	JsonObject& root = jsonBuffer.parse(response);
 
 #if CTBOT_DEBUG_MODE > 0
 	root.printTo(Serial);
@@ -333,7 +362,6 @@ bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, Str
 		serialLog("--- setIP: error on setting the static ip address (WiFi.config)\n");
 		return(false);
 	}
-
 }
 
 bool CTBot::wifiConnect(String ssid, String password)
@@ -360,7 +388,6 @@ bool CTBot::wifiConnect(String ssid, String password)
 		delay(500);
 		if (m_wifiConnectionTries != 0) tries++;
 	}
-
 
 	if (WiFi.status() == WL_CONNECTED) {
 		IPAddress ip = WiFi.localIP();

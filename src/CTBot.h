@@ -3,8 +3,6 @@
 #define CTBOT
 
 #include <Arduino.h>
-#include "ESP8266WiFi.h"
-#include "WiFiClientSecure.h"
 #include "CTBotDataStructures.h"
 
 #define CTBOT_DEBUG_MODE  0  // enable debugmode -> print debug data on the Serial
@@ -18,7 +16,6 @@
 class CTBot
 {
 private:
-	WiFiClientSecure m_telegramServer;
 	uint8_t   m_wifiConnectionTries;
 	int8_t    m_statusPin;
 	String    m_token;
@@ -36,9 +33,10 @@ private:
 	//   command   : the command to send, i.e. getMe
 	//   parameters: optional parameters
 	// returns
-	//   true if no error occurred
-	bool sendCommand(String command, String parameters = "");
-	
+	//   an empty string if error
+	//   a string containing the Telegram JSON response
+	String sendCommand(String command, String parameters = "");
+
 	// convert an UNICODE string to UTF8 encoded string
 	// params
 	//   message: the UNICODE message

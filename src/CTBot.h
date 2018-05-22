@@ -51,6 +51,15 @@ private:
 	//   true if no error occurred
 	bool getMe(TBUser &user);
 
+
+	// filter escape characters and convert it in a URL compliant format
+	// For example, substitute all "\n" occurencies with "%0D" 
+	// params
+	//   message: the string with escape characters
+	// returns
+	//   the string in a URL compliant format
+	String toURL(String message);
+
 public:
 	// default constructor
 	CTBot();
@@ -72,9 +81,11 @@ public:
 	// params
 	//   ssid    : the SSID network identifier
 	//   password: the optional password
+	//   wifiMode: define the wifi mode (WIFI_OFF, WIFI_STA, WIFI_AP, WIFI_AP_STA)
+	//             default is WIFI:_STA (station)
 	// returns
 	//   true if no error occurred
-	bool wifiConnect(String ssid, String password = "");
+	bool wifiConnect(String ssid, String password = "", WiFiMode_t wifiMode = WIFI_STA);
 
 	// set the telegram token
 	// params
@@ -125,11 +136,12 @@ public:
 
 	// send a message to the specified telegram user ID
 	// params
-	//   id     : the telegram recipient user ID
+	//   id     : the telegram recipient user ID 
 	//   message: the message to send
 	// returns
 	//   true if no error occurred
 	bool sendMessage(uint32_t id, String message);
 };
+
 
 #endif

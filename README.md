@@ -18,6 +18,11 @@ See the EchoBot example provided in the [examples folder](https://github.com/shu
 ### Reference
 [Here how to use the library](https://github.com/shurillu/CTBot/blob/master/REFERENCE.md). 
 
+### Special thanks
+A special thanks go to these people who helped me making this library 
+* Gianmaria Mancosu
+* Marco Madlena
+
 ### Future work
 * Add Telegram custom keyboard
 * Add ESP32 support & testing

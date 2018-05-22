@@ -62,6 +62,18 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	return(false);
 }
 
+String CTBot::toURL(String message)
+{
+//	message.replace("\a", "%07"); // alert beep
+//	message.replace("\b", "%08"); // backspace
+//	message.replace("\t", "%09"); // horizontal tab
+	message.replace("\n", "%0A"); // line feed
+//	message.replace("\v", "%0B"); // vertical tab
+//	message.replace("\f", "%0C"); // form feed
+//	message.replace("\r", "%0D"); // carriage return
+	return(message);
+}
+
 CTBot::CTBot() {
 	m_wifiConnectionTries = 0;  // wait until connection to the AP is established (locking!)
 	m_statusPin           = CTBOT_DISABLE_STATUS_PIN; // status pin disabled
@@ -112,8 +124,10 @@ String CTBot::sendCommand(String command, String parameters)
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
+	String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
+
 	// send the HTTP request
-	telegramServer.println("GET /bot" + m_token + (String)"/" + command + parameters);
+	telegramServer.println(URL);
 
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
@@ -145,6 +159,7 @@ String CTBot::sendCommand(String command, String parameters)
 			}
 		}
 	}
+
 	return(response);
 }
 
@@ -228,23 +243,27 @@ bool CTBot::getMe(TBUser &user) {
 #endif
 	JsonObject& root = jsonBuffer.parse(response);
 
+	bool ok = root["ok"];
+	if (!ok) {
+#if CTBOT_DEBUG_MODE > 0
+		serialLog("getMe error:");
+		root.printTo(Serial);
+		serialLog("\n");
+#endif
+		return(false);
+	}
+
 #if CTBOT_DEBUG_MODE > 0
 	root.printTo(Serial);
 	serialLog("\n");
 #endif
 
-	bool ok = root["ok"];
-	if (ok) {
-		user.id           = root["result"]["id"];
-		user.isBot        = root["result"]["is_bot"];
-		user.firstName    = root["result"]["first_name"].asString();
-		user.lastName     = root["result"]["last_name"].asString();
-		user.username     = root["result"]["username"].asString();
-		user.languageCode = root["result"]["language_code"].asString();
-	}
-	else {
-		return(false);
-	}
+	user.id           = root["result"]["id"];
+	user.isBot        = root["result"]["is_bot"];
+	user.firstName    = root["result"]["first_name"].asString();
+	user.lastName     = root["result"]["last_name"].asString();
+	user.username     = root["result"]["username"].asString();
+	user.languageCode = root["result"]["language_code"].asString();
 	return(true);
 }
 
@@ -273,14 +292,20 @@ bool CTBot::getNewMessage(TBMessage &message) {
 
 	JsonObject& root = jsonBuffer.parse(response);
 
+	bool ok = root["ok"];
+	if (!ok) {
+#if CTBOT_DEBUG_MODE > 0
+		serialLog("getNewMessage error:");
+		root.printTo(Serial);
+		serialLog("\n");
+#endif
+		return(false);
+	}
+
 #if CTBOT_DEBUG_MODE > 0
 	root.printTo(Serial);
 	serialLog("\n");
 #endif
-
-	bool ok = root["ok"];
-	if (!ok)
-		return(false);
 
 	uint32_t updateID;
 	updateID = root["result"][0]["update_id"];
@@ -301,9 +326,10 @@ bool CTBot::sendMessage(uint32_t id, String message)
 {
 	String response;
 	String parameters;
-
 	char strID[10];
 	ultoa(id, strID, 10);
+
+	message = toURL(message);
 	parameters = (String)"?chat_id=" + (String)strID + (String)"&text=" + message;
 
 	response = sendCommand("sendMessage", parameters);
@@ -317,14 +343,20 @@ bool CTBot::sendMessage(uint32_t id, String message)
 #endif
 	JsonObject& root = jsonBuffer.parse(response);
 
+	bool ok = root["ok"];
+	if (!ok) {
+#if CTBOT_DEBUG_MODE > 0
+		serialLog("SendMessage error:");
+		root.prettyPrintTo(Serial);
+		serialLog("\n");
+#endif
+		return(false);
+	}
+
 #if CTBOT_DEBUG_MODE > 0
 	root.printTo(Serial);
 	serialLog("\n");
 #endif
-
-	bool ok = root["ok"];
-	if (!ok)
-		return(false);
 
 	return(true);
 }
@@ -371,6 +403,12 @@ bool CTBot::wifiConnect(String ssid, String password)
 	String message;
 	message = (String)"\n\nConnecting Wifi: " + ssid + (String)"\n";
 	serialLog(message);
+
+#if CTBOT_STATION_MODE > 0
+	WiFi.mode(WIFI_STA);
+#else
+	WiFi.mode(WIFI_AP_STA);
+#endif
 
 	WiFi.begin(ssid.c_str(), password.c_str());
 	delay(500);

@@ -5,10 +5,12 @@
 #include <Arduino.h>
 #include "CTBotDataStructures.h"
 
-#define CTBOT_DEBUG_MODE  0  // enable debugmode -> print debug data on the Serial
-                             // Zero -> debug disabled
-#define CTBOT_BUFFER_SIZE 0  // json parser buffer size
-                             // Zero -> dynamic allocation 
+#define CTBOT_DEBUG_MODE   0  // enable debugmode -> print debug data on the Serial
+                              // Zero -> debug disabled
+#define CTBOT_BUFFER_SIZE  0  // json parser buffer size
+                              // Zero -> dynamic allocation 
+#define CTBOT_STATION_MODE 1  // Station mode -> Set the mode to WIFI_STA (no access point)
+                              // Zero -> WIFI_AP_STA
 
 // value for disabling the status pin. It is utilized for led notification on the board
 #define CTBOT_DISABLE_STATUS_PIN -1
@@ -81,11 +83,9 @@ public:
 	// params
 	//   ssid    : the SSID network identifier
 	//   password: the optional password
-	//   wifiMode: define the wifi mode (WIFI_OFF, WIFI_STA, WIFI_AP, WIFI_AP_STA)
-	//             default is WIFI:_STA (station)
 	// returns
 	//   true if no error occurred
-	bool wifiConnect(String ssid, String password = "", WiFiMode_t wifiMode = WIFI_STA);
+	bool wifiConnect(String ssid, String password = "");
 
 	// set the telegram token
 	// params

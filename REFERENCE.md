@@ -300,7 +300,7 @@ void loop() {
 [back to TOC](#table-of-contents)
 ### `CTBot::getNewMessage`
 ~~`bool CTBot::getNewMessage(TBMessage &message)`~~ <br><br>
-`CTBotMessageType getNewMessage(TBMessage &message)` <br><br>
+`CTBotMessageType CTBot::getNewMessage(TBMessage &message)` <br><br>
 Get the first unread message from the message queue. Fetch text message and callback query message (see inline keyboards). This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any). <br>
 Parameters:
 + `message`: a `TBMessage` data structure that will contains the message data retrieved
@@ -477,8 +477,8 @@ Examples:
 + `enableUTF8Encoding(false)`: every incoming message is encoded as Telegram server do
 
 [back to TOC](#table-of-contents)
-### `setStatusPin`
-`void setStatusPin(int8_t pin)` <br><br>
+### `CTBot::setStatusPin()`
+`void CTBot::setStatusPin(int8_t pin)` <br><br>
 A status pin is used to send blinking notification by connecting to the specified pin to a LED.
 Actually there are two notification:
 + During the connection process to a WiFi network, the status pin will blink regularly.

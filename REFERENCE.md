@@ -13,7 +13,7 @@ ___
   + [CTBotMessageType](#ctbotmessagetype)
   + [CTBotInlineKeyboardButtonType](#ctbotinlinekeyboardbuttontype)
 + [Basic functions](#basic-functions)
-  + [CTBot::wifiConnect()](#ctbot::wificonnect)
+  + [CTBot::wifiConnect()](#ctbotwificonnect)
   + [CTBot::setTelegramToken()](#settelegramtoken)
   + [CTBot::setIP()](#setip)
   + [CTBot::testConnection()](#testconnection)

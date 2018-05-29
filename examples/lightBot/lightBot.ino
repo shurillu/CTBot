@@ -1,12 +1,12 @@
 /*
-Name:		 lightBot.ino
-Created:	 17/01/2018
-Author:	     Stefano Ledda <shurillu@tiscalinet.it>
+Name:        lightBot.ino
+Created:     17/01/2018
+Author:      Stefano Ledda <shurillu@tiscalinet.it>
 Description: a simple example that do:
              1) parse incoming messages
-			 2) if "LIGHT ON" message is received, turn on the onboard LED
-			 3) if "LIGHT OFF" message is received, turn off the onboard LED
-			 4) otherwise, reply to sender with a welcome message
+             2) if "LIGHT ON" message is received, turn on the onboard LED
+             3) if "LIGHT OFF" message is received, turn off the onboard LED
+             4) otherwise, reply to sender with a welcome message
 
 */
 #include "CTBot.h"
@@ -22,6 +22,7 @@ uint8_t led = 2;            // the onboard ESP8266 LED.
 void setup() {
 	// initialize the Serial
 	Serial.begin(115200);
+	Serial.println("Starting TelegramBot...");
 
 	// connect the ESP8266 to the desired access point
 	myBot.wifiConnect(ssid, pass);

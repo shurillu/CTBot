@@ -149,7 +149,7 @@ public:
 	bool sendMessage(uint32_t id, String message, String keyboard = "");
 	bool sendMessage(uint32_t id, String message, CTBotInlineKeyboard &keyboard);
 
-	// terminate a query started by an inlineKeyboard button. The steps are:
+	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard
 	// 2) wait for a <message> (getNewMessage) of type CTBotMessageQuery
 	// 3) handle the query and then call endQuery with <message>.callbackQueryID 

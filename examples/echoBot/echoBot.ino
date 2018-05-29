@@ -1,9 +1,9 @@
 /*
- Name:		   echoBot.ino
- Created:	   12/21/2017
- Author:	   Stefano Ledda <shurillu@tiscalinet.it>
- Description:  a simple example that check for incoming messages
-               and reply the sender with the received message
+ Name:		    echoBot.ino
+ Created:	    12/21/2017
+ Author:	    Stefano Ledda <shurillu@tiscalinet.it>
+ Description: a simple example that check for incoming messages
+              and reply the sender with the received message
 */
 #include "CTBot.h"
 CTBot myBot;
@@ -12,10 +12,10 @@ String ssid  = "mySSID"    ; // REPLACE mySSID WITH YOUR WIFI SSID
 String pass  = "myPassword"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
 String token = "myToken"   ; // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
-
 void setup() {
 	// initialize the Serial
 	Serial.begin(115200);
+	Serial.println("Starting TelegramBot...");
 
 	// connect the ESP8266 to the desired access point
 	myBot.wifiConnect(ssid, pass);
@@ -28,7 +28,6 @@ void setup() {
 		Serial.println("\ntestConnection OK");
 	else
 		Serial.println("\ntestConnection NOK");
-
 }
 
 void loop() {

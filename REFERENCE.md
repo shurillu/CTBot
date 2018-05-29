@@ -66,10 +66,11 @@ The Inline Keyboards are special keyboards integrated directly into the messages
 CTBot class implements the following buttons:
 + URL buttons: thse buttons have a small arrow icon to help the user understand that tapping on a URL button will open an external link. A confirmation alert message is shown before opening the link in the browser.
 + Callback buttons: when a user presses a callback button, no messages are sent to the chat. Instead, the bot simply receives the relevant query. Upon receiving the query, the bot can display some result in a notification at the top of the chat screen or in an alert.
+[back to TOC](#table-of-contents)
 
 ### Using Inline Keyboards into CTBot class
 In order to show an inline keyboard, use the method [sendMessage()](#sendmessage) specifing the parameter `keyboard`.
-The `keyboard` parameter is a string that contains a JSON structure that define the inline keyboard. See [Telegram docs](https://core.telegram.org/bots/api#sendmessage)<br>
+The `keyboard` parameter is a string that contains a JSON structure that define the inline keyboard. See [Telegram docs](https://core.telegram.org/bots/api#sendmessage).<br>
 To simplify the creation of an inline keyboard, there is an helper class called `CTBotInlineKeyboard`.
 Creating an inline keyboard with a `CTBotInlineKeyboard` is straightforward:
 
@@ -97,6 +98,8 @@ Once finished, send the inline keyboard using the `sendMessage` method:
 myBot.sendMessage(<telegramUserID>, "message", kbd);
 ...
 ```
+[back to TOC](#table-of-contents)
+
 ### Handling callback messages
 Everytime an inline keyboard button is pressed, a special message is sent to the bot: the `getNewMessage()` returns `CTBotMessageQuery` value and the `TBMessage` data structure is filled with the callback data.
 When query button is pressed, is mandatory to notify the Telegram Server the end of the query process by calling the `endQuery()` method.
@@ -141,6 +144,7 @@ void loop() {
 }
 ```
 See the [inlineKeyboard example](https://github.com/shurillu/CTBot/blob/master/examples/inlineKeyboard/inlineKeyboard.ino) for further details.
+[back to TOC](#table-of-contents)
 ___
 ## Data types
 There are several usefully data structures used to store data typically sent by the Telegram Server.

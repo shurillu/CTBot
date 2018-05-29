@@ -188,20 +188,20 @@ void loop() {
 
 [back to TOC](#table-of-contents)
 ### `getNewMessage`
-`~~bool~~ CTBotMessageType getNewMessage(TBMessage &message)` <br><br>
+~~`bool getNewMessage(TBMessage &message)`~~ <br><br>
+`CTBotMessageType getNewMessage(TBMessage &message)` <br><br>
 Get the first unread message from the message queue. Fetch text message and callback query message (see inline keyboards). This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any). <br>
 Parameters:
 + `message`: a `TBMessage` data structure that will contains the message data retrieved
 
-~~Returns: `true` if there is a new message and fill the `message` parameter with the received message data.~~ 
+~~Returns: `true` if there is a new message and fill the `message` parameter with the received message data.~~ <br>
 Returns:
 + `CTBotMessageNoData` if an error occurred
 + `CTBotMessageText` if the message received is a text message 
 + `CTBotMessageQuery` if the message received is a callback query message (see inline keyboards) 
 
 Compatibility with previous versions: you can still use the `false` statement to check if the `getNewMessage` method got errors as the following example do.
- 
-<br>**IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a ~~`false`~~ `CTBotMessageNoData` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
+**IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a ~~`false`~~ `CTBotMessageNoData` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
 Example:
 ```c++
 #include "CTBot.h"
@@ -230,10 +230,10 @@ void loop() {
 
 [back to TOC](#table-of-contents)
 ### `sendMessage`
-`bool sendMessage(uint32_t id, String message, String keyboard)` <br><br>
+`bool sendMessage(uint32_t id, String message, String keyboard)` <br>
 `bool sendMessage(uint32_t id, String message, CTBotInlineKeyboard keyboard)` <br><br>
 Send a message to the specified Telegram user ID. <br>
-If `keyboard` parameter is specified, send the message specified and display the custom inline keyboard. Inline keyboard are defined by a JSON structure (see the Telegram API documentation [InlineKeyboardMarkup](https://core.telegram.org/bots/api#inlinekeyboardmarkup))<br>
+If `keyboard` parameter is specified, send the message and display the custom inline keyboard. Inline keyboard are defined by a JSON structure (see the Telegram API documentation [InlineKeyboardMarkup](https://core.telegram.org/bots/api#inlinekeyboardmarkup))<br>
 You can also use the helper class CTBotInlineKeyboard for creating inline keyboards.<br> 
 Parameters:
 + `id`: the recipient Telegram user ID
@@ -263,13 +263,13 @@ void loop() {
 [back to TOC](#table-of-contents)
 ### `endQuery`
 `bool endQuery(String queryID, String message = "", bool alertMode = false)` <br><br>
-terminate a query started by pressing an inlineKeyboard button. See inline keyboards for further help. <br>
+Terminate a query started by pressing an inlineKeyboard button. See inline keyboards for further help. <br>
 Parameters:
 + `queryID`: the unique query ID (retrieved with [getNewMessage](#getnewmessage) method)
 + `message`: (optional) a message to display
 + `alertMode`: (optional) the way how to display the message: 
-++ `false` display a popup message
-++ `true` display an alert windowed message with an ok button
+   + `false` display a popup message
+   + `true` display an alert windowed message with an ok button
 
 Returns: `true` if no error occurred. <br>
 Example:

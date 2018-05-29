@@ -26,7 +26,7 @@ A special thanks go to these people who helped me making this library
 * Marco Madlena
 
 ### Future work
-* ~~Add Telegram inline keyboards~~
+* ~~Add Telegram inline keyboards~~ - Done
 * Add ESP32 support & testing
 
 ### Changelog

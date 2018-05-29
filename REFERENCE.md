@@ -4,7 +4,8 @@ ___
 ## Table of contents
 + [Introduction and quick start](#introduction-and-quick-start)
 + [Inline Keyboards](#inline-keyboards)
-  +[Using Inline Keyboards into CTBot class](#using-inline-keyboards-into-ctbot-class)
+  + [Using Inline Keyboards into CTBot class](#using-inline-keyboards-into-ctbot-class)
+  + [Handling callback messages](#handling-callback-messages)
 + [Data types](#data-types)
   + [TBUser](#tbuser)
   + [TBMessage](#tbmessage)
@@ -67,8 +68,8 @@ CTBot class implements the following buttons:
 + Callback buttons: when a user presses a callback button, no messages are sent to the chat. Instead, the bot simply receives the relevant query. Upon receiving the query, the bot can display some result in a notification at the top of the chat screen or in an alert.
 
 ### Using Inline Keyboards into CTBot class
-In order to show a inline keyboard, use the method [sendMessage()](#sendmessage) specifing the parameter `keyboard`.
-The `keyboard` parameter is a string that contains a JSON structure that define the inline keyboard. See [Telegram docs](#https://core.telegram.org/bots/api#sendmessage)
+In order to show an inline keyboard, use the method [sendMessage()](#sendmessage) specifing the parameter `keyboard`.
+The `keyboard` parameter is a string that contains a JSON structure that define the inline keyboard. See [Telegram docs](https://core.telegram.org/bots/api#sendmessage)<br>
 To simplify the creation of an inline keyboard, there is an helper class called `CTBotInlineKeyboard`.
 Creating an inline keyboard with a `CTBotInlineKeyboard` is straightforward:
 
@@ -88,7 +89,7 @@ kbd.addRow();
 ```
 ... and add buttons to the just created row:
 ```c++
-kbd.addButton("New Row First Button label", "URL for the new eow first button", CTBotKeyboardButtonURL); // URL button
+kbd.addButton("New Row Button label", "URL for the new row button", CTBotKeyboardButtonURL); // URL button
 ...
 ```
 Once finished, send the inline keyboard using the `sendMessage` method:
@@ -96,10 +97,9 @@ Once finished, send the inline keyboard using the `sendMessage` method:
 myBot.sendMessage(<telegramUserID>, "message", kbd);
 ...
 ```
-
 ### Handling callback messages
 Everytime an inline keyboard button is pressed, a special message is sent to the bot: the `getNewMessage()` returns `CTBotMessageQuery` value and the `TBMessage` data structure is filled with the callback data.
-When query button is pressed, is mandatory to notify to the Telegram Server the end of the query process by calling the `endQuery()` method.
+When query button is pressed, is mandatory to notify the Telegram Server the end of the query process by calling the `endQuery()` method.
 Here an example:
 ```c++
 #include "CTBot.h"
@@ -305,7 +305,7 @@ Returns:
 + `CTBotMessageText` if the message received is a text message 
 + `CTBotMessageQuery` if the message received is a callback query message (see inline keyboards) 
 
-Compatibility with previous versions: you can still use the `false` statement to check if the `getNewMessage` method got errors as the following example do.
+Compatibility with previous versions: you can still use the `false` statement to check if the `getNewMessage` method got errors as the following example do.<br>
 **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a ~~`false`~~ `CTBotMessageNoData` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
 Example:
 ```c++

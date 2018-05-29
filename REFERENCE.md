@@ -234,7 +234,7 @@ ___
 Here you can find the basic member function. First you have to instantiate a CTBot object, like `CTbot myBot`, then call the desired member function as `myBot.myDesiredFunction()`
 
 [back to TOC](#table-of-contents)
-### `CTBot::wifiConnect`
+### `CTBot::wifiConnect()`
 `bool CTBot::wifiConnect(String ssid, String password)` <br><br>
 Use this member function to connect the ESP8266 board to a WiFi Network. By default, it's a locking operation (the execution is locked until the connection is established), see [setMaxConnectionRetries()](#ctbotsetmaxconnectionretries) for further details. <br>
 Parameters:
@@ -247,7 +247,7 @@ Examples:
 + `wifiConnect("mySSID", "myPassword")`: connect to a WiFi network named _mySSID_ with password _myPassword_
 
 [back to TOC](#table-of-contents)
-### `CTBot::setTelegramToken`
+### `CTBot::setTelegramToken()`
 `void CTBot::setTelegramToken(String token)` <br><br>
 Set the Telegram Bot token. If you need infos about Telegram Bot and how to obtain a token, take a look  [here](https://core.telegram.org/bots#6-botfather). <br>
 Parameters:
@@ -258,7 +258,7 @@ Example:
 + `setTelegramToken("myTelegramBotToken")`
 
 [back to TOC](#table-of-contents)
-### `CTBot::setIP`
+### `CTBot::setIP()`
 `bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, String dns2)` <br><br>
 By default, once connected the ESP8266 get the IP from the DHCP Server. With this function is possible to set the IP of the ESP8266 as a static IP. <br>
 Parameters:
@@ -275,7 +275,7 @@ Examples:
 + `setIP("192.168.0.130", "192.168.0.254", "255.255.255.0", "8.8.8.8", "8.8.4.4")`: set the static IP _192.168.0.130_, the gateway _192.168.0.254_, the subnet mask _255.255.255.0_, the primary DNS _8.8.8.8_ and the secondary DNS _8.8.4.4_
 
 [back to TOC](#table-of-contents)
-### `CTBot::testConnection`
+### `CTBot::testConnection()`
 `bool CTBot::testConnection(void)` <br><br>
 Check the connection between ESP8266 board and the Telegram server. <br>
 Parameters: none <br>
@@ -298,7 +298,7 @@ void loop() {
 ```
 
 [back to TOC](#table-of-contents)
-### `CTBot::getNewMessage`
+### `CTBot::getNewMessage()`
 ~~`bool CTBot::getNewMessage(TBMessage &message)`~~ <br><br>
 `CTBotMessageType CTBot::getNewMessage(TBMessage &message)` <br><br>
 Get the first unread message from the message queue. Fetch text message and callback query message (see inline keyboards). This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any). <br>
@@ -340,7 +340,7 @@ void loop() {
 ```
 
 [back to TOC](#table-of-contents)
-### `CTBot::sendMessage`
+### `CTBot::sendMessage()`
 `bool CTBot::sendMessage(uint32_t id, String message, String keyboard)` <br>
 `bool CTBot::sendMessage(uint32_t id, String message, CTBotInlineKeyboard keyboard)` <br><br>
 Send a message to the specified Telegram user ID. <br>
@@ -375,7 +375,7 @@ Examples using inline keyboard can be found here:
 + [inlineKeyboard example](https://github.com/shurillu/CTBot/blob/master/examples/inlineKeyboard/inlineKeyboard.ino)
 
 [back to TOC](#table-of-contents)
-### `CTBot::endQuery`
+### `CTBot::endQuery()`
 `bool endQuery(String queryID, String message = "", bool alertMode = false)` <br><br>
 Terminate a query started by pressing an inlineKeyboard button. See inline keyboards for further help. <br>
 Parameters:
@@ -403,7 +403,7 @@ When instantiated, a CTBot object is configured as follow:
 With the wollowing member functions, is possible to change the behavior of the CTBot instantiated object.
 
 [back to TOC](#table-of-contents)
-### `CTBot::setMaxConnectionRetries`
+### `CTBot::setMaxConnectionRetries()`
 `void CTBot::setMaxConnectionRetries(uint8_t retries)` <br><br>
 Set how many times the `wifiConnect()` method have to try to connect to the specified SSID. After each try, the `wifiConnect()` wait 500 milliseconds.
 A value of zero mean infinite retries. <br>
@@ -448,7 +448,7 @@ void loop() {
 ```
 
 [back to TOC](#table-of-contents)
-### `CTBot::useDNS`
+### `CTBot::useDNS()`
 `void CTBot::useDNS(bool value)` <br><br>
 Define which kind of address (symbolic address or fixed IP) will be used to establish connections with the Telegram server. <br>
 Default value is `false` (use fixed IP) <br>
@@ -462,7 +462,7 @@ Examples:
 + `useDNS(false)`: for every connection with the Telegram server, will be used the fixed IP address "149.154.167.198"
 
 [back to TOC](#table-of-contents)
-### `CTBot::enableUTF8Encoding`
+### `CTBot::enableUTF8Encoding()`
 `void CTBot::enableUTF8Encoding(bool value)` <br><br>
 Tipically, Telegram server encodes messages with an UNICODE like format. This mean for example that a '€' character is sent by Telegram server encoded in this form \u20AC (UNICODE). For some weird reasons, the backslash character disappears and the message you get is u20AC thus is impossible to correctly decode an incoming message.
 Encoding the received message with UTF8 encoding format will solve the problem.

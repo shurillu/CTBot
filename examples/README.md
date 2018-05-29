@@ -3,7 +3,7 @@ ___
 ### Table of contents
 + [echoBot](#echobot)
 + [lightBot](#lightbot)
-+ [inlineKeyboard](*inlinekeyboard)
++ [inlineKeyboard](#inlinekeyboard)
 ___
 ### echoBot
 This example simply check for new messages and send back to the sender the text received.

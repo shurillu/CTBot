@@ -3,6 +3,8 @@ Here you can find an explanation of the functionalities provided and how to use 
 ___
 ## Table of contents
 + [Introduction and quick start](#introduction-and-quick-start)
++ [Inline Keyboards](#inline-keyboards)
+  +[Using Inline Keyboards into CTBot class](#using-inline-keyboards-into-ctbot-class)
 + [Data types](#data-types)
   + [TBUser](#tbuser)
   + [TBMessage](#tbmessage)
@@ -29,15 +31,15 @@ Once installed the library, you have to load it in your sketch...
 ```c++
 #include "CTBot.h"
 ```
-...and instantiate a CTBot object
+...and instantiate a `CTBot` object
 ```c++
 CTBot myBot;
 ```
-You can connect to an Access Point by using the `wiFiConnect` member function...
+You can connect to an Access Point by using the `wiFiConnect()` member function...
 ```c++
 myBot.wifiConnect("mySSID", "myPassword");
 ```
-...and use the `setTelegramToken` member function to set your Telegram Bot token in order establish connections with the bot
+...and use the `setTelegramToken()` member function to set your Telegram Bot token in order establish connections with the bot
 ```c++
 myBot.setTelegramToken("myTelegramBotToken");
 ```
@@ -45,18 +47,100 @@ In order to receive messages, declare a `TBMessage` variable...
 ```c++
 TBMessage msg;
 ```
-...and execute the `getNewMessage` member fuction. 
-The `getNewMessage` return a non-zero value if there is a new message and store it in the `msg` variable. See the [TBMessage](#tbmessage) data type for further details.
+...and execute the `getNewMessage()` member fuction. 
+The `getNewMessage()` return a non-zero value if there is a new message and store it in the `msg` variable. See the [TBMessage](#tbmessage) data type for further details.
 ```c++
 myBot.getNewMessage(msg);
 ```
-To send a message to a Telegram user, use the `sendMessage` member function
+To send a message to a Telegram user, use the `sendMessage()` member function
 ```c++
 myBot.sendMessage(telegramUserID,"message");
 ```
 See the [echoBot example](https://github.com/shurillu/CTBot/blob/master/examples/echoBot/echoBot.ino) for further details.
 
 [back to TOC](#table-of-contents)
+___
+## Inline Keyboards
+The Inline Keyboards are special keyboards integrated directly into the messages they belong to: pressing buttons on inline keyboards doesn't result in messages sent to the chat. Instead, inline keyboards support buttons that work behind the scenes.
+CTBot class implements the following buttons:
++ URL buttons: thse buttons have a small arrow icon to help the user understand that tapping on a URL button will open an external link. A confirmation alert message is shown before opening the link in the browser.
++ Callback buttons: when a user presses a callback button, no messages are sent to the chat. Instead, the bot simply receives the relevant query. Upon receiving the query, the bot can display some result in a notification at the top of the chat screen or in an alert.
+
+### Using Inline Keyboards into CTBot class
+In order to show a inline keyboard, use the method [sendMessage()](#sendmessage) specifing the parameter `keyboard`.
+The `keyboard` parameter is a string that contains a JSON structure that define the inline keyboard. See [Telegram docs](#https://core.telegram.org/bots/api#sendmessage)
+To simplify the creation of an inline keyboard, there is an helper class called `CTBotInlineKeyboard`.
+Creating an inline keyboard with a `CTBotInlineKeyboard` is straightforward:
+
+Fristly, instantiate a `CTBotInlineKeyboard` object:
+```c++
+CTBotInlineKeyboard kbd;
+```
+then add new buttons in the first row of the inline keyboard using the member fuction `addButton()` (See [addButton()](#addbutton) member function).
+```c++
+kbd.addButton("First Button label", "URL for first button", CTBotKeyboardButtonURL); // URL button
+kbd.addButton("Second Button label", "Data for second button", CTBotKeyboardButtonQuery); // callback button
+...
+```
+If a new row of buttons is needed, call the addRow() member function...
+```c++
+kbd.addRow();
+```
+... and add buttons to the just created row:
+```c++
+kbd.addButton("New Row First Button label", "URL for the new eow first button", CTBotKeyboardButtonURL); // URL button
+...
+```
+Once finished, send the inline keyboard using the `sendMessage` method:
+```c++
+myBot.sendMessage(<telegramUserID>, "message", kbd);
+...
+```
+
+### Handling callback messages
+Everytime an inline keyboard button is pressed, a special message is sent to the bot: the `getNewMessage()` returns `CTBotMessageQuery` value and the `TBMessage` data structure is filled with the callback data.
+When query button is pressed, is mandatory to notify to the Telegram Server the end of the query process by calling the `endQuery()` method.
+Here an example:
+```c++
+#include "CTBot.h"
+
+#define CALLBACK_QUERY_DATA  "QueryData"  // callback data sent when the button is pressed
+
+CTBot myBot;
+CTBotInlineKeyboard myKbd;  // custom inline keyboard object helper
+
+void setup() {
+   Serial.begin(115200); // initialize the serial
+   myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+   myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
+
+	// inline keyboard - only a button called "My button"
+	myKbd.addButton("My button", CALLBACK_QUERY_DATA, CTBotKeyboardButtonQuery);
+}
+
+void loop() {
+	TBMessage msg; // a variable to store telegram message data
+
+	// if there is an incoming message...
+	if (myBot.getNewMessage(msg)) {
+		// ...and if it is a callback query message
+	    if (msg.messageType == CTBotMessageQuery) {
+			// received a callback query message, check if it is the "My button" callback
+			if (msg.callbackQueryData.equals(CALLBACK_QUERY_DATA)) {
+				// pushed "My button" button --> do related things...
+
+				// close the callback query
+				myBot.endQuery(msg.callbackQueryID, "My button pressed");
+			}
+		} else {
+			// the received message is a text message --> reply with the inline keyboard
+			myBot.sendMessage(msg.sender.id, "Inline Keyboard", myKbd);
+		}
+	}
+	delay(500); // wait 500 milliseconds
+}
+```
+See the [inlineKeyboard example](https://github.com/shurillu/CTBot/blob/master/examples/inlineKeyboard/inlineKeyboard.ino) for further details.
 ___
 ## Data types
 There are several usefully data structures used to store data typically sent by the Telegram Server.

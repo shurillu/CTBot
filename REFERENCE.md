@@ -66,6 +66,7 @@ The Inline Keyboards are special keyboards integrated directly into the messages
 CTBot class implements the following buttons:
 + URL buttons: thse buttons have a small arrow icon to help the user understand that tapping on a URL button will open an external link. A confirmation alert message is shown before opening the link in the browser.
 + Callback buttons: when a user presses a callback button, no messages are sent to the chat. Instead, the bot simply receives the relevant query. Upon receiving the query, the bot can display some result in a notification at the top of the chat screen or in an alert.
+
 [back to TOC](#table-of-contents)
 
 ### Using Inline Keyboards into CTBot class
@@ -143,7 +144,8 @@ void loop() {
 	delay(500); // wait 500 milliseconds
 }
 ```
-See the [inlineKeyboard example](https://github.com/shurillu/CTBot/blob/master/examples/inlineKeyboard/inlineKeyboard.ino) for further details.
+See the [inlineKeyboard example](https://github.com/shurillu/CTBot/blob/master/examples/inlineKeyboard/inlineKeyboard.ino) for further details. <br>
+
 [back to TOC](#table-of-contents)
 ___
 ## Data types

@@ -6,6 +6,9 @@ ___
 + [Data types](#data-types)
   + [TBUser](#tbuser)
   + [TBMessage](#tbmessage)
++ [Enumerators](#enumerators]
+  + [CTBotMessageType](#ctbotmessagetype)
+  + [CTBotInlineKeyboardButtonType](#ctbotinlinekeyboardbuttontype)
 + [Basic functions](#basic-functions)
   + [wifiConnect()](#wificonnect)
   + [setTelegramToken()](#settelegramtoken)
@@ -102,8 +105,11 @@ where:
 
 [back to TOC](#table-of-contents)
 
+## Enumerators
+There are several usefully enumerators used to define method parameters or method return value.
+
 ### `CTBotMessageType`
-Enumerator used to define the possible message types received by [getNewMessage](#getnewmessage). Used also by [TBMessage](#tbmessage).
+Enumerator used to define the possible message types received by [getNewMessage()](#getnewmessage) method. Used also by [TBMessage](#tbmessage).
 ```c++
 enum CTBotMessageType {
 	CTBotMessageNoData = 0,
@@ -117,6 +123,21 @@ where:
 + `CTBotMessageQuery`: the [TBMessage](#tbmessage) structure contains a calback query message (see inline keyboards)
 
 [back to TOC](#table-of-contents)
+
+### `CTBotInlineKeyboardButtonType`
+Enumerator used to define the possible button types. Button types are used when creating an inline keyboard with [addButton()](#addbutton) method.
+```c++
+enum CTBotInlineKeyboardButtonType {
+	CTBotKeyboardButtonURL    = 1,
+	CTBotKeyboardButtonQuery  = 2
+};
+```
+where:
++ `CTBotKeyboardButtonURL`: define a URL button. When pressed, Telegram client will ask if open the URL in a browser
++ `CTBotKeyboardButtonQuery`: define a calback query button. When pressed, a callback query message is sent to the bot
+
+[back to TOC](#table-of-contents)
+
 
 ___
 ## Basic functions

@@ -32,7 +32,7 @@ void CTBotInlineKeyboard::addRow()
 	m_buttons = &buttons;
 }
 
-bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyboardType buttonType)
+bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType)
 {
 	JsonObject& button = m_buttons->createNestedObject();
 	button["text"] = text;

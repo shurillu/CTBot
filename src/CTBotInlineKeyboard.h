@@ -7,7 +7,7 @@
 #include "ArduinoJson.h"
 
 
-enum CTBotInlineKeyboardType {
+enum CTBotInlineKeyboardButtonType {
 	CTBotKeyboardButtonURL    = 1,
 	CTBotKeyboardButtonQuery  = 2
 };
@@ -39,7 +39,7 @@ public:
 	//            callback query data (if buttonType is CTBotKeyboardButtonQuery)
 	// return:
 	//    true if no error occurred
-	bool addButton(String text, String command, CTBotInlineKeyboardType buttonType);
+	bool addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType);
 	String getJSON(void);
 };
 

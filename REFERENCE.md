@@ -18,7 +18,7 @@ ___
   + [useDNS()](#usedns)
   + [enableUTF8Encoding()](#enableutf8encoding)
   + [setStatusPin()](#setstatuspin)
-
+  + [endQuery()](#endQuery)
 ___
 ## Introduction and quick start
 Once installed the library, you have to load it in your sketch...

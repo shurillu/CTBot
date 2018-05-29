@@ -13,18 +13,18 @@ ___
   + [CTBotMessageType](#ctbotmessagetype)
   + [CTBotInlineKeyboardButtonType](#ctbotinlinekeyboardbuttontype)
 + [Basic functions](#basic-functions)
-  + [wifiConnect()](#wificonnect)
-  + [setTelegramToken()](#settelegramtoken)
-  + [setIP()](#setip)
-  + [testConnection()](#testconnection)
-  + [getNewMessage()](#getnewmessage)
-  + [sendMessage()](#sendmessage)
-  + [endQuery()](#endquery)
+  + [CTBot::wifiConnect()](#ctbot::wificonnect)
+  + [CTBot::setTelegramToken()](#settelegramtoken)
+  + [CTBot::setIP()](#setip)
+  + [CTBot::testConnection()](#testconnection)
+  + [CTBot::getNewMessage()](#getnewmessage)
+  + [CTBot::sendMessage()](#sendmessage)
+  + [CTBot::endQuery()](#endquery)
 + [Configuration functions](#configuration-functions)
-  + [setMaxConnectionRetries()](#setmaxconnectionretries)
-  + [useDNS()](#usedns)
-  + [enableUTF8Encoding()](#enableutf8encoding)
-  + [setStatusPin()](#setstatuspin)
+  + [CTBot::setMaxConnectionRetries()](#setmaxconnectionretries)
+  + [CTBot::useDNS()](#usedns)
+  + [CTBot::enableUTF8Encoding()](#enableutf8encoding)
+  + [CTBot::setStatusPin()](#setstatuspin)
   
 ___
 ## Introduction and quick start
@@ -234,8 +234,8 @@ ___
 Here you can find the basic member function. First you have to instantiate a CTBot object, like `CTbot myBot`, then call the desired member function as `myBot.myDesiredFunction()`
 
 [back to TOC](#table-of-contents)
-### `wifiConnect`
-`bool wifiConnect(String ssid, String password)` <br><br>
+### `CTBot::wifiConnect`
+`bool CTBot::wifiConnect(String ssid, String password)` <br><br>
 Use this member function to connect the ESP8266 board to a WiFi Network. By default, it's a locking operation (the execution is locked until the connection is established), see [setMaxConnectionRetries()](#setmaxconnectionretries) for further details. <br>
 Parameters:
 + `ssid`: the WiFi Network SSID
@@ -370,6 +370,9 @@ void loop() {
 	delay(500); // wait 500 milliseconds
 }
 ```
+Examples using inline keyboard can be found here: 
++ [Handling callback messages](#handling-callback-messages)
++ [inlineKeyboard example](https://github.com/shurillu/CTBot/blob/master/examples/inlineKeyboard/inlineKeyboard.ino)
 
 [back to TOC](#table-of-contents)
 ### `endQuery`

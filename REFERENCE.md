@@ -6,7 +6,7 @@ ___
 + [Data types](#data-types)
   + [TBUser](#tbuser)
   + [TBMessage](#tbmessage)
-+ [Enumerators](#enumerators]
++ [Enumerators](#enumerators)
   + [CTBotMessageType](#ctbotmessagetype)
   + [CTBotInlineKeyboardButtonType](#ctbotinlinekeyboardbuttontype)
 + [Basic functions](#basic-functions)

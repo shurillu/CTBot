@@ -42,7 +42,7 @@ In order to receive messages, declare a `TBMessage` variable...
 TBMessage msg;
 ```
 ...and execute the `getNewMessage` member fuction. 
-The `getNewMessage` return `true` if there is a new message and store it in the `msg` variable. See the [TBMessage](#tbmessage) data type for further details.
+The `getNewMessage` return a non-zero value if there is a new message and store it in the `msg` variable. See the [TBMessage](#tbmessage) data type for further details.
 ```c++
 myBot.getNewMessage(msg);
 ```
@@ -80,18 +80,43 @@ Typically, you will use predominantly the `id` field.
 ### `TBMessage`
 `TBMessage` data type is used to store new messages. The data structure contains:
 ```c++
-uint32_t messageID;
-TBUser   sender;
-uint32_t date;
-String   text;
+uint32_t         messageID;
+TBUser           sender;
+uint32_t         date;
+String           text;
+String           chatInstance;
+String           callbackQueryData;
+String           callbackQueryID;
+CTBotMessageType messageType;
 ```
 where:
 + `messageID` contains the unique message identifier associated to the received message
 + `sender` contains the sender data in a [TBUser](#tbuser) structure
 + `date` contains the date when the message was sent, in Unix time
 + `text` contains the received message
++ `chatInstance` contains the unique ID corresponding to the chat to which the message with the callback button was sent
++ `callbackQueryData` contains the data associated with the callback button
++ `callbackQueryID` contains the unique ID for the query
++ `messageType` contains the message type see [CTBotMessageType](#CTBotMessageType)
 
 [back to TOC](#table-of-contents)
+
+### `CTBotMessageType`
+Enumerator used to define the possible message types received by [getNewMessage](#getNewMessage). Used also by [TBMessage](#TBMessage).
+```c++
+enum CTBotMessageType {
+	CTBotMessageNoData = 0,
+	CTBotMessageText   = 1,
+	CTBotMessageQuery  = 2
+};
+```
+where:
++ `CTBotMessageNoData`: error - the [TBMessage](#TBMessage) structure contains no valid data
++ `CTBotMessageText`: the [TBMessage](#TBMessage) structure contains a text message
++ `CTBotMessageQuery`: the [TBMessage](#TBMessage) structure contains a calback query message (see inline keyboards)
+
+[back to TOC](#table-of-contents)
+
 ___
 ## Basic functions
 Here you can find the basic member function. First you have to instantiate a CTBot object, like `CTbot myBot`, then call the desired member function as `myBot.myDesiredFunction()`
@@ -162,12 +187,20 @@ void loop() {
 
 [back to TOC](#table-of-contents)
 ### `getNewMessage`
-`bool getNewMessage(TBMessage &message)` <br><br>
-Get the first unread message from the message queue. This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any). <br>
+`~~bool~~ CTBotMessageType getNewMessage(TBMessage &message)` <br><br>
+Get the first unread message from the message queue. Fetch text message and callback query message (see inline keyboards). This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any). <br>
 Parameters:
 + `message`: a `TBMessage` data structure that will contains the message data retrieved
 
-Returns: `true` if there is a new message and fill the `message` parameter with the received message data. <br> **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a `false` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
+~~Returns: `true` if there is a new message and fill the `message` parameter with the received message data.~~ 
+Returns:
++ `CTBotMessageNoData` if an error occurred
++ `CTBotMessageText` if the message received is a text message 
++ `CTBotMessageQuery` if the message received is a callback query message (see inline keyboards) 
+
+Compatibility with previous versions: you can still use the `false` statement to check if the `getNewMessage` method got errors as the following example do.
+ 
+<br>**IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a ~~`false`~~ `CTBotMessageNoData` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
 Example:
 ```c++
 #include "CTBot.h"
@@ -196,11 +229,15 @@ void loop() {
 
 [back to TOC](#table-of-contents)
 ### `sendMessage`
-`bool sendMessage(uint32_t id, String message)` <br><br>
+`bool sendMessage(uint32_t id, String message, String keyboard)` <br><br>
+`bool sendMessage(uint32_t id, String message, CTBotInlineKeyboard keyboard)` <br><br>
 Send a message to the specified Telegram user ID. <br>
+If `keyboard` parameter is specified, send the message specified and display the custom inline keyboard. Inline keyboard are defined by a JSON structure (see the Telegram API documentation [InlineKeyboardMarkup](https://core.telegram.org/bots/api#inlinekeyboardmarkup))<br>
+You can also use the helper class CTBotInlineKeyboard for creating inline keyboards.<br> 
 Parameters:
 + `id`: the recipient Telegram user ID
 + `message`: the message to send
++ `keyboard`: (optional) the inline keyboard
 
 Returns: `true` if no error occurred. <br>
 Example:
@@ -223,6 +260,23 @@ void loop() {
 ```
 
 [back to TOC](#table-of-contents)
+### `endQuery`
+`bool endQuery(String queryID, String message = "", bool alertMode = false)` <br><br>
+terminate a query started by pressing an inlineKeyboard button. See inline keyboards for further help. <br>
+Parameters:
++ `queryID`: the unique query ID (retrieved with [getNewMessage](#getNewMessage) method)
++ `message`: (optional) a message to display
++ `alertMode`: (optional) the way how to display the message: 
+++ `false` display a popup message
+++ `true` display an alert windowed message with an ok button
+
+Returns: `true` if no error occurred. <br>
+Example:
+```c++
+```
+
+[back to TOC](#table-of-contents)
+
 ___
 ## Configuration functions
 When instantiated, a CTBot object is configured as follow:

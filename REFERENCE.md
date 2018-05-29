@@ -104,7 +104,7 @@ where:
 + `messageType` contains the message type see [CTBotMessageType](#ctbotmessagetype)
 
 [back to TOC](#table-of-contents)
-
+___
 ## Enumerators
 There are several usefully enumerators used to define method parameters or method return value.
 

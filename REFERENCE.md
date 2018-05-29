@@ -13,12 +13,13 @@ ___
   + [testConnection()](#testconnection)
   + [getNewMessage()](#getnewmessage)
   + [sendMessage()](#sendmessage)
+  + [endQuery()](#endquery)
 + [Configuration functions](#configuration-functions)
   + [setMaxConnectionRetries()](#setmaxconnectionretries)
   + [useDNS()](#usedns)
   + [enableUTF8Encoding()](#enableutf8encoding)
   + [setStatusPin()](#setstatuspin)
-  + [endQuery()](#endQuery)
+  
 ___
 ## Introduction and quick start
 Once installed the library, you have to load it in your sketch...
@@ -97,12 +98,12 @@ where:
 + `chatInstance` contains the unique ID corresponding to the chat to which the message with the callback button was sent
 + `callbackQueryData` contains the data associated with the callback button
 + `callbackQueryID` contains the unique ID for the query
-+ `messageType` contains the message type see [CTBotMessageType](#CTBotMessageType)
++ `messageType` contains the message type see [CTBotMessageType](#ctbotmessagetype)
 
 [back to TOC](#table-of-contents)
 
 ### `CTBotMessageType`
-Enumerator used to define the possible message types received by [getNewMessage](#getNewMessage). Used also by [TBMessage](#TBMessage).
+Enumerator used to define the possible message types received by [getNewMessage](#getnewmessage). Used also by [TBMessage](#tbmessage).
 ```c++
 enum CTBotMessageType {
 	CTBotMessageNoData = 0,
@@ -111,9 +112,9 @@ enum CTBotMessageType {
 };
 ```
 where:
-+ `CTBotMessageNoData`: error - the [TBMessage](#TBMessage) structure contains no valid data
-+ `CTBotMessageText`: the [TBMessage](#TBMessage) structure contains a text message
-+ `CTBotMessageQuery`: the [TBMessage](#TBMessage) structure contains a calback query message (see inline keyboards)
++ `CTBotMessageNoData`: error - the [TBMessage](#tbmessage) structure contains no valid data
++ `CTBotMessageText`: the [TBMessage](#tbmessage) structure contains a text message
++ `CTBotMessageQuery`: the [TBMessage](#tbmessage) structure contains a calback query message (see inline keyboards)
 
 [back to TOC](#table-of-contents)
 
@@ -264,7 +265,7 @@ void loop() {
 `bool endQuery(String queryID, String message = "", bool alertMode = false)` <br><br>
 terminate a query started by pressing an inlineKeyboard button. See inline keyboards for further help. <br>
 Parameters:
-+ `queryID`: the unique query ID (retrieved with [getNewMessage](#getNewMessage) method)
++ `queryID`: the unique query ID (retrieved with [getNewMessage](#getnewmessage) method)
 + `message`: (optional) a message to display
 + `alertMode`: (optional) the way how to display the message: 
 ++ `false` display a popup message

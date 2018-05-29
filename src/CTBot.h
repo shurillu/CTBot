@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include "CTBotDataStructures.h"
+#include "CTBotInlineKeyboard.h"
 
 #define CTBOT_DEBUG_MODE   0  // enable debugmode -> print debug data on the Serial
                               // Zero -> debug disabled
@@ -126,21 +127,38 @@ public:
 	//    true if no error occurred
 	bool testConnection(void);
 
-	// get the first unread message from the queue. This is a destructive operation: once read, the message will be marked as read
+	// get the first unread message from the queue (text and query from inline keyboard). 
+	// This is a destructive operation: once read, the message will be marked as read
 	// so a new getMessage will read the next message (if any).
 	// params
 	//   message: the data structure that will contains the data retrieved
 	// returns
-	//   true if there is a new message, false otherwise (error / no new messages)
-	bool getNewMessage(TBMessage &message);
+	//   CTBotMessageNoData: an error has occurred
+	//   CTBotMessageText  : the received message is a text
+	//   CTBotMessageQuery : the received message is a query (from inline keyboards)
+	CTBotMessageType getNewMessage(TBMessage &message);
 
 	// send a message to the specified telegram user ID
 	// params
-	//   id     : the telegram recipient user ID 
-	//   message: the message to send
+	//   id      : the telegram recipient user ID 
+	//   message : the message to send
+	//   keyboard: the inline keyboard (optional)
+	//             (in json format or using the CTBotInlineKeyboard class helper)
 	// returns
 	//   true if no error occurred
-	bool sendMessage(uint32_t id, String message);
+	bool sendMessage(uint32_t id, String message, String keyboard = "");
+	bool sendMessage(uint32_t id, String message, CTBotInlineKeyboard &keyboard);
+
+	// terminate a query started by an inlineKeyboard button. The steps are:
+	// 1) send a message with an inline keyboard
+	// 2) wait for a <message> (getNewMessage) of type CTBotMessageQuery
+	// 3) handle the query and then call endQuery with <message>.callbackQueryID 
+	// params
+	//   queryID: the unique query ID (retrieved with getNewMessage method)
+	//   message: an optional message
+	//   alertMode: false -> a simply popup message
+	//              true --> an alert message with ok button
+	bool endQuery(String queryID, String message = "", bool alertMode = false);
 };
 
 

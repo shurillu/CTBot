@@ -7,7 +7,9 @@ You also need to install the [ESP8266 Arduino Core and Library](https://github.c
 Don't you know Telegram bots and how to setup one? Check [this](https://core.telegram.org/bots#6-botfather).
 
 ### Feature
-Actually this version can only send and receive messages.
+* Manage WiFi connection (methods for connect to an access point, set a static IP)
+* Send and receive messages
+* Inline keyboards (NEW)
 
 ### Supported boards
 The library works with the ESP8266 chipset: all the ESP8266 boards are supported.
@@ -24,10 +26,11 @@ A special thanks go to these people who helped me making this library
 * Marco Madlena
 
 ### Future work
-* Add Telegram custom keyboard
+* ~~Add Telegram inline keyboards~~
 * Add ESP32 support & testing
 
 ### Changelog
+* 1.1.0 Added inline keyboards, bug fixing
 * 1.0.1 Better performance, new algorithm for Telegram server queries: now sending and receiving messages requires almost no time.
 * 1.0.0 Initial version
 

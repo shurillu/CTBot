@@ -9,8 +9,7 @@ setTelegramToken	KEYWORD2
 
 useDNS			KEYWORD2
 
-enableUTF8		KEYWORD2
-Encoding		KEYWORD2
+enableUTF8Encoding	KEYWORD2
 
 setMaxConnectionRetries	KEYWORD2
 
@@ -18,9 +17,14 @@ setStatusPin		KEYWORD2
 
 testConnection		KEYWORD2
 
-getMe			KEYWORD2
-
 getNewMessage		KEYWORD2
 
 sendMessage		KEYWORD2
+
+endQuery		KEYWORD2
+CTBotInlineKeyboard	KEYWORD1
+flushData		KEYWORD2
+addRow			KEYWORD2
+addButton		KEYWORD2
+getJson			KEYWORD2
 

@@ -160,7 +160,7 @@ String CTBot::sendCommand(String command, String parameters)
 		}
 	}
 
-	return(response);
+	return("");
 }
 
 String CTBot::toUTF8(String message)
@@ -267,25 +267,27 @@ bool CTBot::getMe(TBUser &user) {
 	return(true);
 }
 
-bool CTBot::getNewMessage(TBMessage &message) {
+CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 
 	String response;
 	String parameters;
 	char buf[10];
+
+	message.messageType = CTBotMessageNoData;
+
 	ultoa(m_lastUpdate, buf, 10);
-	parameters = "?limit=1&allowed_updates=message";
+	parameters = "?limit=1&allowed_updates=message,callback_query";
 	if (m_lastUpdate != 0)
 		parameters += "&offset=" + (String)buf;
 	response = sendCommand("getUpdates", parameters);
 	if (response.length() == 0)
-		return(false);
+		return(CTBotMessageNoData);
 
 #if CTBOT_BUFFER_SIZE > 0
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
 #else
 	DynamicJsonBuffer jsonBuffer;
 #endif
-
 
 	if (m_UTF8Encoding)
 		response = toUTF8(response);
@@ -299,7 +301,7 @@ bool CTBot::getNewMessage(TBMessage &message) {
 		root.printTo(Serial);
 		serialLog("\n");
 #endif
-		return(false);
+		return(CTBotMessageNoData);
 	}
 
 #if CTBOT_DEBUG_MODE > 0
@@ -310,27 +312,50 @@ bool CTBot::getNewMessage(TBMessage &message) {
 	uint32_t updateID;
 	updateID = root["result"][0]["update_id"];
 	if (updateID == 0)
-		return(false);
+		return(CTBotMessageNoData);
+	m_lastUpdate = updateID + 1;
 
-	m_lastUpdate            = updateID + 1;
-	message.messageID       = root["result"][0]["message"]["message_id"];
-	message.sender.id       = root["result"][0]["message"]["from"]["id"];
-	message.sender.username = root["result"][0]["message"]["from"]["username"].asString();
-	message.text            = root["result"][0]["message"]["text"].asString();
-	message.date            = root["result"][0]["message"]["date"];
-
-	return(true);
+	if (root["result"][0]["callback_query"]["id"] != 0) {
+		// this is a callback query
+		message.messageID         = root["result"][0]["callback_query"]["message"]["message_id"];
+		message.text              = root["result"][0]["callback_query"]["message"]["text"].asString();
+		message.date              = root["result"][0]["callback_query"]["message"]["date"];
+		message.sender.id         = root["result"][0]["callback_query"]["from"]["id"];
+		message.sender.username   = root["result"][0]["callback_query"]["from"]["username"].asString();
+		message.callbackQueryID   = root["result"][0]["callback_query"]["id"].asString();
+		message.callbackQueryData = root["result"][0]["callback_query"]["data"].asString();
+		message.chatInstance      = root["result"][0]["callback_query"]["chat_instance"].asString();
+		message.messageType       = CTBotMessageQuery;
+		return(CTBotMessageQuery);
+	}
+	else if (root["result"][0]["message"]["message_id"] != 0) {
+		// this is a text message
+		message.messageID       = root["result"][0]["message"]["message_id"];
+		message.sender.id       = root["result"][0]["message"]["from"]["id"];
+		message.sender.username = root["result"][0]["message"]["from"]["username"].asString();
+		message.text            = root["result"][0]["message"]["text"].asString();
+		message.date            = root["result"][0]["message"]["date"];
+		message.messageType     = CTBotMessageText;
+		return(CTBotMessageText);
+	}
+	return(CTBotMessageNoData);
 }
 
-bool CTBot::sendMessage(uint32_t id, String message)
+bool CTBot::sendMessage(uint32_t id, String message, String keyboard)
 {
 	String response;
 	String parameters;
 	char strID[10];
-	ultoa(id, strID, 10);
 
+	if (0 == message.length())
+		return(false);
+
+	ultoa(id, strID, 10);
 	message = toURL(message);
 	parameters = (String)"?chat_id=" + (String)strID + (String)"&text=" + message;
+
+	if (keyboard.length() != 0)
+		parameters += (String)"&reply_markup=" + keyboard;
 
 	response = sendCommand("sendMessage", parameters);
 	if (response.length() == 0)
@@ -347,6 +372,56 @@ bool CTBot::sendMessage(uint32_t id, String message)
 	if (!ok) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("SendMessage error:");
+		root.prettyPrintTo(Serial);
+		serialLog("\n");
+#endif
+		return(false);
+	}
+
+#if CTBOT_DEBUG_MODE > 0
+	root.printTo(Serial);
+	serialLog("\n");
+#endif
+
+	return(true);
+}
+
+bool CTBot::sendMessage(uint32_t id, String message, CTBotInlineKeyboard &keyboard) {
+	return(sendMessage(id, message, keyboard.getJSON()));
+}
+
+bool CTBot::endQuery(String queryID, String message, bool alertMode)
+{
+	String response;
+	String parameters;
+
+	if (0 == queryID.length())
+		return(false);
+
+	parameters = (String)"?callback_query_id=" + queryID;
+
+	if (message.length() != 0) {
+		if (alertMode)
+			parameters += (String)"&text=" + message + (String)"&show_alert=true";
+		else
+			parameters += (String)"&text=" + message + (String)"&show_alert=false";
+	}
+
+	response = sendCommand("answerCallbackQuery", parameters);
+	if (response.length() == 0)
+		return(false);
+
+#if CTBOT_BUFFER_SIZE > 0
+	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+#else
+	DynamicJsonBuffer jsonBuffer;
+#endif
+	JsonObject& root = jsonBuffer.parse(response);
+
+	bool ok = root["ok"];
+	if (!ok) {
+#if CTBOT_DEBUG_MODE > 0
+		serialLog("answerCallbackQuery error:");
 		root.prettyPrintTo(Serial);
 		serialLog("\n");
 #endif
@@ -409,6 +484,7 @@ bool CTBot::wifiConnect(String ssid, String password)
 #else
 	WiFi.mode(WIFI_AP_STA);
 #endif
+	delay(500);
 
 	WiFi.begin(ssid.c_str(), password.c_str());
 	delay(500);
@@ -443,5 +519,4 @@ bool CTBot::wifiConnect(String ssid, String password)
 		return(false);
 	}
 }
-
 

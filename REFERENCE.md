@@ -424,24 +424,10 @@ void loop() {
 		}
 	}
 	delay(500); // wait 500 milliseconds
-}```
+}
+```
 
 [back to TOC](#table-of-contents)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ### `CTBotInlineKeyboard::addButton()`

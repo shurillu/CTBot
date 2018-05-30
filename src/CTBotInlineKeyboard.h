@@ -19,6 +19,7 @@ private:
 	JsonObject *m_root;
 	JsonArray  *m_rows;
 	JsonArray  *m_buttons;
+	bool m_isRowEmpty;
 
 	void initialize(void);
 
@@ -30,7 +31,9 @@ public:
 	void flushData(void);
 
 	// add a new empty row of buttons
-	void addRow();
+	// return:
+	//    true if no error occurred
+	bool addRow(void);
 
 	// add a button in the current row
 	// params:
@@ -40,6 +43,11 @@ public:
 	// return:
 	//    true if no error occurred
 	bool addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType);
+
+	// generate a string that contains the inline keyboard formatted in a JSON structure. 
+	// Useful for CTBot::sendMessage()
+	// returns:
+	//   the JSON of the inline keyboard 
 	String getJSON(void);
 };
 

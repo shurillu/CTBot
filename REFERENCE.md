@@ -12,7 +12,7 @@ ___
 + [Enumerators](#enumerators)
   + [CTBotMessageType](#ctbotmessagetype)
   + [CTBotInlineKeyboardButtonType](#ctbotinlinekeyboardbuttontype)
-+ [Basic functions](#basic-functions)
++ [Basic methods](#basic-methods)
   + [CTBot::wifiConnect()](#ctbotwificonnect)
   + [CTBot::setTelegramToken()](#ctbotsettelegramtoken)
   + [CTBot::setIP()](#ctbotsetip)
@@ -20,7 +20,11 @@ ___
   + [CTBot::getNewMessage()](#ctbotgetnewmessage)
   + [CTBot::sendMessage()](#ctbotsendmessage)
   + [CTBot::endQuery()](#ctbotendquery)
-+ [Configuration functions](#configuration-functions)
+  + [CTBotInlineKeyboard::addButton()](#ctbotinlinekeyboardaddbutton)
+  + [CTBotInlineKeyboard::addRow()](#ctbotinlinekeyboardaddrow)
+  + [CTBotInlineKeyboard::flushData()](#ctbotinlinekeyboardflushdata)
+  + [CTBotInlineKeyboard::getJSON()](#ctbotinlinekeyboardgetjson)
++ [Configuration methods](#configuration-methods)
   + [CTBot::setMaxConnectionRetries()](#ctbotsetmaxconnectionretries)
   + [CTBot::useDNS()](#ctbotusedns)
   + [CTBot::enableUTF8Encoding()](#ctbotenableutf8encoding)
@@ -64,7 +68,7 @@ ___
 ## Inline Keyboards
 The Inline Keyboards are special keyboards integrated directly into the messages they belong to: pressing buttons on inline keyboards doesn't result in messages sent to the chat. Instead, inline keyboards support buttons that work behind the scenes.
 CTBot class implements the following buttons:
-+ URL buttons: thse buttons have a small arrow icon to help the user understand that tapping on a URL button will open an external link. A confirmation alert message is shown before opening the link in the browser.
++ URL buttons: these buttons have a small arrow icon to help the user understand that tapping on a URL button will open an external link. A confirmation alert message is shown before opening the link in the browser.
 + Callback buttons: when a user presses a callback button, no messages are sent to the chat. Instead, the bot simply receives the relevant query. Upon receiving the query, the bot can display some result in a notification at the top of the chat screen or in an alert.
 
 [back to TOC](#table-of-contents)
@@ -107,9 +111,7 @@ When query button is pressed, is mandatory to notify the Telegram Server the end
 Here an example:
 ```c++
 #include "CTBot.h"
-
 #define CALLBACK_QUERY_DATA  "QueryData"  // callback data sent when the button is pressed
-
 CTBot myBot;
 CTBotInlineKeyboard myKbd;  // custom inline keyboard object helper
 
@@ -230,7 +232,7 @@ where:
 
 
 ___
-## Basic functions
+## Basic methods
 Here you can find the basic member function. First you have to instantiate a CTBot object, like `CTbot myBot`, then call the desired member function as `myBot.myDesiredFunction()`
 
 [back to TOC](#table-of-contents)
@@ -301,7 +303,7 @@ void loop() {
 ### `CTBot::getNewMessage()`
 ~~`bool CTBot::getNewMessage(TBMessage &message)`~~ <br><br>
 `CTBotMessageType CTBot::getNewMessage(TBMessage &message)` <br><br>
-Get the first unread message from the message queue. Fetch text message and callback query message (see inline keyboards). This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any). <br>
+Get the first unread message from the message queue. Fetch text message and callback query message (for callback query messages, see [Inline Keyboards](#inline-keyboards)). This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any). <br>
 Parameters:
 + `message`: a `TBMessage` data structure that will contains the message data retrieved
 
@@ -309,7 +311,7 @@ Parameters:
 Returns:
 + `CTBotMessageNoData` if an error occurred
 + `CTBotMessageText` if the message received is a text message 
-+ `CTBotMessageQuery` if the message received is a callback query message (see inline keyboards) 
++ `CTBotMessageQuery` if the message received is a callback query message (see [Handling callback messages](#handling-callback-messages))
 
 Compatibility with previous versions: you can still use the `false` statement to check if the `getNewMessage` method got errors as the following example do.<br>
 **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a ~~`false`~~ `CTBotMessageNoData` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
@@ -377,7 +379,7 @@ Examples using inline keyboard can be found here:
 [back to TOC](#table-of-contents)
 ### `CTBot::endQuery()`
 `bool endQuery(String queryID, String message = "", bool alertMode = false)` <br><br>
-Terminate a query started by pressing an inlineKeyboard button. See inline keyboards for further help. <br>
+Terminate a query started by pressing an inlineKeyboard button. See [Handling callback messages](#handling-callback-messages) for further details. <br>
 Parameters:
 + `queryID`: the unique query ID (retrieved with [getNewMessage](#ctbotgetnewmessage) method)
 + `message`: (optional) a message to display
@@ -388,19 +390,150 @@ Parameters:
 Returns: `true` if no error occurred. <br>
 Example:
 ```c++
+#include "CTBot.h"
+#define CALLBACK_QUERY_DATA  "QueryData"  // callback data sent when the button is pressed
+CTBot myBot;
+CTBotInlineKeyboard myKbd;  // custom inline keyboard object helper
+
+void setup() {
+   Serial.begin(115200); // initialize the serial
+   myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+   myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
+
+	// inline keyboard - only a button called "My button"
+	myKbd.addButton("My button", CALLBACK_QUERY_DATA, CTBotKeyboardButtonQuery);
+}
+
+void loop() {
+	TBMessage msg; // a variable to store telegram message data
+
+	// if there is an incoming message...
+	if (myBot.getNewMessage(msg)) {
+		// ...and if it is a callback query message
+	    if (msg.messageType == CTBotMessageQuery) {
+			// received a callback query message, check if it is the "My button" callback
+			if (msg.callbackQueryData.equals(CALLBACK_QUERY_DATA)) {
+				// pushed "My button" button --> do related things...
+
+				// close the callback query
+				myBot.endQuery(msg.callbackQueryID, "My button pressed");
+			}
+		} else {
+			// the received message is a text message --> reply with the inline keyboard
+			myBot.sendMessage(msg.sender.id, "Inline Keyboard", myKbd);
+		}
+	}
+	delay(500); // wait 500 milliseconds
+}```
+
+[back to TOC](#table-of-contents)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### `CTBotInlineKeyboard::addButton()`
+`bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType)` <br><br>
+Add a button to the current keyboard row of an CTBotInlineKeyboard object. For a description of button types, see [Inline Keyboards](#inline-keyboards).<br>
+Parameters: 
++ `text`: the botton text (label) displayed on the inline keyboard
++ `command`: depending on the button type, 
+  + on URL buttons, contain the URL
+  + on a query button, contain the query data
++ `buttonType`: set the behavior of the button. It can be:
+  + `CTBotKeyboardButtonURL` - the added button will be a URL button
+  + `CTBotKeyboardButtonQuery` - the added button will be a query button
+Returns: `true` if no error occurred. <br>
+Example
+```c++
+CTBotInlineKeyboard kbd; // create an inline keyboard object
+// add an URL button to the inline keyboard
+kbd.addButton("My URL Button", "URL", CTBotKeyboardButtonURL);
+// add an URL button to the inline keyboard
+kbd.addButton("My Query Button", "queryData", CTBotKeyboardButtonQuery);
+```
+
+[back to TOC](#table-of-contents)
+
+### `CTBotInlineKeyboard::addRow()`
+`bool CTBotInlineKeyboard::addRow(void)` <br><br>
+Add a new empty row of buttons to the inline keyboard: all the new keyboard buttons will be added to this new row.
+Parameters: none <br>
+Returns: `true` if no error occurred. <br>
+Example
+```c++
+CTBotInlineKeyboard kbd; // create an inline keyboard object
+// add an URL button to the inline keyboard
+kbd.addButton("My URL Button", "URL", CTBotKeyboardButtonURL);
+// add an URL button to the inline keyboard
+kbd.addButton("My Query Button", "queryData", CTBotKeyboardButtonQuery);
+kbd.addRow(); // new row: all the new buttons will be added here
+// this button will be added to the new row.
+kbd.addButton("My Button", "anotherQueryData", CTBotKeyboardButtonQuery);
+```
+
+[back to TOC](#table-of-contents)
+
+### `CTBotInlineKeyboard::flushData()`
+`void CTBotInlineKeyboard::flushData(void)` <br><br>
+Remove all buttons/rows from an inline keyboard and initialize it to a new inline keyboard.
+Parameters: none <br>
+Returns: none <br>
+Example
+```c++
+CTBotInlineKeyboard kbd; // create an inline keyboard object
+// add an URL button to the inline keyboard
+kbd.addButton("My URL Button", "URL", CTBotKeyboardButtonURL);
+// add an URL button to the inline keyboard
+kbd.addButton("My Query Button", "queryData", CTBotKeyboardButtonQuery);
+kbd.addRow(); // new row: all the new buttons will be added here
+// this button will be added to the new row.
+kbd.addButton("My Button", "anotherQueryData", CTBotKeyboardButtonQuery);
+...
+kbd.flushData(); // now the keyboard is empty
+```
+
+[back to TOC](#table-of-contents)
+
+### `CTBotInlineKeyboard::getJSON()`
+`String CTBotInlineKeyboard::getJSON(void)` <br><br>
+Create a string that containsthe inline keyboard formatted in a JSON structure. Useful sending the inline keyboard with [sendMessage()](#ctbotsendmessage).
+Parameters: none <br>
+Returns: the JSON of the inline keyboard <br>
+Example
+```c++
+CTBotInlineKeyboard kbd; // create an inline keyboard object
+// add an URL button to the inline keyboard
+kbd.addButton("My URL Button", "URL", CTBotKeyboardButtonURL);
+// add an URL button to the inline keyboard
+kbd.addButton("My Query Button", "queryData", CTBotKeyboardButtonQuery);
+String kbdJSON = kbd.getJSON();
+
 ```
 
 [back to TOC](#table-of-contents)
 
 ___
-## Configuration functions
+## Configuration methods
 When instantiated, a CTBot object is configured as follow:
 + If the `wifiConnect()` method is executed, it wait until a connection with the specified WiFi network is established (locking operation). See [setMaxConnectionRetries()](#ctbotsetmaxconnectionretries).
 + Use the Telegram server static IP (149.154.167.198). See [useDNS()](#ctbotusedns).
 + The incoming messages are not converted to UTF8. See [enableUTF8Encoding()](#ctbotenableutf8encoding).
 + The status pin is disabled. See [setStatusPin()](#ctbotsetstatuspin).
 
-With the wollowing member functions, is possible to change the behavior of the CTBot instantiated object.
+With the following methods, is possible to change the behavior of the CTBot instantiated object.
 
 [back to TOC](#table-of-contents)
 ### `CTBot::setMaxConnectionRetries()`

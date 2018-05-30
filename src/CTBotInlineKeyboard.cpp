@@ -9,6 +9,7 @@ void CTBotInlineKeyboard::initialize(void)
 	m_root = &root;
 	m_rows = &rows;
 	m_buttons = &buttons;
+	m_isRowEmpty = true;
 }
 
 CTBotInlineKeyboard::CTBotInlineKeyboard()
@@ -26,10 +27,14 @@ void CTBotInlineKeyboard::flushData(void)
 	initialize();
 }
 
-void CTBotInlineKeyboard::addRow()
+bool CTBotInlineKeyboard::addRow(void)
 {
+	if (m_isRowEmpty)
+		return(false);
 	JsonArray&  buttons = m_rows->createNestedArray();
 	m_buttons = &buttons;
+	m_isRowEmpty = true;
+	return(true);
 }
 
 bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType)
@@ -42,6 +47,8 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 	 	button["callback_data"] = command;
 	else 
 		return(false);
+	if (m_isRowEmpty)
+		m_isRowEmpty = false;
 	return(true);
 }
 

@@ -154,12 +154,16 @@ String CTBot::sendCommand(String command, String parameters)
 				else if (c == '}')
 					curlyCounter--;
 				if (curlyCounter == 0) {
+					telegramServer.flush();
+					telegramServer.stop();
 					return(response);
 				}
 			}
 		}
 	}
 
+	telegramServer.flush();
+	telegramServer.stop();
 	return("");
 }
 

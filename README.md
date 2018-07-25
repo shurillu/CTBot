@@ -7,7 +7,7 @@ You also need to install the [ESP8266 Arduino Core and Library](https://github.c
 Don't you know Telegram bots and how to setup one? Check [this](https://core.telegram.org/bots#6-botfather).
 
 ### Feature
-+ Manage WiFi connection (methods for connect to an access point, set a static IP)
++ Manage WiFi connection (methods for connecting to an access point, set a static IP)
 + Send and receive messages
 + Inline keyboards (NEW)
 

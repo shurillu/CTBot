@@ -164,6 +164,7 @@ String CTBot::sendCommand(String command, String parameters)
 
 	telegramServer.flush();
 	telegramServer.stop();
+
 	return("");
 }
 

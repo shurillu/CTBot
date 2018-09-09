@@ -338,9 +338,20 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.messageID       = root["result"][0]["message"]["message_id"];
 		message.sender.id       = root["result"][0]["message"]["from"]["id"];
 		message.sender.username = root["result"][0]["message"]["from"]["username"].asString();
-		message.text            = root["result"][0]["message"]["text"].asString();
 		message.date            = root["result"][0]["message"]["date"];
-		message.messageType     = CTBotMessageText;
+		const char* test = root["result"][0]["message"]["text"];
+		if (test) {
+		    message.text            = root["result"][0]["message"]["text"].asString();		    
+			message.messageType     = CTBotMessageText;
+			return(CTBotMessageText);
+		}
+	    if (root["result"][0]["message"]["location"] != 0) {
+			serialLog("location key is present");
+		    message.location.longitude            =  root["result"][0]["message"]["location"]["longitude"];
+			message.location.latitude            = root["result"][0]["message"]["location"]["latitude"];
+		    message.messageType     = CTBotMessageLocation;
+			return(CTBotMessageLocation);
+		}
 		return(CTBotMessageText);
 	}
 	return(CTBotMessageNoData);

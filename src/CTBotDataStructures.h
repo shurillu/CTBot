@@ -4,7 +4,8 @@
 enum CTBotMessageType {
 	CTBotMessageNoData = 0,
 	CTBotMessageText   = 1,
-	CTBotMessageQuery  = 2
+	CTBotMessageQuery  = 2,
+	CTBotMessageLocation = 3
 };
 
 typedef struct TBUser {
@@ -16,6 +17,11 @@ typedef struct TBUser {
 	String   languageCode;
 };
 
+typedef struct TBLocation{
+	float longitude;
+	float latitude;
+};
+
 typedef struct TBMessage {
 	uint32_t         messageID;
 	TBUser           sender;
@@ -24,6 +30,7 @@ typedef struct TBMessage {
 	String           chatInstance;
 	String           callbackQueryData;
 	String           callbackQueryID;
+	TBLocation       location;
 	CTBotMessageType messageType;
 };
 

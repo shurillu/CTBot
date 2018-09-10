@@ -2,9 +2,9 @@
 #include <Arduino.h>
 
 enum CTBotMessageType {
-	CTBotMessageNoData = 0,
-	CTBotMessageText   = 1,
-	CTBotMessageQuery  = 2,
+	CTBotMessageNoData   = 0,
+	CTBotMessageText     = 1,
+	CTBotMessageQuery    = 2,
 	CTBotMessageLocation = 3
 };
 

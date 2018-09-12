@@ -334,26 +334,27 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		return(CTBotMessageQuery);
 	}
 	else if (root["result"][0]["message"]["message_id"] != 0) {
-		// this is a text message
+		// this is a message
 		message.messageID       = root["result"][0]["message"]["message_id"];
 		message.sender.id       = root["result"][0]["message"]["from"]["id"];
 		message.sender.username = root["result"][0]["message"]["from"]["username"].asString();
 		message.date            = root["result"][0]["message"]["date"];
-		const char* test = root["result"][0]["message"]["text"];
-		if (test) {
-		    message.text            = root["result"][0]["message"]["text"].asString();		    
-			message.messageType     = CTBotMessageText;
+		
+		if (root["result"][0]["message"]["text"].asString() != 0) {
+			// this is a text message
+		    message.text        = root["result"][0]["message"]["text"].asString();		    
+			message.messageType = CTBotMessageText;
 			return(CTBotMessageText);
 		}
-	    if (root["result"][0]["message"]["location"] != 0) {
-			serialLog("location key is present");
-		    message.location.longitude            =  root["result"][0]["message"]["location"]["longitude"];
-			message.location.latitude            = root["result"][0]["message"]["location"]["latitude"];
-		    message.messageType     = CTBotMessageLocation;
+	    else if (root["result"][0]["message"]["location"] != 0) {
+			// this is a location message
+		    message.location.longitude = root["result"][0]["message"]["location"]["longitude"];
+			message.location.latitude  = root["result"][0]["message"]["location"]["latitude"];
+		    message.messageType        = CTBotMessageLocation;
 			return(CTBotMessageLocation);
 		}
-		return(CTBotMessageText);
 	}
+	// no valid/handled message
 	return(CTBotMessageNoData);
 }
 

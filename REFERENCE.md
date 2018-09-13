@@ -8,6 +8,7 @@ ___
   + [Handling callback messages](#handling-callback-messages)
 + [Data types](#data-types)
   + [TBUser](#tbuser)
+  + [TBLocation](#tblocation)
   + [TBMessage](#tbmessage)
 + [Enumerators](#enumerators)
   + [CTBotMessageType](#ctbotmessagetype)
@@ -156,11 +157,11 @@ There are several usefully data structures used to store data typically sent by 
 `TBUser` data type is used to store user data like Telegram userID. The data structure contains:
 ```c++
 uint32_t id;
-bool     isBot;
-String   firstName;
-String   lastName;
-String   username;
-String   languageCode;
+bool   isBot;
+String firstName;
+String lastName;
+String username;
+String languageCode;
 ```
 where:
 + `id` is the unique Telegram user ID
@@ -173,6 +174,18 @@ where:
 Typically, you will use predominantly the `id` field.
 
 [back to TOC](#table-of-contents)
+### `TBLocation`
+`TBLocation` data type is used to store the longitude and the latitude. The data structure contains:
+```c++
+float longitude;
+float latitude;
+```
+where:
++ `longitude` contains the value of the longitude
++ `latitude` contains the value of the latitude
+
+For localization messages, see [TBMessage](#tbmessage)
+[back to TOC](#table-of-contents)
 ### `TBMessage`
 `TBMessage` data type is used to store new messages. The data structure contains:
 ```c++
@@ -183,17 +196,19 @@ String           text;
 String           chatInstance;
 String           callbackQueryData;
 String           callbackQueryID;
+TBLocation       location;
 CTBotMessageType messageType;
 ```
 where:
 + `messageID` contains the unique message identifier associated to the received message
 + `sender` contains the sender data in a [TBUser](#tbuser) structure
 + `date` contains the date when the message was sent, in Unix time
-+ `text` contains the received message
++ `text` contains the received message (if a text message is received)
 + `chatInstance` contains the unique ID corresponding to the chat to which the message with the callback button was sent
 + `callbackQueryData` contains the data associated with the callback button
 + `callbackQueryID` contains the unique ID for the query
-+ `messageType` contains the message type see [CTBotMessageType](#ctbotmessagetype)
++ `location` contains the location's longitude and latitude (if a location message is received)
++ `messageType` contains the message type. See [CTBotMessageType](#ctbotmessagetype)
 
 [back to TOC](#table-of-contents)
 ___
@@ -204,15 +219,18 @@ There are several usefully enumerators used to define method parameters or metho
 Enumerator used to define the possible message types received by [getNewMessage()](#ctbotgetnewmessage) method. Used also by [TBMessage](#tbmessage).
 ```c++
 enum CTBotMessageType {
-	CTBotMessageNoData = 0,
-	CTBotMessageText   = 1,
-	CTBotMessageQuery  = 2
+	CTBotMessageNoData   = 0,
+	CTBotMessageText     = 1,
+	CTBotMessageQuery    = 2, 
+	CTBotMessageLocation = 3
+
 };
 ```
 where:
 + `CTBotMessageNoData`: error - the [TBMessage](#tbmessage) structure contains no valid data
 + `CTBotMessageText`: the [TBMessage](#tbmessage) structure contains a text message
-+ `CTBotMessageQuery`: the [TBMessage](#tbmessage) structure contains a calback query message (see inline keyboards)
++ `CTBotMessageQuery`: the [TBMessage](#tbmessage) structure contains a calback query message (see [Inline Keyboards](#inline-keyboards))
++ `CTBotMessageLocation`: the [TBMessage](#tbmessage) structure contains a localization message
 
 [back to TOC](#table-of-contents)
 

@@ -185,6 +185,7 @@ where:
 + `latitude` contains the value of the latitude
 
 For localization messages, see [TBMessage](#tbmessage)
+
 [back to TOC](#table-of-contents)
 ### `TBMessage`
 `TBMessage` data type is used to store new messages. The data structure contains:
@@ -330,6 +331,7 @@ Returns:
 + `CTBotMessageNoData` if an error occurred
 + `CTBotMessageText` if the message received is a text message 
 + `CTBotMessageQuery` if the message received is a callback query message (see [Handling callback messages](#handling-callback-messages))
++ `CTBotMessageLocation` if the message received is a location message
 
 Compatibility with previous versions: you can still use the `false` statement to check if the `getNewMessage` method got errors as the following example do.<br>
 **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a ~~`false`~~ `CTBotMessageNoData` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
@@ -338,26 +340,39 @@ Example:
 #include "CTBot.h"
 CTBot myBot;
 void setup() {
-   Serial.begin(115200); // initialize the serial
-   myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
-   myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
+	Serial.begin(115200); // initialize the serial
+	myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+	myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
 }
 void loop() {
-   TBMessage msg; // a variable to store telegram message data
-   // check if there is a new incoming message
-   if(myBot.getNewMessage(msg)) {
-      // there is a valid message in msg -> print it
-      Serial.print("Received message from: ");
-      Serial.println(msg.sender.username);
-      Serial.print("Text: ");
-      Serial.println(msg.text);
-   } else {
-      // no valid message in msg
-      Serial.println("No new message");
-   }
-   delay(500); // wait 500 milliseconds
-}
-```
+	TBMessage msg; // a variable to store telegram message data
+	// check if there is a new incoming message
+	if (myBot.getNewMessage(msg)) {
+		// there is a valid message in msg
+		Serial.print("Received message from: ");
+		Serial.println(msg.sender.username);
+		if (msg.messageType == CTBotMessageText) {
+			// a text message is received
+			Serial.print("Text: ");
+			Serial.println(msg.text);
+		}
+		else if (msg.messageType == CTBotMessageLocation) {
+			// a position/location message is received
+			Serial.println("Position");
+			Serial.print(" - Latitude : ");
+			Serial.println(msg.location.latitude, 5);
+			Serial.print(" - Longitude: ");
+			Serial.println(msg.location.longitude, 5);
+		}
+		else
+			Serial.println("Invalid message received.");
+	}
+	else {
+		// no valid message in msg
+		Serial.println("No new message");
+	}
+	delay(500); // wait 500 milliseconds
+}```
 
 [back to TOC](#table-of-contents)
 ### `CTBot::sendMessage()`

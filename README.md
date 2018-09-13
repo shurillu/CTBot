@@ -11,8 +11,8 @@ Don't you know Telegram bots and how to setup one? Check [this](https://core.tel
 ### Feature
 + Manage WiFi connection (methods for connecting to an access point, set a static IP)
 + Send and receive messages
-+ Inline keyboards (NEW)
-+ Receive localization messages [NEW]
++ Inline keyboards
++ Receive localization messages (NEW)
 
 ### Supported boards
 The library works with the ESP8266 chipset: all the ESP8266 boards are supported.

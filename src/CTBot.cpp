@@ -23,7 +23,7 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	if ((unicode[0] != '\\') || (unicode[1] != 'U'))
 		return(false);
 
-	for (int i = 2; i < unicode.length(); i++) {
+	for (uint16_t i = 2; i < unicode.length(); i++) {
 		uint8_t digit = unicode[i];
 		if ((digit >= '0') && (digit <= '9'))
 			digit -= '0';
@@ -48,7 +48,7 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	byte mask = 0xC0;
 
 	while (maxValue > 0x01) {
-		buffer[0] = value & 0x3F | 0x80;
+		buffer[0] = (value & 0x3F) | 0x80;
 		utf8 = (String)buffer + utf8;
 		value = value >> 6;
 		if (value <maxValue) {

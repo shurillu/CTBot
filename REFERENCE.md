@@ -204,11 +204,11 @@ where:
 + `messageID` contains the unique message identifier associated to the received message
 + `sender` contains the sender data in a [TBUser](#tbuser) structure
 + `date` contains the date when the message was sent, in Unix time
-+ `text` contains the received message (if a text message is received)
++ `text` contains the received message (if a text message is received - see [CTBot::getNewMessage()](#ctbotgetnewmessage))
 + `chatInstance` contains the unique ID corresponding to the chat to which the message with the callback button was sent
 + `callbackQueryData` contains the data associated with the callback button
 + `callbackQueryID` contains the unique ID for the query
-+ `location` contains the location's longitude and latitude (if a location message is received)
++ `location` contains the location's longitude and latitude (if a location message is received - see [CTBot::getNewMessage()](#ctbotgetnewmessage))
 + `messageType` contains the message type. See [CTBotMessageType](#ctbotmessagetype)
 
 [back to TOC](#table-of-contents)

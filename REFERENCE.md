@@ -372,7 +372,8 @@ void loop() {
 		Serial.println("No new message");
 	}
 	delay(500); // wait 500 milliseconds
-}```
+}
+```
 
 [back to TOC](#table-of-contents)
 ### `CTBot::sendMessage()`

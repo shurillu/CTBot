@@ -34,6 +34,7 @@ A special thanks go to these people who helped me making this library
 
 ### Changelog
 + 1.2.0 Added localization messages, bug fixing
++ 1.1.1 Minor bug fixing
 + 1.1.0 Added inline keyboards, bug fixing
 + 1.0.1 Better performance, new algorithm for Telegram server queries: now sending and receiving messages requires almost no time.
 + 1.0.0 Initial version

@@ -327,6 +327,8 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.date              = root["result"][0]["callback_query"]["message"]["date"];
 		message.sender.id         = root["result"][0]["callback_query"]["from"]["id"];
 		message.sender.username   = root["result"][0]["callback_query"]["from"]["username"].asString();
+		message.sender.firstName   = root["result"][0]["callback_query"]["from"]["first_name"].asString();
+		message.sender.lastName   = root["result"][0]["callback_query"]["from"]["last_name"].asString();
 		message.callbackQueryID   = root["result"][0]["callback_query"]["id"].asString();
 		message.callbackQueryData = root["result"][0]["callback_query"]["data"].asString();
 		message.chatInstance      = root["result"][0]["callback_query"]["chat_instance"].asString();
@@ -338,6 +340,8 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.messageID       = root["result"][0]["message"]["message_id"];
 		message.sender.id       = root["result"][0]["message"]["from"]["id"];
 		message.sender.username = root["result"][0]["message"]["from"]["username"].asString();
+		message.sender.firstName = root["result"][0]["message"]["from"]["first_name"].asString();
+		message.sender.lastName = root["result"][0]["message"]["from"]["last_name"].asString();
 		message.date            = root["result"][0]["message"]["date"];
 		
 		if (root["result"][0]["message"]["text"].asString() != 0) {

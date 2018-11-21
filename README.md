@@ -33,6 +33,7 @@ A special thanks go to these people who helped me making this library
 + [ ] Add ESP32 support & testing
 
 ### Changelog
++ 1.2.1 bug fixing
 + 1.2.0 Added localization messages, bug fixing
 + 1.1.1 Minor bug fixing
 + 1.1.0 Added inline keyboards, bug fixing

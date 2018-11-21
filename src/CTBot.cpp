@@ -265,10 +265,10 @@ bool CTBot::getMe(TBUser &user) {
 
 	user.id           = root["result"]["id"];
 	user.isBot        = root["result"]["is_bot"];
-	user.firstName    = root["result"]["first_name"].asString();
-	user.lastName     = root["result"]["last_name"].asString();
-	user.username     = root["result"]["username"].asString();
-	user.languageCode = root["result"]["language_code"].asString();
+	user.firstName    = root["result"]["first_name"].as<String>();
+	user.lastName     = root["result"]["last_name"].as<String>();
+	user.username     = root["result"]["username"].as<String>();
+	user.languageCode = root["result"]["language_code"].as<String>();
 	return(true);
 }
 
@@ -323,30 +323,30 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	if (root["result"][0]["callback_query"]["id"] != 0) {
 		// this is a callback query
 		message.messageID         = root["result"][0]["callback_query"]["message"]["message_id"];
-		message.text              = root["result"][0]["callback_query"]["message"]["text"].asString();
+		message.text              = root["result"][0]["callback_query"]["message"]["text"].as<String>();
 		message.date              = root["result"][0]["callback_query"]["message"]["date"];
 		message.sender.id         = root["result"][0]["callback_query"]["from"]["id"];
-		message.sender.username   = root["result"][0]["callback_query"]["from"]["username"].asString();
-		message.sender.firstName   = root["result"][0]["callback_query"]["from"]["first_name"].asString();
-		message.sender.lastName   = root["result"][0]["callback_query"]["from"]["last_name"].asString();
-		message.callbackQueryID   = root["result"][0]["callback_query"]["id"].asString();
-		message.callbackQueryData = root["result"][0]["callback_query"]["data"].asString();
-		message.chatInstance      = root["result"][0]["callback_query"]["chat_instance"].asString();
+		message.sender.username   = root["result"][0]["callback_query"]["from"]["username"].as<String>();
+		message.sender.firstName  = root["result"][0]["callback_query"]["from"]["first_name"].as<String>();
+		message.sender.lastName   = root["result"][0]["callback_query"]["from"]["last_name"].as<String>();
+		message.callbackQueryID   = root["result"][0]["callback_query"]["id"].as<String>();
+		message.callbackQueryData = root["result"][0]["callback_query"]["data"].as<String>();
+		message.chatInstance      = root["result"][0]["callback_query"]["chat_instance"].as<String>();
 		message.messageType       = CTBotMessageQuery;
 		return(CTBotMessageQuery);
 	}
 	else if (root["result"][0]["message"]["message_id"] != 0) {
 		// this is a message
-		message.messageID       = root["result"][0]["message"]["message_id"];
-		message.sender.id       = root["result"][0]["message"]["from"]["id"];
-		message.sender.username = root["result"][0]["message"]["from"]["username"].asString();
-		message.sender.firstName = root["result"][0]["message"]["from"]["first_name"].asString();
-		message.sender.lastName = root["result"][0]["message"]["from"]["last_name"].asString();
-		message.date            = root["result"][0]["message"]["date"];
+		message.messageID        = root["result"][0]["message"]["message_id"];
+		message.sender.id        = root["result"][0]["message"]["from"]["id"];
+		message.sender.username  = root["result"][0]["message"]["from"]["username"].as<String>();
+		message.sender.firstName = root["result"][0]["message"]["from"]["first_name"].as<String>();
+		message.sender.lastName  = root["result"][0]["message"]["from"]["last_name"].as<String>();
+		message.date             = root["result"][0]["message"]["date"];
 		
-		if (root["result"][0]["message"]["text"].asString() != 0) {
+		if (root["result"][0]["message"]["text"].as<String>().length() != 0) {
 			// this is a text message
-		    message.text        = root["result"][0]["message"]["text"].asString();		    
+		    message.text        = root["result"][0]["message"]["text"].as<String>();		    
 			message.messageType = CTBotMessageText;
 			return(CTBotMessageText);
 		}

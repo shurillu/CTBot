@@ -7,6 +7,7 @@ You also need to install the [ESP8266 Arduino Core and Library](https://github.c
 Don't you know Telegram bots and how to setup one? Check [this](https://core.telegram.org/bots#6-botfather).
 
 **_Please pay attention to the installed version of ArduinoJson library: it MUST be 5.13.2 or lesser._**
+**_Some users have experienced compiling issues with the beta versions of ESP8266 toolchains. DON'T USE the beta versions. Actually the supported version is 2.4.2_**
 
 ### Feature
 + Manage WiFi connection (methods for connecting to an access point, set a static IP)

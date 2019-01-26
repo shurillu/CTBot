@@ -89,7 +89,10 @@ CTBot::~CTBot() {
 String CTBot::sendCommand(String command, String parameters)
 {
 	WiFiClientSecure telegramServer;
-
+	
+	// tell TLS library to accept unchecked server fingerprints
+	telegramServer.setInsecure();
+	
 	// check for an already established connection
 	if (m_useDNS) {
 		// try to connect with URL

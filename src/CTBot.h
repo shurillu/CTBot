@@ -6,62 +6,21 @@
 #include "CTBotDataStructures.h"
 #include "CTBotInlineKeyboard.h"
 
-#define CTBOT_DEBUG_MODE   0  // enable debugmode -> print debug data on the Serial
-                              // Zero -> debug disabled
-#define CTBOT_BUFFER_SIZE  0  // json parser buffer size
-                              // Zero -> dynamic allocation 
-#define CTBOT_STATION_MODE 1  // Station mode -> Set the mode to WIFI_STA (no access point)
-                              // Zero -> WIFI_AP_STA
+#define CTBOT_DEBUG_MODE       0 // enable debugmode -> print debug data on the Serial
+                                 // Zero -> debug disabled
+#define CTBOT_BUFFER_SIZE      0 // json parser buffer size
+                                 // Zero -> dynamic allocation 
+#define CTBOT_STATION_MODE     1 // Station mode -> Set the mode to WIFI_STA (no access point)
+                                 // Zero -> WIFI_AP_STA
+#define CTBOT_USE_FINGERPRINT  1 // use Telegram fingerprint server validation
+                                 // MUST be enabled for ESP8266 Core library > 2.4.2
+                                 // Zero -> disabled
 
 // value for disabling the status pin. It is utilized for led notification on the board
 #define CTBOT_DISABLE_STATUS_PIN -1
 
 class CTBot
 {
-private:
-	uint8_t   m_wifiConnectionTries;
-	int8_t    m_statusPin;
-	String    m_token;
-	uint32_t  m_lastUpdate;
-	bool      m_useDNS;
-	bool      m_UTF8Encoding;
-	
-	// send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
-	// params
-	//    message: the message to send
-	inline void serialLog(String message);
-	
-	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api
-	// params
-	//   command   : the command to send, i.e. getMe
-	//   parameters: optional parameters
-	// returns
-	//   an empty string if error
-	//   a string containing the Telegram JSON response
-	String sendCommand(String command, String parameters = "");
-
-	// convert an UNICODE string to UTF8 encoded string
-	// params
-	//   message: the UNICODE message
-	// returns
-	//   a string with the converted message in UTF8 
-	String toUTF8(String message);
-
-	// get some information about the bot
-	// params
-	//   user: the data structure that will contains the data retreived
-	// returns
-	//   true if no error occurred
-	bool getMe(TBUser &user);
-
-
-	// filter escape characters and convert it in a URL compliant format
-	// For example, substitute all "\n" occurencies with "%0D" 
-	// params
-	//   message: the string with escape characters
-	// returns
-	//   the string in a URL compliant format
-	String toURL(String message);
 
 public:
 	// default constructor
@@ -79,7 +38,7 @@ public:
 	// returns
 	//   true if no error occurred
 	bool setIP(String ip, String gateway, String subnetMask, String dns1 = "", String dns2 = "");
-	
+
 	// connect to a wifi network
 	// params
 	//   ssid    : the SSID network identifier
@@ -92,7 +51,7 @@ public:
 	// params
 	//   token: the telegram token
 	void setTelegramToken(String token);
-	
+
 	// use the URL style address "api.telegram.org" or the fixed IP address "149.154.167.198"
 	// for all communication with the telegram server
 	// Default value is true
@@ -159,6 +118,52 @@ public:
 	//   alertMode: false -> a simply popup message
 	//              true --> an alert message with ok button
 	bool endQuery(String queryID, String message = "", bool alertMode = false);
+
+private:
+	uint8_t   m_wifiConnectionTries;
+	int8_t    m_statusPin;
+	String    m_token;
+	uint32_t  m_lastUpdate;
+	bool      m_useDNS;
+	bool      m_UTF8Encoding;
+	bool      m_needInsecureFlag;
+	
+	// send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
+	// params
+	//    message: the message to send
+	inline void serialLog(String message);
+	
+	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api
+	// params
+	//   command   : the command to send, i.e. getMe
+	//   parameters: optional parameters
+	// returns
+	//   an empty string if error
+	//   a string containing the Telegram JSON response
+	String sendCommand(String command, String parameters = "");
+
+	// convert an UNICODE string to UTF8 encoded string
+	// params
+	//   message: the UNICODE message
+	// returns
+	//   a string with the converted message in UTF8 
+	String toUTF8(String message);
+
+	// get some information about the bot
+	// params
+	//   user: the data structure that will contains the data retreived
+	// returns
+	//   true if no error occurred
+	bool getMe(TBUser &user);
+
+
+	// filter escape characters and convert it in a URL compliant format
+	// For example, substitute all "\n" occurencies with "%0D" 
+	// params
+	//   message: the string with escape characters
+	// returns
+	//   the string in a URL compliant format
+	String toURL(String message);
 };
 
 

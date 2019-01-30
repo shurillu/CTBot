@@ -71,6 +71,7 @@ String CTBot::toURL(String message)
 //	message.replace("\v", "%0B"); // vertical tab
 //	message.replace("\f", "%0C"); // form feed
 //	message.replace("\r", "%0D"); // carriage return
+	message.replace(" ", "%20");  // spaces
 	return(message);
 }
 
@@ -88,9 +89,15 @@ CTBot::~CTBot() {
 
 String CTBot::sendCommand(String command, String parameters)
 {
+#if CTBOT_USE_FINGERPRINT == 0
 	WiFiClientSecure telegramServer;
-
-	// check for an already established connection
+#else
+	BearSSL::WiFiClientSecure telegramServer;
+	// get fingerprints from https://www.grc.com/fingerprints.htm
+	const uint8_t fingerprint[20] = {0xBB, 0xDC, 0x45, 0x2A, 0x07, 0xE3, 0x4A, 0x71, 0x33, 0x40, 0x32, 0xDA, 0xBE, 0x81, 0xF7, 0x72, 0x6F, 0x4A, 0x2B, 0x6B};
+	telegramServer.setFingerprint(fingerprint);
+#endif	
+	// check for using symbolic URLs
 	if (m_useDNS) {
 		// try to connect with URL
 		if (!telegramServer.connect(TELEGRAM_URL, TELEGRAM_PORT)) {
@@ -98,7 +105,7 @@ String CTBot::sendCommand(String command, String parameters)
 			IPAddress telegramServerIP;
 			telegramServerIP.fromString(TELEGRAM_IP);
 			if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-				serialLog("\nUnable to connect to Telegram server");
+				serialLog("\nUnable to connect to Telegram server\n");
 				return("");
 			}
 			else {
@@ -106,15 +113,17 @@ String CTBot::sendCommand(String command, String parameters)
 				useDNS(false);
 			}
 		}
-		else
+		else {
 			serialLog("\nConnected using DNS\n");
+		}
+
 	}
 	else {
 		// try to connect with fixed IP
 		IPAddress telegramServerIP; // (149, 154, 167, 198);
 		telegramServerIP.fromString(TELEGRAM_IP);
 		if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-			serialLog("\nUnable to connect to Telegram server");
+			serialLog("\nUnable to connect to Telegram server\n");
 			return("");
 		}
 		else
@@ -124,7 +133,8 @@ String CTBot::sendCommand(String command, String parameters)
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
-	String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
+	// must filter command + parameters from escape sequences and spaces
+	String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
 
 	// send the HTTP request
 	telegramServer.println(URL);
@@ -285,8 +295,12 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	if (m_lastUpdate != 0)
 		parameters += "&offset=" + (String)buf;
 	response = sendCommand("getUpdates", parameters);
-	if (response.length() == 0)
+	if (response.length() == 0) {
+#if CTBOT_DEBUG_MODE > 0
+		serialLog("getNewMessage error: response with no data\n");
+#endif
 		return(CTBotMessageNoData);
+	}
 
 #if CTBOT_BUFFER_SIZE > 0
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
@@ -302,15 +316,16 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	bool ok = root["ok"];
 	if (!ok) {
 #if CTBOT_DEBUG_MODE > 0
-		serialLog("getNewMessage error:");
-		root.printTo(Serial);
+		serialLog("getNewMessage error: ");
+		root.prettyPrintTo(Serial);
 		serialLog("\n");
 #endif
 		return(CTBotMessageNoData);
 	}
 
 #if CTBOT_DEBUG_MODE > 0
-	root.printTo(Serial);
+	serialLog("getNewMessage JSON: ");
+	root.prettyPrintTo(Serial);
 	serialLog("\n");
 #endif
 
@@ -372,15 +387,18 @@ bool CTBot::sendMessage(uint32_t id, String message, String keyboard)
 		return(false);
 
 	ultoa(id, strID, 10);
-	message = toURL(message);
 	parameters = (String)"?chat_id=" + (String)strID + (String)"&text=" + message;
 
 	if (keyboard.length() != 0)
 		parameters += (String)"&reply_markup=" + keyboard;
 
 	response = sendCommand("sendMessage", parameters);
-	if (response.length() == 0)
+	if (response.length() == 0) {
+#if CTBOT_DEBUG_MODE > 0
+		serialLog("SendMessage error: response with no data\n");
+#endif
 		return(false);
+	}
 
 #if CTBOT_BUFFER_SIZE > 0
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
@@ -392,7 +410,7 @@ bool CTBot::sendMessage(uint32_t id, String message, String keyboard)
 	bool ok = root["ok"];
 	if (!ok) {
 #if CTBOT_DEBUG_MODE > 0
-		serialLog("SendMessage error:");
+		serialLog("SendMessage error: ");
 		root.prettyPrintTo(Serial);
 		serialLog("\n");
 #endif
@@ -400,7 +418,8 @@ bool CTBot::sendMessage(uint32_t id, String message, String keyboard)
 	}
 
 #if CTBOT_DEBUG_MODE > 0
-	root.printTo(Serial);
+	serialLog("SendMessage JSON: ");
+	root.prettyPrintTo(Serial);
 	serialLog("\n");
 #endif
 

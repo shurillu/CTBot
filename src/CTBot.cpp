@@ -85,7 +85,7 @@ CTBot::CTBot() {
 	m_lastUpdate          = 0;  // not updated yet
 	m_useDNS              = false; // use static IP for Telegram Server
 	m_UTF8Encoding        = false; // no UTF8 encoded string conversion
-	setFingerprint(fingerprint);
+	setFingerprint(fingerprint);   // set the default fingerprint
 }
 
 CTBot::~CTBot() {

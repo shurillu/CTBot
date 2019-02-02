@@ -6,6 +6,9 @@
 #define TELEGRAM_URL  "api.telegram.org"
 #define TELEGRAM_IP   "149.154.167.198"
 #define TELEGRAM_PORT 443
+// get fingerprints from https://www.grc.com/fingerprints.htm
+const uint8_t fingerprint[20] = { 0xBB, 0xDC, 0x45, 0x2A, 0x07, 0xE3, 0x4A, 0x71, 0x33, 0x40, 0x32, 0xDA, 0xBE, 0x81, 0xF7, 0x72, 0x6F, 0x4A, 0x2B, 0x6B };
+
 
 inline void CTBot::serialLog(String message) {
 #if CTBOT_DEBUG_MODE > 0
@@ -82,6 +85,7 @@ CTBot::CTBot() {
 	m_lastUpdate          = 0;  // not updated yet
 	m_useDNS              = false; // use static IP for Telegram Server
 	m_UTF8Encoding        = false; // no UTF8 encoded string conversion
+	setFingerprint(fingerprint);
 }
 
 CTBot::~CTBot() {
@@ -93,9 +97,7 @@ String CTBot::sendCommand(String command, String parameters)
 	WiFiClientSecure telegramServer;
 #else
 	BearSSL::WiFiClientSecure telegramServer;
-	// get fingerprints from https://www.grc.com/fingerprints.htm
-	const uint8_t fingerprint[20] = {0xBB, 0xDC, 0x45, 0x2A, 0x07, 0xE3, 0x4A, 0x71, 0x33, 0x40, 0x32, 0xDA, 0xBE, 0x81, 0xF7, 0x72, 0x6F, 0x4A, 0x2B, 0x6B};
-	telegramServer.setFingerprint(fingerprint);
+	telegramServer.setFingerprint(m_fingerprint);
 #endif	
 	// check for using symbolic URLs
 	if (m_useDNS) {
@@ -474,6 +476,12 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 #endif
 
 	return(true);
+}
+
+void CTBot::setFingerprint(const uint8_t * newFingerprint)
+{
+	for (int i = 0; i < 20; i++)
+		m_fingerprint[i] = newFingerprint[i];
 }
 
 bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, String dns2){

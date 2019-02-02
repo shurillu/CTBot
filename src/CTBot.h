@@ -119,6 +119,13 @@ public:
 	//              true --> an alert message with ok button
 	bool endQuery(String queryID, String message = "", bool alertMode = false);
 
+	// set the new Telegram API server fingerprint overwriting the default one.
+	// It can be obtained by this service: https://www.grc.com/fingerprints.htm
+	// quering api.telegram.org
+	// params:
+	//    newFingerprint: the array of 20 bytes that contains the new fingerprint
+	void setFingerprint(const uint8_t *newFingerprint);
+
 private:
 	uint8_t   m_wifiConnectionTries;
 	int8_t    m_statusPin;
@@ -127,7 +134,7 @@ private:
 	bool      m_useDNS;
 	bool      m_UTF8Encoding;
 	bool      m_needInsecureFlag;
-	
+	uint8_t   m_fingerprint[20];
 	// send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
 	// params
 	//    message: the message to send

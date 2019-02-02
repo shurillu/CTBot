@@ -30,7 +30,7 @@ ___
   + [CTBot::useDNS()](#ctbotusedns)
   + [CTBot::enableUTF8Encoding()](#ctbotenableutf8encoding)
   + [CTBot::setStatusPin()](#ctbotsetstatuspin)
-  
+  + [CTBot::setFingerprint()](#ctbotsetfingerprint)
 ___
 ## Introduction and quick start
 Once installed the library, you have to load it in your sketch...
@@ -644,4 +644,31 @@ Parameters:
 Returns: none. <br>
 Example:
 + `setStatusPin(2)`: enable the status pin feature using the pin 2 (GPIO 4 - onboard LED of the ESP8266 chip)
+
+[back to TOC](#table-of-contents)
+### `CTBot::setFingerprint()`
+`void CTBot::setFingerprint(const uint8_t *newFingerprint)` <br><br>
+Set the new Telegram API server fingerprint overwriting the default one.
+The fingerprint can be obtained by [this service](https://www.grc.com/fingerprints.htm) provided by Gibson Research Corporation. To obtain the new fingerprint, just query for `api.telegram.org`
+
+Default value is `BB:DC:45:2A:07:E3:4A:71:33:40:32:DA:BE:81:F7:72:6F:4A:2B:6B`.<br>
+Parameters:
++ `newFingerprint`: the 20 bytes array that contains the new fingerprint.
+
+Returns: none. <br>
+Example:
+```c++
+void setup() {
+   ...
+   uint8_t telegramFingerprint [20] = { 0xBB, 0xDC, 0x45, 0x2A, 0x07, 0xE3, 0x4A, 0x71, 0x33, 0x40, 0x32, 0xDA, 0xBE, 0x81, 0xF7, 0x72, 0x6F, 0x4A, 0x2B, 0x6B };
+   myBot.setFingerprint(telegramFingerprint);
+   ...
+}
+
+void loop(){
+   ...
+}
+```
+[back to TOC](#table-of-contents)
+
 

@@ -288,11 +288,13 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 
 	String response;
 	String parameters;
-	char buf[10];
+	char buf[21];
 
 	message.messageType = CTBotMessageNoData;
 
-	ultoa(m_lastUpdate, buf, 10);
+	ltoa(m_lastUpdate, buf, 10);
+	// polling timeout: add &timeout=<seconds>
+	// default is zero (short polling).
 	parameters = "?limit=1&allowed_updates=message,callback_query";
 	if (m_lastUpdate != 0)
 		parameters += "&offset=" + (String)buf;
@@ -332,17 +334,17 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 #endif
 
 	uint32_t updateID;
-	updateID = root["result"][0]["update_id"];
+	updateID = root["result"][0]["update_id"].as<int32_t>();
 	if (updateID == 0)
 		return(CTBotMessageNoData);
 	m_lastUpdate = updateID + 1;
 
 	if (root["result"][0]["callback_query"]["id"] != 0) {
 		// this is a callback query
-		message.messageID         = root["result"][0]["callback_query"]["message"]["message_id"];
+		message.messageID         = root["result"][0]["callback_query"]["message"]["message_id"].as<int32_t>();
 		message.text              = root["result"][0]["callback_query"]["message"]["text"].as<String>();
-		message.date              = root["result"][0]["callback_query"]["message"]["date"];
-		message.sender.id         = root["result"][0]["callback_query"]["from"]["id"];
+		message.date              = root["result"][0]["callback_query"]["message"]["date"].as<int32_t>();
+		message.sender.id         = root["result"][0]["callback_query"]["from"]["id"].as<int32_t>();
 		message.sender.username   = root["result"][0]["callback_query"]["from"]["username"].as<String>();
 		message.sender.firstName  = root["result"][0]["callback_query"]["from"]["first_name"].as<String>();
 		message.sender.lastName   = root["result"][0]["callback_query"]["from"]["last_name"].as<String>();
@@ -354,12 +356,12 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	}
 	else if (root["result"][0]["message"]["message_id"] != 0) {
 		// this is a message
-		message.messageID        = root["result"][0]["message"]["message_id"];
-		message.sender.id        = root["result"][0]["message"]["from"]["id"];
+		message.messageID        = root["result"][0]["message"]["message_id"].as<int32_t>();
+		message.sender.id        = root["result"][0]["message"]["from"]["id"].as<int32_t>();
 		message.sender.username  = root["result"][0]["message"]["from"]["username"].as<String>();
 		message.sender.firstName = root["result"][0]["message"]["from"]["first_name"].as<String>();
 		message.sender.lastName  = root["result"][0]["message"]["from"]["last_name"].as<String>();
-		message.date             = root["result"][0]["message"]["date"];
+		message.date             = root["result"][0]["message"]["date"].as<int32_t>();
 		
 		if (root["result"][0]["message"]["text"].as<String>().length() != 0) {
 			// this is a text message
@@ -369,8 +371,8 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		}
 	    else if (root["result"][0]["message"]["location"] != 0) {
 			// this is a location message
-		    message.location.longitude = root["result"][0]["message"]["location"]["longitude"];
-			message.location.latitude  = root["result"][0]["message"]["location"]["latitude"];
+		    message.location.longitude = root["result"][0]["message"]["location"]["longitude"].as<float>();
+			message.location.latitude  = root["result"][0]["message"]["location"]["latitude"].as<float>();
 		    message.messageType        = CTBotMessageLocation;
 			return(CTBotMessageLocation);
 		}
@@ -379,16 +381,15 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	return(CTBotMessageNoData);
 }
 
-bool CTBot::sendMessage(uint32_t id, String message, String keyboard)
+bool CTBot::sendMessage(int32_t id, String message, String keyboard)
 {
 	String response;
 	String parameters;
-	char strID[10];
+	char strID[21];
 
 	if (0 == message.length())
 		return(false);
-
-	ultoa(id, strID, 10);
+	ltoa(id, strID, 10);
 	parameters = (String)"?chat_id=" + (String)strID + (String)"&text=" + message;
 
 	if (keyboard.length() != 0)
@@ -428,7 +429,7 @@ bool CTBot::sendMessage(uint32_t id, String message, String keyboard)
 	return(true);
 }
 
-bool CTBot::sendMessage(uint32_t id, String message, CTBotInlineKeyboard &keyboard) {
+bool CTBot::sendMessage(int32_t id, String message, CTBotInlineKeyboard &keyboard) {
 	return(sendMessage(id, message, keyboard.getJSON()));
 }
 

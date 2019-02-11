@@ -65,6 +65,27 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	return(false);
 }
 
+String int64ToAscii(int64_t value) {
+	String buffer = "";
+	int64_t temp;
+	uint8_t rest;
+	char ascii;
+	if (value < 0)
+		temp = -value;
+	else
+		temp = value;
+
+	while (temp != 0) {
+		rest = temp % 10;
+		temp = (temp - rest) / 10;
+		ascii = 0x30 + rest;
+		buffer = ascii + buffer;
+	}
+	if (value < 0)
+		buffer = '-' + buffer;
+	return(buffer);
+}
+
 String CTBot::toURL(String message)
 {
 //	message.replace("\a", "%07"); // alert beep
@@ -381,16 +402,18 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	return(CTBotMessageNoData);
 }
 
-bool CTBot::sendMessage(int32_t id, String message, String keyboard)
+bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 {
 	String response;
 	String parameters;
-	char strID[21];
+	String strID;
 
 	if (0 == message.length())
 		return(false);
-	ltoa(id, strID, 10);
-	parameters = (String)"?chat_id=" + (String)strID + (String)"&text=" + message;
+
+	strID = int64ToAscii(id);
+
+	parameters = (String)"?chat_id=" + strID + (String)"&text=" + message;
 
 	if (keyboard.length() != 0)
 		parameters += (String)"&reply_markup=" + keyboard;
@@ -429,7 +452,7 @@ bool CTBot::sendMessage(int32_t id, String message, String keyboard)
 	return(true);
 }
 
-bool CTBot::sendMessage(int32_t id, String message, CTBotInlineKeyboard &keyboard) {
+bool CTBot::sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboard) {
 	return(sendMessage(id, message, keyboard.getJSON()));
 }
 

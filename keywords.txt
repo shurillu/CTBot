@@ -4,7 +4,10 @@ CTBotInlineKeyboard	KEYWORD1
 setIP	KEYWORD2
 wifiConnect	KEYWORD2
 setTelegramToken	KEYWORD2
+setTelegramIP	KEYWORD2
+setTelegramPort	KEYWORD2
 useDNS	KEYWORD2
+useProxy	KEYWORD2
 enableUTF8Encoding	KEYWORD2
 setMaxConnectionRetries	KEYWORD2
 setStatusPin	KEYWORD2

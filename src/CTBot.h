@@ -105,8 +105,8 @@ public:
 	//             (in json format or using the CTBotInlineKeyboard class helper)
 	// returns
 	//   true if no error occurred
-	bool sendMessage(uint32_t id, String message, String keyboard = "");
-	bool sendMessage(uint32_t id, String message, CTBotInlineKeyboard &keyboard);
+	bool sendMessage(int64_t id, String message, String keyboard = "");
+	bool sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboard);
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard
@@ -143,13 +143,15 @@ private:
 	uint8_t   m_wifiConnectionTries;
 	int8_t    m_statusPin;
 	String    m_token;
-	uint32_t  m_lastUpdate;
+	int32_t   m_lastUpdate;
 	bool      m_useDNS;
 	bool      m_UTF8Encoding;
 	bool      m_needInsecureFlag;
 	uint8_t   m_fingerprint[20];
-	String 	  TELEGRAM_IP;
-	int       TELEGRAM_PORT;
+  
+  String 	  TELEGRAM_IP;
+	uint16_t  TELEGRAM_PORT;
+
 	// send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
 	// params
 	//    message: the message to send

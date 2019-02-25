@@ -9,7 +9,7 @@ enum CTBotMessageType {
 };
 
 typedef struct TBUser {
-	uint32_t id;
+	int32_t  id;
 	bool     isBot;
 	String   firstName;
 	String   lastName;
@@ -23,9 +23,9 @@ typedef struct TBLocation{
 };
 
 typedef struct TBMessage {
-	uint32_t         messageID;
+	int32_t          messageID;
 	TBUser           sender;
-	uint32_t         date;
+	int32_t          date;
 	String           text;
 	String           chatInstance;
 	String           callbackQueryData;

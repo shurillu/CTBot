@@ -6,7 +6,7 @@
 #include "CTBotDataStructures.h"
 #include "CTBotInlineKeyboard.h"
 
-#define CTBOT_DEBUG_MODE       1 // enable debugmode -> print debug data on the Serial
+#define CTBOT_DEBUG_MODE       0 // enable debugmode -> print debug data on the Serial
                                  // Zero -> debug disabled
 #define CTBOT_BUFFER_SIZE      0 // json parser buffer size
                                  // Zero -> dynamic allocation 

@@ -12,6 +12,7 @@ testConnection	KEYWORD2
 getNewMessage	KEYWORD2
 sendMessage	KEYWORD2
 endQuery	KEYWORD2
+setFingerprint	KEYWORD2
 flushData	KEYWORD2
 addRow	KEYWORD2
 addButton	KEYWORD2
@@ -19,12 +20,14 @@ getJson	KEYWORD2
 
 TBUser	KEYWORD3
 TBMessage	KEYWORD3
+TBLocation	KEYWORD3
 CTBotMessageType	KEYWORD3
-CTBotInlineKeyboardType	KEYWORD3
+CTBotInlineKeyboardButtonType	KEYWORD3
 
 CTBOT_DISABLE_STATUS_PIN	LITERAL1
 CTBotMessageNoData	LITERAL1
 CTBotMessageText	LITERAL1
 CTBotMessageQuery	LITERAL1
+CTBotMessageLocation	LITERAL1
 CTBotKeyboardButtonURL	LITERAL1
 CTBotKeyboardButtonQuery	LITERAL1

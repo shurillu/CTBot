@@ -4,8 +4,6 @@
 #include "CTBot.h"
 
 #define TELEGRAM_URL  "api.telegram.org"
-#define TELEGRAM_IP   "149.154.167.198"
-#define TELEGRAM_PORT 443
 // get fingerprints from https://www.grc.com/fingerprints.htm
 const uint8_t fingerprint[20] = { 0xBB, 0xDC, 0x45, 0x2A, 0x07, 0xE3, 0x4A, 0x71, 0x33, 0x40, 0x32, 0xDA, 0xBE, 0x81, 0xF7, 0x72, 0x6F, 0x4A, 0x2B, 0x6B };
 
@@ -107,6 +105,8 @@ CTBot::CTBot() {
 	m_useDNS              = false; // use static IP for Telegram Server
 	m_UTF8Encoding        = false; // no UTF8 encoded string conversion
 	setFingerprint(fingerprint);   // set the default fingerprint
+	TELEGRAM_IP = "149.154.167.198";
+	TELEGRAM_PORT = 443;
 }
 
 CTBot::~CTBot() {
@@ -115,7 +115,7 @@ CTBot::~CTBot() {
 String CTBot::sendCommand(String command, String parameters)
 {
 #if CTBOT_USE_FINGERPRINT == 0
-	WiFiClientSecure telegramServer;
+	WiFiClient telegramServer;
 #else
 	BearSSL::WiFiClientSecure telegramServer;
 	telegramServer.setFingerprint(m_fingerprint);
@@ -157,10 +157,13 @@ String CTBot::sendCommand(String command, String parameters)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
 	// must filter command + parameters from escape sequences and spaces
-	String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
-
+	String URL = "GET https://api.telegram.org/bot" + m_token + (String)"/" + toURL(command + parameters);
 	// send the HTTP request
-	telegramServer.println(URL);
+	String request = URL + String(" HTTP/1.1\r\n") +
+					"Host: " + TELEGRAM_URL + String("\r\n") +
+					String("Accept-Encoding: identity\r\n") +
+					String("\r\n");
+	telegramServer.print(request);
 
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
@@ -170,6 +173,11 @@ String CTBot::sendCommand(String command, String parameters)
 	bool skipCounter = false; // for filtering curly bracket inside a text message
 	curlyCounter = -1;
 	response = "";
+	
+	while (telegramServer.connected()) {
+	  if(telegramServer.readStringUntil('\n')=="\r")
+		break;
+	}
 
 	while (telegramServer.connected()) {
 		while (telegramServer.available()) {
@@ -506,6 +514,19 @@ void CTBot::setFingerprint(const uint8_t * newFingerprint)
 {
 	for (int i = 0; i < 20; i++)
 		m_fingerprint[i] = newFingerprint[i];
+}
+
+void CTBot::setTelegramIP(String IP){
+	TELEGRAM_IP = IP;
+}
+
+void CTBot::setTelegramPort(int port){
+	TELEGRAM_PORT = port;
+}
+
+void CTBot::useProxy(String IP, int port){
+	setTelegramIP(IP);
+	setTelegramPort(port);
 }
 
 bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, String dns2){

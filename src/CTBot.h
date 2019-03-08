@@ -125,6 +125,19 @@ public:
 	// params:
 	//    newFingerprint: the array of 20 bytes that contains the new fingerprint
 	void setFingerprint(const uint8_t *newFingerprint);
+	
+	void setTelegramIP(String IP);
+	
+	void setTelegramPort(int port);
+	
+	// sets a proxy which should be used in case connection to api.telegram.org fails
+	// no SSL so no encryption of the requests!!!
+	// CTBOT_USE_FINGERPRINT must be 0
+	//params:
+	//		IP: IP of a HTTP proxy-server. If the response time of the server is too long
+	//			the requests will timeout
+	//      port: port of the proxy-server
+	void useProxy(String IP, int port);
 
 private:
 	uint8_t   m_wifiConnectionTries;
@@ -135,6 +148,9 @@ private:
 	bool      m_UTF8Encoding;
 	bool      m_needInsecureFlag;
 	uint8_t   m_fingerprint[20];
+  
+  String 	  TELEGRAM_IP;
+	uint16_t  TELEGRAM_PORT;
 
 	// send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
 	// params

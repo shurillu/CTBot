@@ -164,7 +164,7 @@ private:
 	//   true if no error occurred
 	bool getMe(TBUser &user);
 
-
+/*
 	// filter escape characters and convert it in a URL compliant format
 	// For example, substitute all "\n" occurencies with "%0D" 
 	// params
@@ -172,6 +172,9 @@ private:
 	// returns
 	//   the string in a URL compliant format
 	String toURL(String message);
+*/
+
+
 };
 
 

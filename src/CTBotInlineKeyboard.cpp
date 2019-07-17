@@ -1,4 +1,5 @@
 #include "CTBotInlineKeyboard.h"
+#include "Utilities.h"
 
 void CTBotInlineKeyboard::initialize(void)
 {
@@ -40,6 +41,7 @@ bool CTBotInlineKeyboard::addRow(void)
 bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType)
 {
 	JsonObject& button = m_buttons->createNestedObject();
+	text = URLEncodeMessage(text);
 	button["text"] = text;
 	if (CTBotKeyboardButtonURL == buttonType)
 		button["url"] = command;

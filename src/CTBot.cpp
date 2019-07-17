@@ -2,6 +2,7 @@
 #include "ESP8266WiFi.h"
 #include "WiFiClientSecure.h"
 #include "CTBot.h"
+#include "Utilities.h"
 
 #define TELEGRAM_URL  "api.telegram.org"
 #define TELEGRAM_IP   "149.154.167.198"
@@ -16,76 +17,7 @@ inline void CTBot::serialLog(String message) {
 #endif
 }
 
-bool unicodeToUTF8(String unicode, String &utf8) {
-	uint32_t value = 0;
-	unicode.toUpperCase();
-
-	if (unicode.length() < 3)
-		return(false);
-
-	if ((unicode[0] != '\\') || (unicode[1] != 'U'))
-		return(false);
-
-	for (uint16_t i = 2; i < unicode.length(); i++) {
-		uint8_t digit = unicode[i];
-		if ((digit >= '0') && (digit <= '9'))
-			digit -= '0';
-		else if ((digit >= 'A') && (digit <= 'F'))
-			digit = (digit - 'A') + 10;
-		else
-			return(false);
-		value += digit << (4 * (unicode.length() - (i + 1)));
-	}
-
-	char buffer[2];
-	buffer[1] = 0x00;
-	utf8 = "";
-
-	if (value < 0x80) {
-		buffer[0] = value & 0x7F;
-		utf8 = (String)buffer;
-		return(true);
-	}
-
-	byte maxValue = 0x20;
-	byte mask = 0xC0;
-
-	while (maxValue > 0x01) {
-		buffer[0] = (value & 0x3F) | 0x80;
-		utf8 = (String)buffer + utf8;
-		value = value >> 6;
-		if (value <maxValue) {
-			buffer[0] = (value & (maxValue - 1)) | mask;
-			utf8 = (String)buffer + utf8;
-			return(true);
-		}
-		mask = mask + maxValue;
-		maxValue = maxValue >> 1;
-	}
-	return(false);
-}
-
-String int64ToAscii(int64_t value) {
-	String buffer = "";
-	int64_t temp;
-	uint8_t rest;
-	char ascii;
-	if (value < 0)
-		temp = -value;
-	else
-		temp = value;
-
-	while (temp != 0) {
-		rest = temp % 10;
-		temp = (temp - rest) / 10;
-		ascii = 0x30 + rest;
-		buffer = ascii + buffer;
-	}
-	if (value < 0)
-		buffer = '-' + buffer;
-	return(buffer);
-}
-
+/*
 String CTBot::toURL(String message)
 {
 //	message.replace("\a", "%07"); // alert beep
@@ -98,7 +30,7 @@ String CTBot::toURL(String message)
 	message.replace(" ", "%20");  // spaces
 	return(message);
 }
-
+*/
 CTBot::CTBot() {
 	m_wifiConnectionTries = 0;  // wait until connection to the AP is established (locking!)
 	m_statusPin           = CTBOT_DISABLE_STATUS_PIN; // status pin disabled
@@ -157,7 +89,8 @@ String CTBot::sendCommand(String command, String parameters)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
 	// must filter command + parameters from escape sequences and spaces
-	String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
+//	String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
+	String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
 
 	// send the HTTP request
 	telegramServer.println(URL);
@@ -413,6 +346,8 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 
 	strID = int64ToAscii(id);
 
+	message = URLEncodeMessage(message); //-------------------------------------------------------------------------------------------------------------------------------------
+
 	parameters = (String)"?chat_id=" + strID + (String)"&text=" + message;
 
 	if (keyboard.length() != 0)
@@ -467,6 +402,9 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 	parameters = (String)"?callback_query_id=" + queryID;
 
 	if (message.length() != 0) {
+		
+		message = URLEncodeMessage(message); //---------------------------------------------------------------------------------------------------------------------------------
+
 		if (alertMode)
 			parameters += (String)"&text=" + message + (String)"&show_alert=true";
 		else

@@ -36,9 +36,10 @@ A special thanks go to these people who helped me making this library
 + [ ] Add ESP32 support & testing
 
 ### Changelog
-+ 1.3.1 
++ 1.3.2
   + URL encoding: now it is possible to send all kind of characters
   + Added group infos (ID and Group title) in the TBMessage structure
++ 1.3.1 Fixed an issue that doesn't support negative and 64 bit values for chatID/groupID: now it use int64 numbers. This issue involved the CTBot::sendMessage() method.
 + 1.3.0 added new functionalities:
   + 2.5.0 ESP8266 toolchain support
   + Telegram server fingerprint authentication added

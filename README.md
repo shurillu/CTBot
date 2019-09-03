@@ -36,7 +36,7 @@ A special thanks go to these people who helped me making this library
 + [ ] Add ESP32 support & testing
 
 ### Changelog
-+ 1.3.2 Bug fixing and new functionalities
++ 1.3.2 Bug fixing and new functionalities:
   + URL encoding: now it is possible to send all kind of characters
   + Added group infos (ID and Group title) in the TBMessage structure
 + 1.3.1 Fixed an issue that doesn't support negative and 64 bit values for chatID/groupID: now it use int64 numbers. This issue involved the CTBot::sendMessage() method.

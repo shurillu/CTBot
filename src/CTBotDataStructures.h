@@ -17,6 +17,11 @@ typedef struct TBUser {
 	String   languageCode;
 };
 
+typedef struct TBGroup {
+	int64_t id;
+	String  title;
+};
+
 typedef struct TBLocation{
 	float longitude;
 	float latitude;
@@ -25,6 +30,7 @@ typedef struct TBLocation{
 typedef struct TBMessage {
 	int32_t          messageID;
 	TBUser           sender;
+	TBGroup          group;
 	int32_t          date;
 	String           text;
 	String           chatInstance;

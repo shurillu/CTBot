@@ -1,3 +1,4 @@
+#define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
 #include <ArduinoJson.h>
 #include "ESP8266WiFi.h"
 #include "WiFiClientSecure.h"
@@ -98,6 +99,10 @@ String CTBot::sendCommand(String command, String parameters)
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
+	return(telegramServer.readString());
+
+	// the following commented part is no more useful
+/*
 	String response;
 	int curlyCounter; // count the open/closed curly bracket for identify the json
 	bool skipCounter = false; // for filtering curly bracket inside a text message
@@ -132,6 +137,7 @@ String CTBot::sendCommand(String command, String parameters)
 	telegramServer.stop();
 
 	return("");
+*/
 }
 
 String CTBot::toUTF8(String message)
@@ -315,6 +321,8 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.sender.username  = root["result"][0]["message"]["from"]["username"].as<String>();
 		message.sender.firstName = root["result"][0]["message"]["from"]["first_name"].as<String>();
 		message.sender.lastName  = root["result"][0]["message"]["from"]["last_name"].as<String>();
+		message.group.id         = root["result"][0]["message"]["chat"]["id"].as<int64_t>();
+		message.group.title      = root["result"][0]["message"]["chat"]["title"].as<String>();
 		message.date             = root["result"][0]["message"]["date"].as<int32_t>();
 		
 		if (root["result"][0]["message"]["text"].as<String>().length() != 0) {

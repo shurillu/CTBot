@@ -9,6 +9,7 @@ ___
 + [Data types](#data-types)
   + [TBUser](#tbuser)
   + [TBLocation](#tblocation)
+  + [TBGroup](#tbgroup)
   + [TBMessage](#tbmessage)
 + [Enumerators](#enumerators)
   + [CTBotMessageType](#ctbotmessagetype)
@@ -187,11 +188,23 @@ where:
 For localization messages, see [TBMessage](#tbmessage)
 
 [back to TOC](#table-of-contents)
+### `TBGroup`
+`TBGroup` data type is used to store the group chat data. The data structure contains:
+```c++
+int64_t id;
+String  title;
+```
+where:
++ `id` contains the ID of the group chat
++ `title` contains the title of the group chat
+
+[back to TOC](#table-of-contents)
 ### `TBMessage`
 `TBMessage` data type is used to store new messages. The data structure contains:
 ```c++
 uint32_t         messageID;
 TBUser           sender;
+TBGroup          group;
 uint32_t         date;
 String           text;
 String           chatInstance;
@@ -203,6 +216,7 @@ CTBotMessageType messageType;
 where:
 + `messageID` contains the unique message identifier associated to the received message
 + `sender` contains the sender data in a [TBUser](#tbuser) structure
++ `group` contains the group chat data in a [TBGroup](#tbgroup) structure
 + `date` contains the date when the message was sent, in Unix time
 + `text` contains the received message (if a text message is received - see [CTBot::getNewMessage()](#ctbotgetnewmessage))
 + `chatInstance` contains the unique ID corresponding to the chat to which the message with the callback button was sent

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef UTILITIES.H
-#define UTILITIES.H
+#ifndef UTILITIES
+#define UTILITIES
 #include <Arduino.h>
 
 // convert an UNICODE coded string to a UTF8 coded string

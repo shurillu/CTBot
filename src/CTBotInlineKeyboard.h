@@ -1,10 +1,10 @@
 #pragma once
-
 #ifndef CTBOT_INLINE_KEYBOARD
 #define CTBOT_INLINE_KEYBOARD
 
+#define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
+#include <ArduinoJson.h>
 #include <Arduino.h>
-#include "ArduinoJson.h"
 
 
 enum CTBotInlineKeyboardButtonType {

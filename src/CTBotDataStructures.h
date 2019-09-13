@@ -1,4 +1,7 @@
 #pragma once
+#ifndef CTBOT_DATA_STRUCTURES
+#define CTBOT_DATA_STRUCTURES
+
 #include <Arduino.h>
 
 enum CTBotMessageType {
@@ -39,4 +42,6 @@ typedef struct TBMessage {
 	TBLocation       location;
 	CTBotMessageType messageType;
 };
+
+#endif
 

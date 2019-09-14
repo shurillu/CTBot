@@ -99,20 +99,27 @@ String CTBot::sendCommand(String command, String parameters)
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
+#if CTBOT_CHECK_JSON == 0
 	return(telegramServer.readString());
+#else
 
-	// the following commented part is no more useful
-/*
 	String response;
 	int curlyCounter; // count the open/closed curly bracket for identify the json
 	bool skipCounter = false; // for filtering curly bracket inside a text message
+	int c;
 	curlyCounter = -1;
 	response = "";
 
 	while (telegramServer.connected()) {
 		while (telegramServer.available()) {
-			int c = telegramServer.read();
+			c = telegramServer.read();
 			response += (char)c;
+			if (c == '\\') {
+				// escape character -> read next and skip
+				c = telegramServer.read();
+				response += (char)c;
+				continue;
+			}
 			if (c == '"')
 				skipCounter = !skipCounter;
 			if (!skipCounter) {
@@ -125,6 +132,8 @@ String CTBot::sendCommand(String command, String parameters)
 				else if (c == '}')
 					curlyCounter--;
 				if (curlyCounter == 0) {
+
+					// JSON ended, close connection and return JSON
 					telegramServer.flush();
 					telegramServer.stop();
 					return(response);
@@ -133,11 +142,11 @@ String CTBot::sendCommand(String command, String parameters)
 		}
 	}
 
+	// timeout, no JSON to parse
 	telegramServer.flush();
 	telegramServer.stop();
-
 	return("");
-*/
+#endif
 }
 
 String CTBot::toUTF8(String message)

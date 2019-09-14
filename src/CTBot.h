@@ -15,6 +15,10 @@
 #define CTBOT_USE_FINGERPRINT  1 // use Telegram fingerprint server validation
                                  // MUST be enabled for ESP8266 Core library > 2.4.2
                                  // Zero -> disabled
+#define CTBOT_CHECK_JSON       1 // Check every JSON received from Telegram Server. Speedup the bot.
+                                 // Zero -> Set it to zero if the bot doesn't receive messages anymore 
+                                 //         slow down the bot
+
 
 // value for disabling the status pin. It is utilized for led notification on the board
 #define CTBOT_DISABLE_STATUS_PIN -1

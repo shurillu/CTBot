@@ -1,11 +1,5 @@
 #include "Utilities.h"
 
-// convert an UNICODE string to a UTF8 string
-// params
-//   unicode: unicode string to convert
-//   utf8   : the input string converted to UTF8
-// returns
-//   true if no error occurred
 bool unicodeToUTF8(String unicode, String &utf8) {
 	uint32_t value = 0;
 	unicode.toUpperCase();
@@ -55,11 +49,6 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	return(false);
 }
 
-// convert an int64 value to string 
-// params
-//   value: the int64 value to convert
-// returns
-//   the value as string
 String int64ToAscii(int64_t value) {
 	String buffer = "";
 	int64_t temp;
@@ -81,11 +70,6 @@ String int64ToAscii(int64_t value) {
 	return(buffer);
 }
 
-// convert a string to an URL compliant one
-// params
-//   message: the input message to convert
-// returns
-//   the message URL encoded
 String URLEncodeMessage(String message) {
 	String encodedMessage = "";
 	char buffer[4];
@@ -114,6 +98,5 @@ String URLEncodeMessage(String message) {
 		}
 	}
 	return(encodedMessage);
-
 }
 

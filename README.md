@@ -9,7 +9,8 @@ Don't you know Telegram bots and how to setup one? Check [this](https://core.tel
 + **_Please pay attention to the installed version of ArduinoJson library: it MUST be 5.13.5 or lesser._**
 
 ### News
-+ Added support for the 2.5.0 ESP8266 toolchain/library
++ Added reply keyboards support
++ Added contact messages support
 
 ### Feature
 + Manage WiFi connection (methods for connecting to an access point, set a static IP)

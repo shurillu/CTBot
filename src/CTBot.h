@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include "CTBotDataStructures.h"
 #include "CTBotInlineKeyboard.h"
+#include "CTBotReplyKeyboard.h"
 
 #define CTBOT_DEBUG_MODE       0 // enable debugmode -> print debug data on the Serial
                                  // Zero -> debug disabled
@@ -105,23 +106,35 @@ public:
 	// params
 	//   id      : the telegram recipient user ID 
 	//   message : the message to send
-	//   keyboard: the inline keyboard (optional)
-	//             (in json format or using the CTBotInlineKeyboard class helper)
+	//   keyboard: the inline/reply keyboard (optional)
+	//             (in json format or using the CTBotInlineKeyboard/CTBotReplyKeyboard class helper)
 	// returns
 	//   true if no error occurred
 	bool sendMessage(int64_t id, String message, String keyboard = "");
 	bool sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboard);
+	bool sendMessage(int64_t id, String message, CTBotReplyKeyboard  &keyboard);
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard
 	// 2) wait for a <message> (getNewMessage) of type CTBotMessageQuery
 	// 3) handle the query and then call endQuery with <message>.callbackQueryID 
 	// params
-	//   queryID: the unique query ID (retrieved with getNewMessage method)
-	//   message: an optional message
+	//   queryID  : the unique query ID (retrieved with getNewMessage method)
+	//   message  : an optional message
 	//   alertMode: false -> a simply popup message
 	//              true --> an alert message with ok button
 	bool endQuery(String queryID, String message = "", bool alertMode = false);
+
+	// remove an active reply keyboard for a selected user, sending a message
+	// params:
+	//   id       : the telegram user ID 
+	//   message  : the message to be show to the selected user ID
+	//   selective: enable selective mode (hide the keyboard for specific users only)
+	//              Targets: 1) users that are @mentioned in the text of the Message object; 
+	//                       2) if the bot's message is a reply (has reply_to_message_id), sender of the original message
+	// return:
+	//   true if no error occurred
+	bool removeReplyKeyboard(int64_t id, String message, bool selective = false);
 
 	// set the new Telegram API server fingerprint overwriting the default one.
 	// It can be obtained by this service: https://www.grc.com/fingerprints.htm

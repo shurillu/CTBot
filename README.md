@@ -15,7 +15,9 @@ Don't you know Telegram bots and how to setup one? Check [this](https://core.tel
 + Manage WiFi connection (methods for connecting to an access point, set a static IP)
 + Send and receive messages
 + Inline keyboards
-+ Receive localization messages (NEW)
++ Receive localization messages
++ Reply keyboards (NEW)
++ Receive contacts messages (NEW)
 
 ### Supported boards
 The library works with the ESP8266 chipset: all the ESP8266 boards are supported.
@@ -36,6 +38,7 @@ A special thanks go to these people who helped me making this library
 + [ ] Add ESP32 support & testing
 
 ### Changelog
++ 1.4.0 Reply keyboard added. Contact messages functionality added.
 + 1.3.2 Bug fixing and new functionalities:
   + URL encoding: now it is possible to send all kind of characters
   + Added group infos (ID and Group title) in the TBMessage structure

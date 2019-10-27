@@ -340,12 +340,22 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 			message.messageType = CTBotMessageText;
 			return(CTBotMessageText);
 		}
-	    else if (root["result"][0]["message"]["location"] != 0) {
+		else if (root["result"][0]["message"]["location"] != 0) {
 			// this is a location message
-		    message.location.longitude = root["result"][0]["message"]["location"]["longitude"].as<float>();
-			message.location.latitude  = root["result"][0]["message"]["location"]["latitude"].as<float>();
-		    message.messageType        = CTBotMessageLocation;
+			message.location.longitude = root["result"][0]["message"]["location"]["longitude"].as<float>();
+			message.location.latitude = root["result"][0]["message"]["location"]["latitude"].as<float>();
+			message.messageType = CTBotMessageLocation;
 			return(CTBotMessageLocation);
+		}
+		else if (root["result"][0]["message"]["contact"] != 0) {
+			// this is a contact message
+			message.contact.id          = root["result"][0]["message"]["contact"]["user_id"].as<int32_t>();
+			message.contact.firstName   = root["result"][0]["message"]["contact"]["first_name"].as<String>();
+			message.contact.lastName    = root["result"][0]["message"]["contact"]["last_name"].as<String>();
+			message.contact.phoneNumber = root["result"][0]["message"]["contact"]["phone_number"].as<String>();
+			message.contact.vCard       = root["result"][0]["message"]["contact"]["vcard"].as<String>();
+			message.messageType = CTBotMessageContact;
+			return(CTBotMessageContact);
 		}
 	}
 	// no valid/handled message
@@ -408,6 +418,10 @@ bool CTBot::sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboar
 	return(sendMessage(id, message, keyboard.getJSON()));
 }
 
+bool CTBot::sendMessage(int64_t id, String message, CTBotReplyKeyboard &keyboard) {
+	return(sendMessage(id, message, keyboard.getJSON()));
+}
+
 bool CTBot::endQuery(String queryID, String message, bool alertMode)
 {
 	String response;
@@ -455,6 +469,19 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 #endif
 
 	return(true);
+}
+
+bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
+{
+	DynamicJsonBuffer jsonBuffer;
+	String command;
+	JsonObject& root = jsonBuffer.createObject();
+	root["remove_keyboard"] = true;
+	if (selective) {
+		root["selective"] = true;
+	}
+	root.printTo(command);
+	return(sendMessage(id, message, command));
 }
 
 void CTBot::setFingerprint(const uint8_t * newFingerprint)

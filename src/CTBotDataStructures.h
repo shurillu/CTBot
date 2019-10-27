@@ -8,7 +8,8 @@ enum CTBotMessageType {
 	CTBotMessageNoData   = 0,
 	CTBotMessageText     = 1,
 	CTBotMessageQuery    = 2,
-	CTBotMessageLocation = 3
+	CTBotMessageLocation = 3,
+	CTBotMessageContact  = 4
 };
 
 typedef struct TBUser {
@@ -30,6 +31,15 @@ typedef struct TBLocation{
 	float latitude;
 };
 
+typedef struct TBContact {
+	String  phoneNumber;
+	String  firstName;
+	String  lastName;
+	int32_t id;
+	String  vCard;
+};
+
+
 typedef struct TBMessage {
 	int32_t          messageID;
 	TBUser           sender;
@@ -40,6 +50,7 @@ typedef struct TBMessage {
 	String           callbackQueryData;
 	String           callbackQueryID;
 	TBLocation       location;
+	TBContact        contact;
 	CTBotMessageType messageType;
 };
 

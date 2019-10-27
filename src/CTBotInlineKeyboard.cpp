@@ -40,6 +40,9 @@ bool CTBotInlineKeyboard::addRow(void)
 
 bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType)
 {
+	if ((buttonType != CTBotKeyboardButtonURL) && (buttonType != CTBotKeyboardButtonQuery))
+		return(false);
+
 	JsonObject& button = m_buttons->createNestedObject();
 	text = URLEncodeMessage(text);
 	button["text"] = text;
@@ -48,8 +51,7 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 		button["url"] = command;
 	else if (CTBotKeyboardButtonQuery == buttonType) 
 		button["callback_data"] = command;
-	else 
-		return(false);
+
 
 	if (m_isRowEmpty)
 		m_isRowEmpty = false;

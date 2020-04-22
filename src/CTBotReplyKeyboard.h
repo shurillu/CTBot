@@ -16,6 +16,7 @@ enum CTBotReplyKeyboardButtonType {
 class CTBotReplyKeyboard
 {
 private:
+#pragma message  "ArduinoJson - DA CONVERTIRE"
 	DynamicJsonBuffer m_jsonBuffer;
 	JsonObject *m_root;
 	JsonArray  *m_rows;

@@ -10,6 +10,7 @@ ___
   + [TBUser](#tbuser)
   + [TBLocation](#tblocation)
   + [TBGroup](#tbgroup)
+  + [TBContact](#tbcontact)
   + [TBMessage](#tbmessage)
 + [Enumerators](#enumerators)
   + [CTBotMessageType](#ctbotmessagetype)
@@ -22,6 +23,7 @@ ___
   + [CTBot::getNewMessage()](#ctbotgetnewmessage)
   + [CTBot::sendMessage()](#ctbotsendmessage)
   + [CTBot::endQuery()](#ctbotendquery)
+  + [CTBot::removeReplyKeyboard()](#removereplykeyboard)
   + [CTBotInlineKeyboard::addButton()](#ctbotinlinekeyboardaddbutton)
   + [CTBotInlineKeyboard::addRow()](#ctbotinlinekeyboardaddrow)
   + [CTBotInlineKeyboard::flushData()](#ctbotinlinekeyboardflushdata)
@@ -199,6 +201,47 @@ where:
 + `title` contains the title of the group chat
 
 [back to TOC](#table-of-contents)
+
+
+
+
+
+
+
+
+
+
+
+
+### `TBContact`
+`TBContact` data type is used to store the contact data. The data structure contains:
+```c++
+String  phoneNumber;
+String  firstName;
+String  lastName;
+int32_t id;
+String  vCard;
+```
+where:
++ `phoneNumber` contains the phone number of the contact
++ `firstName` contains the first name of the contact
++ `lastName` contains the last name of the contact
++ `id` contains the ID of the contact
++ `vCard` contains the vCard of the contact
+
+[back to TOC](#table-of-contents)
+
+
+
+
+
+
+
+
+
+
+
+
 ### `TBMessage`
 `TBMessage` data type is used to store new messages. The data structure contains:
 ```c++
@@ -211,6 +254,7 @@ String           chatInstance;
 String           callbackQueryData;
 String           callbackQueryID;
 TBLocation       location;
+TBcontact        contact;
 CTBotMessageType messageType;
 ```
 where:
@@ -223,6 +267,7 @@ where:
 + `callbackQueryData` contains the data associated with the callback button
 + `callbackQueryID` contains the unique ID for the query
 + `location` contains the location's longitude and latitude (if a location message is received - see [CTBot::getNewMessage()](#ctbotgetnewmessage))
++ `contact` contains the contact information a [TBContact](#tbcontact) structure
 + `messageType` contains the message type. See [CTBotMessageType](#ctbotmessagetype)
 
 [back to TOC](#table-of-contents)
@@ -237,8 +282,8 @@ enum CTBotMessageType {
 	CTBotMessageNoData   = 0,
 	CTBotMessageText     = 1,
 	CTBotMessageQuery    = 2, 
-	CTBotMessageLocation = 3
-
+	CTBotMessageLocation = 3,
+	CTBotMessageContact  = 4
 };
 ```
 where:
@@ -246,6 +291,7 @@ where:
 + `CTBotMessageText`: the [TBMessage](#tbmessage) structure contains a text message
 + `CTBotMessageQuery`: the [TBMessage](#tbmessage) structure contains a calback query message (see [Inline Keyboards](#inline-keyboards))
 + `CTBotMessageLocation`: the [TBMessage](#tbmessage) structure contains a localization message
++ `CTBotMessageContact`: the [TBMessage](#tbmessage) structure contains a contact message
 
 [back to TOC](#table-of-contents)
 
@@ -346,6 +392,7 @@ Returns:
 + `CTBotMessageText` if the message received is a text message 
 + `CTBotMessageQuery` if the message received is a callback query message (see [Handling callback messages](#handling-callback-messages))
 + `CTBotMessageLocation` if the message received is a location message
++ `CTBotMessageContact` if the message received is a contact message
 
 Compatibility with previous versions: you can still use the `false` statement to check if the `getNewMessage` method got errors as the following example do.<br>
 **IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a ~~`false`~~ `CTBotMessageNoData` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
@@ -392,14 +439,20 @@ void loop() {
 [back to TOC](#table-of-contents)
 ### `CTBot::sendMessage()`
 `bool CTBot::sendMessage(uint32_t id, String message, String keyboard)` <br>
-`bool CTBot::sendMessage(uint32_t id, String message, CTBotInlineKeyboard keyboard)` <br><br>
+`bool CTBot::sendMessage(uint32_t id, String message, CTBotInlineKeyboard keyboard)` <br>
+`bool CTBot::sendMessage(int64_t id, String message, CTBotReplyKeyboard  &keyboard)` <br><br>
+
 Send a message to the specified Telegram user ID. <br>
-If `keyboard` parameter is specified, send the message and display the custom inline keyboard. Inline keyboard are defined by a JSON structure (see the Telegram API documentation [InlineKeyboardMarkup](https://core.telegram.org/bots/api#inlinekeyboardmarkup))<br>
+If `keyboard` parameter is specified, send the message and display the custom keyboard (inline or reply). 
++ Inline keyboard are defined by a JSON structure (see the Telegram API documentation [InlineKeyboardMarkup](https://core.telegram.org/bots/api#inlinekeyboardmarkup))<br>
 You can also use the helper class CTBotInlineKeyboard for creating inline keyboards.<br> 
++ Reply keyboard are define by a JSON structure (see Telegram API documentation [ReplyKeyboardMarkup](https://core.telegram.org/bots/api#replykeyboardmarkup))<br>
+You can also use the helper class CTBotReplyKeyboard for creating inline keyboards.<br> 
+
 Parameters:
 + `id`: the recipient Telegram user ID
 + `message`: the message to send
-+ `keyboard`: (optional) the inline keyboard
++ `keyboard`: (optional) the inline/reply keyboard
 
 Returns: `true` if no error occurred. <br>
 Example:
@@ -476,6 +529,66 @@ void loop() {
 ```
 
 [back to TOC](#table-of-contents)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### `CTBot::removeReplyKeyboard()`
+`bool removeReplyKeyboard(int64_t id, String message, bool selective = false)` <br><br>
+Remove an active replyKeyboard for a specified user by sending a message. <br>
+Parameters:
++ `id`: the Telegram user ID
++ `message`: the message to be show to the selected user ID
++ `selective`: (optional) enable the selective mode (hide the keyboard for specific users only). Useful for hiding the keyboard for users that are @mentioned in the text of the Message object or if the bot's message is a reply (has reply_to_message_id), sender of the original message
+
+Returns: `true` if no error occurred. <br>
+Example:
+```c++
+
+VALUTARE ESEMPIO
+
+```
+
+[back to TOC](#table-of-contents)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### `CTBotInlineKeyboard::addButton()`

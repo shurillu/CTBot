@@ -6,10 +6,12 @@
 #include "Utilities.h"
 
 #define TELEGRAM_URL  "api.telegram.org"
-#define TELEGRAM_IP   "149.154.167.198"
+#define TELEGRAM_IP   "149.154.167.220" // "149.154.167.198" <-- Old IP
 #define TELEGRAM_PORT 443
 // get fingerprints from https://www.grc.com/fingerprints.htm
-const uint8_t fingerprint[20] = { 0xBB, 0xDC, 0x45, 0x2A, 0x07, 0xE3, 0x4A, 0x71, 0x33, 0x40, 0x32, 0xDA, 0xBE, 0x81, 0xF7, 0x72, 0x6F, 0x4A, 0x2B, 0x6B };
+// 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90
+//const uint8_t fingerprint[20] = { 0xBB, 0xDC, 0x45, 0x2A, 0x07, 0xE3, 0x4A, 0x71, 0x33, 0x40, 0x32, 0xDA, 0xBE, 0x81, 0xF7, 0x72, 0x6F, 0x4A, 0x2B, 0x6B };
+const uint8_t fingerprint[20] = { 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 };
 
 
 inline void CTBot::serialLog(String message) {
@@ -53,6 +55,9 @@ String CTBot::sendCommand(String command, String parameters)
 	BearSSL::WiFiClientSecure telegramServer;
 	telegramServer.setFingerprint(m_fingerprint);
 #endif	
+
+
+
 	// check for using symbolic URLs
 	if (m_useDNS) {
 		// try to connect with URL
@@ -222,6 +227,7 @@ bool CTBot::getMe(TBUser &user) {
 	if (response.length() == 0)
 		return(false);
 
+#pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
 #else
@@ -275,6 +281,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		return(CTBotMessageNoData);
 	}
 
+#pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
 #else
@@ -388,6 +395,7 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 		return(false);
 	}
 
+#pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
 #else
@@ -446,6 +454,7 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 	if (response.length() == 0)
 		return(false);
 
+#pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
 #else
@@ -473,6 +482,7 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 
 bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
 {
+#pragma message  "ArduinoJson - DA CONVERTIRE"
 	DynamicJsonBuffer jsonBuffer;
 	String command;
 	JsonObject& root = jsonBuffer.createObject();

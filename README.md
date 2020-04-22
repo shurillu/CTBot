@@ -39,6 +39,7 @@ A special thanks go to these people who helped me making this library
 + [ ] Add ESP32 support & testing
 
 ### Changelog
++ 1.4.1 New Telegram Server IP and fingerprint update.
 + 1.4.0 Reply keyboard added. Contact messages functionality added.
 + 1.3.2 Bug fixing and new functionalities:
   + URL encoding: now it is possible to send all kind of characters

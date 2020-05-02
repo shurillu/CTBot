@@ -34,11 +34,11 @@ bool CTBotReplyKeyboard::addRow(void)
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	if (m_isRowEmpty)
-		return(false);
+		return false;
 	JsonArray&  buttons = m_rows->createNestedArray();
 	m_buttons = &buttons;
 	m_isRowEmpty = true;
-	return(true);
+	return true;
 }
 
 bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType buttonType)
@@ -55,7 +55,7 @@ bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType but
 
 	if (m_isRowEmpty)
 		m_isRowEmpty = false;
-	return(true);
+	return true;
 }
 
 void CTBotReplyKeyboard::enableResize(void) {
@@ -78,6 +78,6 @@ String CTBotReplyKeyboard::getJSON(void)
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	String serialized;
 	m_root->printTo(serialized);
-	return(serialized);
+	return serialized;
 }
 

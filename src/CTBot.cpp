@@ -33,7 +33,7 @@ String CTBot::toURL(String message)
 //	message.replace("\f", "%0C"); // form feed
 //	message.replace("\r", "%0D"); // carriage return
 	message.replace(" ", "%20");  // spaces
-	return(message);
+	return message;
 }
 */
 CTBot::CTBot() {
@@ -69,7 +69,7 @@ String CTBot::sendCommand(String command, String parameters)
 			telegramServerIP.fromString(TELEGRAM_IP);
 			if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
 				serialLog("\nUnable to connect to Telegram server\n");
-				return("");
+				return "";
 			}
 			else {
 				serialLog("\nConnected using fixed IP\n");
@@ -87,7 +87,7 @@ String CTBot::sendCommand(String command, String parameters)
 		telegramServerIP.fromString(TELEGRAM_IP);
 		if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
 			serialLog("\nUnable to connect to Telegram server\n");
-			return("");
+			return "";
 		}
 		else
 			serialLog("\nConnected using fixed IP\n");
@@ -107,7 +107,7 @@ String CTBot::sendCommand(String command, String parameters)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
 #if CTBOT_CHECK_JSON == 0
-	return(telegramServer.readString());
+	return telegramServer.readString();
 #else
 
 	String response;
@@ -143,7 +143,7 @@ String CTBot::sendCommand(String command, String parameters)
 					// JSON ended, close connection and return JSON
 					telegramServer.flush();
 					telegramServer.stop();
-					return(response);
+					return response;
 				}
 			}
 		}
@@ -152,7 +152,7 @@ String CTBot::sendCommand(String command, String parameters)
 	// timeout, no JSON to parse
 	telegramServer.flush();
 	telegramServer.stop();
-	return("");
+	return "";
 #endif
 }
 
@@ -200,7 +200,7 @@ String CTBot::toUTF8(String message)
 			}
 		}
 	}
-	return(converted);
+	return converted;
 }
 
 void CTBot::useDNS(bool value)
@@ -220,14 +220,14 @@ void CTBot::setTelegramToken(String token)
 
 bool CTBot::testConnection(void){
 	TBUser user;
-	return(getMe(user));
+	return getMe(user);
 }
 
 bool CTBot::getMe(TBUser &user) {
 	String response;
 	response = sendCommand("getMe");
 	if (response.length() == 0)
-		return(false);
+		return false;
 
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
@@ -244,7 +244,7 @@ bool CTBot::getMe(TBUser &user) {
 		root.printTo(Serial);
 		serialLog("\n");
 #endif
-		return(false);
+		return false;
 	}
 
 #if CTBOT_DEBUG_MODE > 0
@@ -258,7 +258,7 @@ bool CTBot::getMe(TBUser &user) {
 	user.lastName     = root["result"]["last_name"].as<String>();
 	user.username     = root["result"]["username"].as<String>();
 	user.languageCode = root["result"]["language_code"].as<String>();
-	return(true);
+	return true;
 }
 
 CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
@@ -280,7 +280,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("getNewMessage error: response with no data\n");
 #endif
-		return(CTBotMessageNoData);
+		return CTBotMessageNoData;
 	}
 
 #pragma message  "ArduinoJson - DA CONVERTIRE"
@@ -302,7 +302,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		root.prettyPrintTo(Serial);
 		serialLog("\n");
 #endif
-		return(CTBotMessageNoData);
+		return CTBotMessageNoData;
 	}
 
 #if CTBOT_DEBUG_MODE > 0
@@ -314,7 +314,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	uint32_t updateID;
 	updateID = root["result"][0]["update_id"].as<int32_t>();
 	if (updateID == 0)
-		return(CTBotMessageNoData);
+		return CTBotMessageNoData;
 	m_lastUpdate = updateID + 1;
 
 	if (root["result"][0]["callback_query"]["id"] != 0) {
@@ -330,7 +330,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.callbackQueryData = root["result"][0]["callback_query"]["data"].as<String>();
 		message.chatInstance      = root["result"][0]["callback_query"]["chat_instance"].as<String>();
 		message.messageType       = CTBotMessageQuery;
-		return(CTBotMessageQuery);
+		return CTBotMessageQuery;
 	}
 	else if (root["result"][0]["message"]["message_id"] != 0) {
 		// this is a message
@@ -347,14 +347,14 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 			// this is a text message
 		    message.text        = root["result"][0]["message"]["text"].as<String>();		    
 			message.messageType = CTBotMessageText;
-			return(CTBotMessageText);
+			return CTBotMessageText;
 		}
 		else if (root["result"][0]["message"]["location"] != 0) {
 			// this is a location message
 			message.location.longitude = root["result"][0]["message"]["location"]["longitude"].as<float>();
 			message.location.latitude = root["result"][0]["message"]["location"]["latitude"].as<float>();
 			message.messageType = CTBotMessageLocation;
-			return(CTBotMessageLocation);
+			return CTBotMessageLocation;
 		}
 		else if (root["result"][0]["message"]["contact"] != 0) {
 			// this is a contact message
@@ -364,11 +364,11 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 			message.contact.phoneNumber = root["result"][0]["message"]["contact"]["phone_number"].as<String>();
 			message.contact.vCard       = root["result"][0]["message"]["contact"]["vcard"].as<String>();
 			message.messageType = CTBotMessageContact;
-			return(CTBotMessageContact);
+			return CTBotMessageContact;
 		}
 	}
 	// no valid/handled message
-	return(CTBotMessageNoData);
+	return CTBotMessageNoData;
 }
 
 bool CTBot::sendMessage(int64_t id, String message, String keyboard)
@@ -378,7 +378,7 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 	String strID;
 
 	if (0 == message.length())
-		return(false);
+		return false;
 
 	strID = int64ToAscii(id);
 
@@ -394,7 +394,7 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("SendMessage error: response with no data\n");
 #endif
-		return(false);
+		return false;
 	}
 
 #pragma message  "ArduinoJson - DA CONVERTIRE"
@@ -412,7 +412,7 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 		root.prettyPrintTo(Serial);
 		serialLog("\n");
 #endif
-		return(false);
+		return false;
 	}
 
 #if CTBOT_DEBUG_MODE > 0
@@ -421,15 +421,15 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 	serialLog("\n");
 #endif
 
-	return(true);
+	return true;
 }
 
 bool CTBot::sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboard) {
-	return(sendMessage(id, message, keyboard.getJSON()));
+	return sendMessage(id, message, keyboard.getJSON());
 }
 
 bool CTBot::sendMessage(int64_t id, String message, CTBotReplyKeyboard &keyboard) {
-	return(sendMessage(id, message, keyboard.getJSON()));
+	return sendMessage(id, message, keyboard.getJSON());
 }
 
 bool CTBot::endQuery(String queryID, String message, bool alertMode)
@@ -438,7 +438,7 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 	String parameters;
 
 	if (0 == queryID.length())
-		return(false);
+		return false;
 
 	parameters = (String)"?callback_query_id=" + queryID;
 
@@ -454,7 +454,7 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 
 	response = sendCommand("answerCallbackQuery", parameters);
 	if (response.length() == 0)
-		return(false);
+		return false;
 
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
@@ -471,7 +471,7 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 		root.prettyPrintTo(Serial);
 		serialLog("\n");
 #endif
-		return(false);
+		return false;
 	}
 
 #if CTBOT_DEBUG_MODE > 0
@@ -479,7 +479,7 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 	serialLog("\n");
 #endif
 
-	return(true);
+	return true;
 }
 
 bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
@@ -493,7 +493,7 @@ bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
 		root["selective"] = true;
 	}
 	root.printTo(command);
-	return(sendMessage(id, message, command));
+	return sendMessage(id, message, command);
 }
 
 void CTBot::setFingerprint(const uint8_t * newFingerprint)
@@ -507,33 +507,33 @@ bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, Str
 
 	if (!IP.fromString(ip)) {
 		serialLog("--- setIP: error on IP address\n");
-		return(false);
+		return false;
 	}
 	if (!SN.fromString(subnetMask)) {
 		serialLog("--- setIP: error on subnet mask\n");
-		return(false);
+		return false;
 	}
 	if (!GW.fromString(gateway)) {
 		serialLog("--- setIP: error on gateway address\n");
-		return(false);
+		return false;
 	}
 	if (dns1.length() != 0) {
 		if (!DNS1.fromString(dns1)) {
 			serialLog("--- setIP: error on DNS1 address\n");
-			return(false);
+			return false;
 		}
 	}
 	if (dns2.length() != 0) {
 		if (!DNS2.fromString(dns2)) {
 			serialLog("--- setIP: error on DNS1 address\n");
-			return(false);
+			return false;
 		}
 	}
 	if (WiFi.config(IP, GW, SN, DNS1, DNS2))
-		return(true);
+		return true;
 	else {
 		serialLog("--- setIP: error on setting the static ip address (WiFi.config)\n");
-		return(false);
+		return false;
 	}
 }
 
@@ -575,14 +575,14 @@ bool CTBot::wifiConnect(String ssid, String password)
 		serialLog(message);
 		if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 			digitalWrite(m_statusPin, LOW);
-		return(true);
+		return true;
 	}
 	else {
 		message = (String)"\nUnable to connect to " + ssid + (String)" network.\n";
 		serialLog(message);
 		if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 			 digitalWrite(m_statusPin, HIGH);
-		return(false);
+		return false;
 	}
 }
 

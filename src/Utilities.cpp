@@ -5,10 +5,10 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	unicode.toUpperCase();
 
 	if (unicode.length() < 3)
-		return(false);
+		return false;
 
 	if ((unicode[0] != '\\') || (unicode[1] != 'U'))
-		return(false);
+		return false;
 
 	for (uint16_t i = 2; i < unicode.length(); i++) {
 		uint8_t digit = unicode[i];
@@ -17,7 +17,7 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 		else if ((digit >= 'A') && (digit <= 'F'))
 			digit = (digit - 'A') + 10;
 		else
-			return(false);
+			return false;
 		value += digit << (4 * (unicode.length() - (i + 1)));
 	}
 
@@ -28,7 +28,7 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	if (value < 0x80) {
 		buffer[0] = value & 0x7F;
 		utf8 = (String)buffer;
-		return(true);
+		return true;
 	}
 
 	byte maxValue = 0x20;
@@ -41,12 +41,12 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 		if (value < maxValue) {
 			buffer[0] = (value & (maxValue - 1)) | mask;
 			utf8 = (String)buffer + utf8;
-			return(true);
+			return true;
 		}
 		mask = mask + maxValue;
 		maxValue = maxValue >> 1;
 	}
-	return(false);
+	return false;
 }
 
 String int64ToAscii(int64_t value) {
@@ -67,7 +67,7 @@ String int64ToAscii(int64_t value) {
 	}
 	if (value < 0)
 		buffer = '-' + buffer;
-	return(buffer);
+	return buffer;
 }
 
 String URLEncodeMessage(String message) {
@@ -96,6 +96,6 @@ String URLEncodeMessage(String message) {
 			encodedMessage += (String)buffer;
 		}
 	}
-	return(encodedMessage);
+	return encodedMessage;
 }
 

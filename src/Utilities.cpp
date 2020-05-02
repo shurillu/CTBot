@@ -75,7 +75,6 @@ String URLEncodeMessage(String message) {
 	char buffer[4];
 	buffer[0] = '%';
 	buffer[3] = 0x00;
-	uint8_t temp;
 	uint16_t i;
 	for (i = 0; i < message.length(); i++) {
 		if (((message[i] >= 0x30) && (message[i] <= 0x39)) || // numbers

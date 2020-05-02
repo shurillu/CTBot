@@ -14,11 +14,13 @@
 const uint8_t fingerprint[20] = { 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 };
 
 
-inline void CTBot::serialLog(String message) {
 #if CTBOT_DEBUG_MODE > 0
+inline void CTBot::serialLog(String message) {
 	Serial.print(message);
-#endif
 }
+#else
+inline void CTBot::serialLog(String) {}
+#endif
 
 /*
 String CTBot::toURL(String message)

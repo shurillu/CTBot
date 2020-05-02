@@ -46,8 +46,7 @@ CTBot::CTBot() {
 	setFingerprint(fingerprint);   // set the default fingerprint
 }
 
-CTBot::~CTBot() {
-}
+CTBot::~CTBot() = default;
 
 String CTBot::sendCommand(String command, String parameters)
 {
@@ -218,7 +217,7 @@ void CTBot::setStatusPin(int8_t pin)
 void CTBot::setTelegramToken(String token)
 {	m_token = token;}
 
-bool CTBot::testConnection(void){
+bool CTBot::testConnection(){
 	TBUser user;
 	return getMe(user);
 }

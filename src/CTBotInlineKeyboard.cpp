@@ -1,7 +1,7 @@
 #include "CTBotInlineKeyboard.h"
 #include "Utilities.h"
 
-void CTBotInlineKeyboard::initialize(void)
+void CTBotInlineKeyboard::initialize()
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	JsonObject& root = m_jsonBuffer.createObject();
@@ -19,18 +19,16 @@ CTBotInlineKeyboard::CTBotInlineKeyboard()
 	initialize();
 }
 
-CTBotInlineKeyboard::~CTBotInlineKeyboard()
-{
-}
+CTBotInlineKeyboard::~CTBotInlineKeyboard() = default;
 
-void CTBotInlineKeyboard::flushData(void)
+void CTBotInlineKeyboard::flushData()
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	m_jsonBuffer.clear();
 	initialize();
 }
 
-bool CTBotInlineKeyboard::addRow(void)
+bool CTBotInlineKeyboard::addRow()
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	if (m_isRowEmpty)
@@ -62,7 +60,7 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 	return true;
 }
 
-String CTBotInlineKeyboard::getJSON(void)
+String CTBotInlineKeyboard::getJSON()
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	String serialized;

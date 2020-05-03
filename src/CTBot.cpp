@@ -15,11 +15,11 @@ const uint8_t fingerprint[20] = { 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D
 
 
 #if CTBOT_DEBUG_MODE > 0
-inline void CTBot::serialLog(String message) {
+inline void CTBot::serialLog(String message) const {
 	Serial.print(message);
 }
 #else
-inline void CTBot::serialLog(String) {}
+inline void CTBot::serialLog(String) const {}
 #endif
 
 /*
@@ -153,7 +153,7 @@ String CTBot::sendCommand(String command, String parameters)
 #endif
 }
 
-String CTBot::toUTF8(String message)
+String CTBot::toUTF8(String message) const
 {
 	String converted("");
 	uint16_t i = 0;
@@ -486,7 +486,7 @@ void CTBot::setFingerprint(const uint8_t * newFingerprint)
 		m_fingerprint[i] = newFingerprint[i];
 }
 
-bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, String dns2){
+bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, String dns2) const {
 	IPAddress IP, SN, GW, DNS1, DNS2;
 
 	if (!IP.fromString(ip)) {
@@ -521,7 +521,7 @@ bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, Str
 	}
 }
 
-bool CTBot::wifiConnect(String ssid, String password)
+bool CTBot::wifiConnect(String ssid, String password) const
 {
 	// attempt to connect to Wifi network:
 	int tries = 0;

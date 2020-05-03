@@ -71,7 +71,7 @@ void CTBotReplyKeyboard::enableSelective() {
 	(*m_root)["selective"] = true;
 }
 
-String CTBotReplyKeyboard::getJSON()
+String CTBotReplyKeyboard::getJSON() const
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	String serialized;

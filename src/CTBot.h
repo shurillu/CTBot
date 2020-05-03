@@ -42,7 +42,7 @@ public:
 	//   dns2      : the optional second DNS
 	// returns
 	//   true if no error occurred
-	bool setIP(String ip, String gateway, String subnetMask, String dns1 = "", String dns2 = "");
+	bool setIP(String ip, String gateway, String subnetMask, String dns1 = "", String dns2 = "") const;
 
 	// connect to a wifi network
 	// params
@@ -50,7 +50,7 @@ public:
 	//   password: the optional password
 	// returns
 	//   true if no error occurred
-	bool wifiConnect(String ssid, String password = "");
+	bool wifiConnect(String ssid, String password = "") const;
 
 	// set the telegram token
 	// params
@@ -156,7 +156,7 @@ private:
 	// send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
 	// params
 	//    message: the message to send
-	inline void serialLog(String message);
+	inline void serialLog(String message) const;
 	
 	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api
 	// params
@@ -172,7 +172,7 @@ private:
 	//   message: the UNICODE message
 	// returns
 	//   a string with the converted message in UTF8 
-	String toUTF8(String message);
+	String toUTF8(String message) const;
 
 	// get some information about the bot
 	// params

@@ -60,7 +60,7 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 	return true;
 }
 
-String CTBotInlineKeyboard::getJSON()
+String CTBotInlineKeyboard::getJSON() const
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	String serialized;

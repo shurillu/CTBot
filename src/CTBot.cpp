@@ -96,8 +96,8 @@ String CTBot::sendCommand(String command, String parameters)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
 	// must filter command + parameters from escape sequences and spaces
-//	String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
-	String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
+//	const String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
+	const String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
 
 	// send the HTTP request
 	telegramServer.println(URL);
@@ -109,12 +109,10 @@ String CTBot::sendCommand(String command, String parameters)
 	return telegramServer.readString();
 #else
 
-	String response;
-	int curlyCounter; // count the open/closed curly bracket for identify the json
+	String response("");
+	int curlyCounter = -1; // count the open/closed curly bracket for identify the json
 	bool skipCounter = false; // for filtering curly bracket inside a text message
 	int c;
-	curlyCounter = -1;
-	response = "";
 
 	while (telegramServer.connected()) {
 		while (telegramServer.available()) {
@@ -157,11 +155,10 @@ String CTBot::sendCommand(String command, String parameters)
 
 String CTBot::toUTF8(String message)
 {
-	String converted = "";
+	String converted("");
 	uint16_t i = 0;
-	String subMessage;
 	while (i < message.length()) {
-		subMessage = (String)message[i];
+		String subMessage(message[i]);
 		if (message[i] != '\\') {
 			converted += subMessage;
 			i++;
@@ -223,8 +220,7 @@ bool CTBot::testConnection(){
 }
 
 bool CTBot::getMe(TBUser &user) {
-	String response;
-	response = sendCommand("getMe");
+	String response = sendCommand("getMe");
 	if (response.length() == 0)
 		return false;
 
@@ -261,9 +257,6 @@ bool CTBot::getMe(TBUser &user) {
 }
 
 CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
-
-	String response;
-	String parameters;
 	char buf[21];
 
 	message.messageType = CTBotMessageNoData;
@@ -271,10 +264,10 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	ltoa(m_lastUpdate, buf, 10);
 	// polling timeout: add &timeout=<seconds>
 	// default is zero (short polling).
-	parameters = "?limit=1&allowed_updates=message,callback_query";
+	String parameters = "?limit=1&allowed_updates=message,callback_query";
 	if (m_lastUpdate != 0)
 		parameters += "&offset=" + (String)buf;
-	response = sendCommand("getUpdates", parameters);
+	String response = sendCommand("getUpdates", parameters);
 	if (response.length() == 0) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("getNewMessage error: response with no data\n");
@@ -310,8 +303,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	serialLog("\n");
 #endif
 
-	uint32_t updateID;
-	updateID = root["result"][0]["update_id"].as<int32_t>();
+	uint32_t updateID = root["result"][0]["update_id"].as<int32_t>();
 	if (updateID == 0)
 		return CTBotMessageNoData;
 	m_lastUpdate = updateID + 1;
@@ -372,23 +364,19 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 
 bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 {
-	String response;
-	String parameters;
-	String strID;
-
 	if (0 == message.length())
 		return false;
 
-	strID = int64ToAscii(id);
+	String strID = int64ToAscii(id);
 
 	message = URLEncodeMessage(message); //-------------------------------------------------------------------------------------------------------------------------------------
 
-	parameters = (String)"?chat_id=" + strID + (String)"&text=" + message;
+	String parameters = (String)"?chat_id=" + strID + (String)"&text=" + message;
 
 	if (keyboard.length() != 0)
 		parameters += (String)"&reply_markup=" + keyboard;
 
-	response = sendCommand("sendMessage", parameters);
+	String response = sendCommand("sendMessage", parameters);
 	if (response.length() == 0) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("SendMessage error: response with no data\n");
@@ -433,13 +421,10 @@ bool CTBot::sendMessage(int64_t id, String message, CTBotReplyKeyboard &keyboard
 
 bool CTBot::endQuery(String queryID, String message, bool alertMode)
 {
-	String response;
-	String parameters;
-
 	if (0 == queryID.length())
 		return false;
 
-	parameters = (String)"?callback_query_id=" + queryID;
+	String parameters = (String)"?callback_query_id=" + queryID;
 
 	if (message.length() != 0) {
 		
@@ -451,7 +436,7 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 			parameters += (String)"&text=" + message + (String)"&show_alert=false";
 	}
 
-	response = sendCommand("answerCallbackQuery", parameters);
+	String response = sendCommand("answerCallbackQuery", parameters);
 	if (response.length() == 0)
 		return false;
 
@@ -540,8 +525,7 @@ bool CTBot::wifiConnect(String ssid, String password)
 {
 	// attempt to connect to Wifi network:
 	int tries = 0;
-	String message;
-	message = (String)"\n\nConnecting Wifi: " + ssid + (String)"\n";
+	String message = (String)"\n\nConnecting Wifi: " + ssid + (String)"\n";
 	serialLog(message);
 
 #if CTBOT_STATION_MODE > 0

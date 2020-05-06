@@ -60,7 +60,7 @@ public:
 	// Useful for CTBot::sendMessage()
 	// returns:
 	//   the JSON of the inline keyboard 
-	String getJSON(void);
+	String getJSON(void) const;
 };
 
 #endif

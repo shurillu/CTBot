@@ -1,7 +1,7 @@
 #include "CTBotInlineKeyboard.h"
 #include "Utilities.h"
 
-void CTBotInlineKeyboard::initialize(void)
+void CTBotInlineKeyboard::initialize()
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	JsonObject& root = m_jsonBuffer.createObject();
@@ -19,32 +19,30 @@ CTBotInlineKeyboard::CTBotInlineKeyboard()
 	initialize();
 }
 
-CTBotInlineKeyboard::~CTBotInlineKeyboard()
-{
-}
+CTBotInlineKeyboard::~CTBotInlineKeyboard() = default;
 
-void CTBotInlineKeyboard::flushData(void)
+void CTBotInlineKeyboard::flushData()
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	m_jsonBuffer.clear();
 	initialize();
 }
 
-bool CTBotInlineKeyboard::addRow(void)
+bool CTBotInlineKeyboard::addRow()
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	if (m_isRowEmpty)
-		return(false);
+		return false;
 	JsonArray&  buttons = m_rows->createNestedArray();
 	m_buttons = &buttons;
 	m_isRowEmpty = true;
-	return(true);
+	return true;
 }
 
 bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType)
 {
 	if ((buttonType != CTBotKeyboardButtonURL) && (buttonType != CTBotKeyboardButtonQuery))
-		return(false);
+		return false;
 
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	JsonObject& button = m_buttons->createNestedObject();
@@ -59,14 +57,14 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 
 	if (m_isRowEmpty)
 		m_isRowEmpty = false;
-	return(true);
+	return true;
 }
 
-String CTBotInlineKeyboard::getJSON(void)
+String CTBotInlineKeyboard::getJSON() const
 {
 #pragma message  "ArduinoJson - DA CONVERTIRE"
 	String serialized;
 	m_root->printTo(serialized);
-	return(serialized);
+	return serialized;
 }
 

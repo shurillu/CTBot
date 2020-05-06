@@ -12,7 +12,7 @@ enum CTBotMessageType {
 	CTBotMessageContact  = 4
 };
 
-typedef struct TBUser {
+struct TBUser {
 	int32_t  id;
 	bool     isBot;
 	String   firstName;
@@ -21,17 +21,17 @@ typedef struct TBUser {
 	String   languageCode;
 };
 
-typedef struct TBGroup {
+struct TBGroup {
 	int64_t id;
 	String  title;
 };
 
-typedef struct TBLocation{
+struct TBLocation{
 	float longitude;
 	float latitude;
 };
 
-typedef struct TBContact {
+struct TBContact {
 	String  phoneNumber;
 	String  firstName;
 	String  lastName;
@@ -40,7 +40,7 @@ typedef struct TBContact {
 };
 
 
-typedef struct TBMessage {
+struct TBMessage {
 	int32_t          messageID;
 	TBUser           sender;
 	TBGroup          group;

@@ -5,10 +5,10 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	unicode.toUpperCase();
 
 	if (unicode.length() < 3)
-		return(false);
+		return false;
 
 	if ((unicode[0] != '\\') || (unicode[1] != 'U'))
-		return(false);
+		return false;
 
 	for (uint16_t i = 2; i < unicode.length(); i++) {
 		uint8_t digit = unicode[i];
@@ -17,7 +17,7 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 		else if ((digit >= 'A') && (digit <= 'F'))
 			digit = (digit - 'A') + 10;
 		else
-			return(false);
+			return false;
 		value += digit << (4 * (unicode.length() - (i + 1)));
 	}
 
@@ -28,7 +28,7 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	if (value < 0x80) {
 		buffer[0] = value & 0x7F;
 		utf8 = (String)buffer;
-		return(true);
+		return true;
 	}
 
 	byte maxValue = 0x20;
@@ -41,41 +41,38 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 		if (value < maxValue) {
 			buffer[0] = (value & (maxValue - 1)) | mask;
 			utf8 = (String)buffer + utf8;
-			return(true);
+			return true;
 		}
 		mask = mask + maxValue;
 		maxValue = maxValue >> 1;
 	}
-	return(false);
+	return false;
 }
 
 String int64ToAscii(int64_t value) {
-	String buffer = "";
+	String buffer;
 	int64_t temp;
-	uint8_t rest;
-	char ascii;
 	if (value < 0)
 		temp = -value;
 	else
 		temp = value;
 
 	while (temp != 0) {
-		rest = temp % 10;
+		uint8_t rest = temp % 10;
 		temp = (temp - rest) / 10;
-		ascii = 0x30 + rest;
+		char ascii = 0x30 + rest;
 		buffer = ascii + buffer;
 	}
 	if (value < 0)
 		buffer = '-' + buffer;
-	return(buffer);
+	return buffer;
 }
 
 String URLEncodeMessage(String message) {
-	String encodedMessage = "";
+	String encodedMessage("");
 	char buffer[4];
 	buffer[0] = '%';
 	buffer[3] = 0x00;
-	uint8_t temp;
 	uint16_t i;
 	for (i = 0; i < message.length(); i++) {
 		if (((message[i] >= 0x30) && (message[i] <= 0x39)) || // numbers
@@ -97,6 +94,5 @@ String URLEncodeMessage(String message) {
 			encodedMessage += (String)buffer;
 		}
 	}
-	return(encodedMessage);
+	return encodedMessage;
 }
-

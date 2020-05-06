@@ -9,8 +9,6 @@
 #define TELEGRAM_IP   "149.154.167.220" // "149.154.167.198" <-- Old IP
 #define TELEGRAM_PORT 443
 // get fingerprints from https://www.grc.com/fingerprints.htm
-// 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90
-//const uint8_t fingerprint[20] = { 0xBB, 0xDC, 0x45, 0x2A, 0x07, 0xE3, 0x4A, 0x71, 0x33, 0x40, 0x32, 0xDA, 0xBE, 0x81, 0xF7, 0x72, 0x6F, 0x4A, 0x2B, 0x6B };
 const uint8_t fingerprint[20] = { 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 };
 
 
@@ -20,20 +18,6 @@ inline void CTBot::serialLog(String message) {
 #endif
 }
 
-/*
-String CTBot::toURL(String message)
-{
-//	message.replace("\a", "%07"); // alert beep
-//	message.replace("\b", "%08"); // backspace
-//	message.replace("\t", "%09"); // horizontal tab
-	message.replace("\n", "%0A"); // line feed
-//	message.replace("\v", "%0B"); // vertical tab
-//	message.replace("\f", "%0C"); // form feed
-//	message.replace("\r", "%0D"); // carriage return
-	message.replace(" ", "%20");  // spaces
-	return(message);
-}
-*/
 CTBot::CTBot() {
 	m_wifiConnectionTries = 0;  // wait until connection to the AP is established (locking!)
 	m_statusPin           = CTBOT_DISABLE_STATUS_PIN; // status pin disabled

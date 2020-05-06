@@ -1,6 +1,8 @@
 # CTBot
 
-[![Build Status](https://travis-ci.com/michaelzs85/CTBot.svg?branch=master)](https://travis-ci.com/michaelzs85/CTBot)
+[![Build Status](https://travis-ci.org/shurillu/CTBot.svg?branch=master)](https://travis-ci.org/shurillu/CTBot)
+
+
 ___
 ### Introduction
 CTBot is a simple Arduino class to manage Telegram Bot on ESP8266 platform.

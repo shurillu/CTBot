@@ -3,22 +3,17 @@
 #define CTBOT
 
 #include <Arduino.h>
-#include "TelegramConnection.h"
+#include "CTBotSecureConnection.h"
 #include "CTBotDataStructures.h"
 #include "CTBotInlineKeyboard.h"
 #include "CTBotReplyKeyboard.h"
-
-#define CTBOT_DEBUG_MODE       0 // enable debugmode -> print debug data on the Serial
-                                 // Zero -> debug disabled
-#define CTBOT_BUFFER_SIZE      0 // json parser buffer size
-                                 // Zero -> dynamic allocation 
+#include "CTBotDefines.h"
 
 class CTBot
 {
-
 public:
 	// default constructor
-	CTBot(TelegramConnection connection = TelegramConnection());
+	CTBot();
 	// default destructor
 	~CTBot();
 
@@ -94,7 +89,7 @@ public:
 	String sendCommand(String command, String parameters = "");
 
 private:
-	TelegramConnection 	m_connection;
+	CTBotSecureConnection 	m_connection;
 	String    			m_token{};
 	int32_t   			m_lastUpdate;
 	bool      			m_UTF8Encoding;

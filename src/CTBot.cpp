@@ -3,8 +3,7 @@
 #include "CTBot.h"
 #include "Utilities.h"
 
-CTBot::CTBot(TelegramConnection connection) {
-	m_connection          = std::move(connection);
+CTBot::CTBot() {
 	m_lastUpdate          = 0;  // not updated yet
 	m_UTF8Encoding        = false; // no UTF8 encoded string conversion
 }

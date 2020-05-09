@@ -12,7 +12,9 @@ Description: a simple example that do:
 			    and the bot will hide the reply keyboard
 */
 #include "CTBot.h"
+#include "CTBotWifiSetup.h"
 
+CTBotWifiSetup wifisetup;
 CTBot myBot;
 CTBotReplyKeyboard myKbd;   // reply keyboard object helper
 bool isKeyboardActive;      // store if the reply keyboard is shown
@@ -27,7 +29,7 @@ void setup() {
 	Serial.println("Starting TelegramBot...");
 
 	// connect the ESP8266 to the desired access point
-	myBot.wifiConnect(ssid, pass);
+	wifisetup.wifiConnect(ssid, pass);
 
 	// set the telegram bot token
 	myBot.setTelegramToken(token);

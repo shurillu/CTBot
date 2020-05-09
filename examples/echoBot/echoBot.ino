@@ -6,6 +6,8 @@
               and reply the sender with the received message
 */
 #include "CTBot.h"
+#include "CTBotWifiSetup.h"
+CTBotWifiSetup wifisetup;
 CTBot myBot;
 
 String ssid  = "mySSID"    ; // REPLACE mySSID WITH YOUR WIFI SSID
@@ -18,7 +20,7 @@ void setup() {
 	Serial.println("Starting TelegramBot...");
 
 	// connect the ESP8266 to the desired access point
-	myBot.wifiConnect(ssid, pass);
+	wifisetup.wifiConnect(ssid, pass);
 
 	// set the telegram bot token
 	myBot.setTelegramToken(token);

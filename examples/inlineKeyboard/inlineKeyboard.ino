@@ -11,10 +11,12 @@ Description: a simple example that do:
                 open a browser window with URL "https://github.com/shurillu/CTBot"
 */
 #include "CTBot.h"
+#include "CTBotWifiSetup.h"
 
 #define LIGHT_ON_CALLBACK  "lightON"  // callback data sent when "LIGHT ON" button is pressed
 #define LIGHT_OFF_CALLBACK "lightOFF" // callback data sent when "LIGHT OFF" button is pressed
 
+CTBotWifiSetup wifisetup;
 CTBot myBot;
 CTBotInlineKeyboard myKbd;  // custom inline keyboard object helper
 
@@ -32,7 +34,7 @@ void setup() {
   Serial.println("Starting TelegramBot...");
 
   // connect the ESP8266 to the desired access point
-  myBot.wifiConnect(ssid, pass);
+  wifisetup.wifiConnect(ssid, pass);
 
   // set the telegram bot token
   myBot.setTelegramToken(token);

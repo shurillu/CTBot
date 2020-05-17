@@ -39,10 +39,10 @@ public:
 	String send(const String& message) const;
 
 private:
-	bool      m_useDNS{false}; // use static ip by default
-    int8_t    m_statusPin{CTBOT_DISABLE_STATUS_PIN}; // status pin is disabled by default
+	bool    m_useDNS{false}; // use static ip by default
+    int8_t  m_statusPin{CTBOT_DISABLE_STATUS_PIN}; // status pin is disabled by default
     // get fingerprints from https://www.grc.com/fingerprints.htm
-	uint8_t   m_fingerprint[20]{ 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 }; // use this preconfigured fingerprrint by default
+	uint8_t m_fingerprint[20]{ 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 }; // use this preconfigured fingerprrint by default
 };
 
 #endif

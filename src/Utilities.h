@@ -1,6 +1,9 @@
 #pragma once
 #ifndef UTILITIES
 #define UTILITIES
+
+#include "CTBotDefines.h"
+
 #include <Arduino.h>
 
 // convert an UNICODE coded string to a UTF8 coded string

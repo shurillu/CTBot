@@ -40,9 +40,11 @@ String CTBotSecureConnection::send(const String& message) const
 {
 #if CTBOT_USE_FINGERPRINT == 0
 	WiFiClientSecure telegramServer;
-#else
+#elif CTBOT_BOARD == 8266
 	BearSSL::WiFiClientSecure telegramServer;
 	telegramServer.setFingerprint(m_fingerprint);
+#elif CTBOT_BOARD == 32
+	WiFiClientSecure telegramServer;
 #endif
 
 	// check for using symbolic URLs
@@ -53,8 +55,8 @@ String CTBotSecureConnection::send(const String& message) const
 			IPAddress telegramServerIP;
 			telegramServerIP.fromString(TELEGRAM_IP);
 			if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-				serialLog("\nUnable to connect to Telegram server\n");
-				return "";
+				serialLog("\nUnable to connect to Telegram server! (use-DNS-mode)\n");
+				return {};
 			}
 			else {
 				serialLog("\nConnected using fixed IP\n");
@@ -70,7 +72,7 @@ String CTBotSecureConnection::send(const String& message) const
 		IPAddress telegramServerIP; // (149, 154, 167, 198);
 		telegramServerIP.fromString(TELEGRAM_IP);
 		if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-			serialLog("\nUnable to connect to Telegram server\n");
+			serialLog("\nUnable to connect to Telegram server! (use-IP-mode)\n");
 			return "";
 		}
 		else

@@ -4,6 +4,10 @@
 
 #include <stdint.h>
 
+#ifndef CTBOT_BOARD
+#define CTBOT_BOARD 8266
+#endif
+
 #define CTBOT_DEBUG_MODE       0 // enable debugmode -> print debug data on the Serial
                                  // Zero -> debug disabled
 #define CTBOT_BUFFER_SIZE      0 // json parser buffer size

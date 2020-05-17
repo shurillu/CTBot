@@ -5,7 +5,7 @@
 #if CTBOT_BOARD == 8266
 #include <ESP8266WiFi.h>
 #elif CTBOT_BOARD == 32
-#include <Wifi.h>
+#include <WiFi.h>
 #endif
 
 

@@ -25,7 +25,7 @@ CTBot::CTBot() {
 	m_statusPin           = CTBOT_DISABLE_STATUS_PIN; // status pin disabled
 	m_token               = ""; // no token
 	m_lastUpdate          = 0;  // not updated yet
-	m_useDNS              = false; // use static IP for Telegram Server
+	m_useDNS              = true; // use static IP for Telegram Server
 	m_UTF8Encoding        = false; // no UTF8 encoded string conversion
 	setFingerprint(fingerprint);   // set the default fingerprint
 }
@@ -36,7 +36,10 @@ String CTBot::sendCommand(String command, String parameters)
 {
 #if CTBOT_USE_FINGERPRINT == 0
 	WiFiClientSecure telegramServer;
+	const char updated_fingerprint[] = "f2ad299c3448dd8df4cf5232f65733682e81c190";
+	telegramServer.setFingerprint(updated_fingerprint);
 #else
+	// Do not working for some reason
 	BearSSL::WiFiClientSecure telegramServer;
 	telegramServer.setFingerprint(m_fingerprint);
 #endif	
@@ -81,16 +84,36 @@ String CTBot::sendCommand(String command, String parameters)
 
 	// must filter command + parameters from escape sequences and spaces
 //	const String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
-	const String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
+//	const String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
+
+	String URL = String("GET ") + "/bot" + m_token + (String) "/" + command + parameters + " HTTP/1.1\r\n" +
+				 "Host: " + "api.telegram.org" + "\r\n" +
+				 "Connection: close\r\n\r\n";
 
 	// send the HTTP request
-	telegramServer.println(URL);
+	telegramServer.print(URL);
 
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
+	//Reference: https://circuits4you.com/2019/01/10/esp8266-nodemcu-https-secured-get-request/
+
+	while (telegramServer.connected())
+	{
+		String line = telegramServer.readStringUntil('\n');
+		if (line == "\r")
+		{
+			break;
+		}
+	}
+	String res;
+	while (telegramServer.available())
+	{
+		res += telegramServer.readStringUntil('\n'); //Read Line by Line
+	}
+
 #if CTBOT_CHECK_JSON == 0
-	return telegramServer.readString();
+	return res;
 #else
 
 	String response("");

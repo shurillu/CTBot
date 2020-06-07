@@ -13,10 +13,10 @@
                                  // Zero -> dynamic allocation 
 #define CTBOT_STATION_MODE     1 // Station mode -> Set the mode to WIFI_STA (no access point)
                                  // Zero -> WIFI_AP_STA
-#define CTBOT_USE_FINGERPRINT  1 // use Telegram fingerprint server validation
+#define CTBOT_USE_FINGERPRINT  0 // use Telegram fingerprint server validation
                                  // MUST be enabled for ESP8266 Core library > 2.4.2
                                  // Zero -> disabled
-#define CTBOT_CHECK_JSON       1 // Check every JSON received from Telegram Server. Speedup the bot.
+#define CTBOT_CHECK_JSON       0 // Check every JSON received from Telegram Server. Speedup the bot.
                                  // Zero -> Set it to zero if the bot doesn't receive messages anymore 
                                  //         slow down the bot
 

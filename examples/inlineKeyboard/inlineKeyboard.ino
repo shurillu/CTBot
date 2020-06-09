@@ -31,17 +31,19 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Starting TelegramBot...");
 
-  // connect the ESP8266 to the desired access point
-  myBot.wifiConnect(ssid, pass);
+  // connect to the desired access point
+  myBot.useDNS(true);
+	myBot.wifiConnect(ssid, pass);
 
-  // set the telegram bot token
-  myBot.setTelegramToken(token);
+	// set the telegram bot token
+	myBot.setTelegramToken(token);
+	Serial.print("\nTest Telegram connection... ");
 
-  // check if all things are ok
-  if (myBot.testConnection())
-    Serial.println("\ntestConnection OK");
-  else
-    Serial.println("\ntestConnection NOK");
+	// check if all things are ok
+	if (myBot.testConnection())
+		Serial.println("OK");
+	else
+		Serial.println("NOK");
 
   // set the pin connected to the LED to act as output pin
   pinMode(led, OUTPUT);

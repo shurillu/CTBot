@@ -21,22 +21,25 @@ String ssid = "mySSID";     // REPLACE mySSID WITH YOUR WIFI SSID
 String pass = "myPassword"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
 String token = "myToken";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
+
 void setup() {
 	// initialize the Serial
 	Serial.begin(115200);
 	Serial.println("Starting TelegramBot...");
 
-	// connect the ESP8266 to the desired access point
+    	// connect to the desired access point
+    	myBot.useDNS(true);
 	myBot.wifiConnect(ssid, pass);
 
 	// set the telegram bot token
 	myBot.setTelegramToken(token);
+	Serial.print("\nTest Telegram connection... ");
 
 	// check if all things are ok
 	if (myBot.testConnection())
-		Serial.println("\ntestConnection OK");
+		Serial.println("OK");
 	else
-		Serial.println("\ntestConnection NOK");
+		Serial.println("NOK");
 
 	// reply keyboard customization
 	// add a button that send a message with "Simple button" text
@@ -62,9 +65,12 @@ void loop() {
 	// if there is an incoming message...
 	if (myBot.getNewMessage(msg)) {
 		// check what kind of message I received
+
 		if (msg.messageType == CTBotMessageText) {
+            Serial.println("\nText message received");
+
 			// received a text message
-			if (msg.text.equalsIgnoreCase("show keyboard")) {
+			if (String(msg.text).equalsIgnoreCase("show keyboard")) {
 				// the user is asking to show the reply keyboard --> show it
 				myBot.sendMessage(msg.sender.id, "Reply Keyboard enable. You can send a simple text, your contact, your location or hide the keyboard", myKbd);
 				isKeyboardActive = true;
@@ -72,7 +78,7 @@ void loop() {
 			// check if the reply keyboard is active 
 			else if (isKeyboardActive) {
 				// is active -> manage the text messages sent by pressing the reply keyboard buttons
-				if (msg.text.equalsIgnoreCase("Hide replyKeyboard")) {
+				if (String(msg.text).equalsIgnoreCase("Hide replyKeyboard")) {
 					// sent the "hide keyboard" message --> hide the reply keyboard
 					myBot.removeReplyKeyboard(msg.sender.id, "Reply keyboard removed");
 					isKeyboardActive = false;
@@ -84,21 +90,22 @@ void loop() {
 				// the user write anything else and the reply keyboard is not active --> show a hint message
 				myBot.sendMessage(msg.sender.id, "Try 'show keyboard'");
 			}
-		} else if (msg.messageType == CTBotMessageLocation) {
+		} 
+    
+    	else if (msg.messageType == CTBotMessageLocation) {
+      		Serial.println("\nLocation coordinates received");
+
 			// received a location message --> send a message with the location coordinates
 			myBot.sendMessage(msg.sender.id, "Longitude: " + (String)msg.location.longitude +
 				"\nLatitude: " + (String)msg.location.latitude);
 
 		} else if (msg.messageType == CTBotMessageContact) {
+      		Serial.println("\nContact information received");
+
 			// received a contact message --> send a message with the contact information
-			myBot.sendMessage(msg.sender.id, "Name: " + (String)msg.contact.firstName +
-				"\nSurname: " + (String)msg.contact.lastName +
-				"\nPhone: " + (String)msg.contact.phoneNumber +
-				"\nID: " + (String)msg.contact.id +
-				"\nvCard: " + (String)msg.contact.vCard);
+			myBot.sendMessage(msg.sender.id, "Contact information received: " + (String)msg.contact.firstName );
 		}
 	}
 	// wait 500 milliseconds
 	delay(500);
 }
-

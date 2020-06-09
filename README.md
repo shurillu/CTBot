@@ -11,7 +11,6 @@ You also need to install the [ESP8266 Arduino Core and Library](https://github.c
 
 Don't you know Telegram bots and how to setup one? Check [this](https://core.telegram.org/bots#6-botfather).
 
-+ ~~ **_Please pay attention to the installed version of ArduinoJson library: it MUST be 5.13.5 or lesser._** ~~ 
 + **_Please pay attention to the installed version of ArduinoJson library: it MUST be 6.x_**
 
 ### News

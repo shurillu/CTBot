@@ -15,15 +15,15 @@ enum CTBotMessageType {
 struct TBUser {
 	int32_t  id;
 	bool     isBot;
-	String   firstName;
-	String   lastName;
-	String   username;
-	String   languageCode;
+	const char*   firstName;
+	const char*   lastName;
+	const char*   username;
+	const char*   languageCode;
 };
 
 struct TBGroup {
 	int64_t id;
-	String  title;
+	const char*  title;
 };
 
 struct TBLocation{
@@ -32,11 +32,11 @@ struct TBLocation{
 };
 
 struct TBContact {
-	String  phoneNumber;
-	String  firstName;
-	String  lastName;
+	const char*  phoneNumber;
+	const char*  firstName;
+	const char*  lastName;
 	int32_t id;
-	String  vCard;
+	const char*  vCard;
 };
 
 
@@ -45,10 +45,10 @@ struct TBMessage {
 	TBUser           sender;
 	TBGroup          group;
 	int32_t          date;
-	String           text;
-	String           chatInstance;
-	String           callbackQueryData;
-	String           callbackQueryID;
+	const char*      text;
+	const char*      chatInstance;
+	const char*      callbackQueryData;
+	const char*      callbackQueryID;
 	TBLocation       location;
 	TBContact        contact;
 	CTBotMessageType messageType;

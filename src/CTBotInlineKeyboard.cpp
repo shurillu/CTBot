@@ -1,40 +1,29 @@
 #include "CTBotInlineKeyboard.h"
 #include "Utilities.h"
 
-void CTBotInlineKeyboard::initialize()
-{
-#pragma message  "ArduinoJson - DA CONVERTIRE"
-	JsonObject& root = m_jsonBuffer.createObject();
-	JsonArray&  rows = root.createNestedArray("inline_keyboard");
-	JsonArray&  buttons = rows.createNestedArray();
 
-	m_root = &root;
-	m_rows = &rows;
-	m_buttons = &buttons;
+CTBotInlineKeyboard::CTBotInlineKeyboard() :  
+	m_root(KEYBOARD_BUFFER_SIZE)
+{
+	m_rows = m_root.createNestedArray("inline_keyboard");
+	m_buttons = m_rows.createNestedArray();
 	m_isRowEmpty = true;
 }
 
-CTBotInlineKeyboard::CTBotInlineKeyboard()
-{
-	initialize();
-}
+CTBotInlineKeyboard::~CTBotInlineKeyboard(){} 
 
-CTBotInlineKeyboard::~CTBotInlineKeyboard() = default;
+
 
 void CTBotInlineKeyboard::flushData()
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
-	m_jsonBuffer.clear();
-	initialize();
+	m_root.clear();
 }
 
 bool CTBotInlineKeyboard::addRow()
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	if (m_isRowEmpty)
 		return false;
-	JsonArray&  buttons = m_rows->createNestedArray();
-	m_buttons = &buttons;
+	m_buttons = m_rows.createNestedArray();
 	m_isRowEmpty = true;
 	return true;
 }
@@ -44,8 +33,7 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 	if ((buttonType != CTBotKeyboardButtonURL) && (buttonType != CTBotKeyboardButtonQuery))
 		return false;
 
-#pragma message  "ArduinoJson - DA CONVERTIRE"
-	JsonObject& button = m_buttons->createNestedObject();
+	JsonObject button = m_buttons.createNestedObject();
 	text = URLEncodeMessage(text);
 	button["text"] = text;
 
@@ -54,17 +42,23 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 	else if (CTBotKeyboardButtonQuery == buttonType) 
 		button["callback_data"] = command;
 
-
 	if (m_isRowEmpty)
 		m_isRowEmpty = false;
+	
 	return true;
 }
 
 String CTBotInlineKeyboard::getJSON() const
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
-	String serialized;
-	m_root->printTo(serialized);
+	String serialized;	
+	serializeJson(m_root, serialized);
+	return serialized;
+}
+
+String CTBotInlineKeyboard::getJSONPretty() const
+{
+	String serialized;	
+	serializeJsonPretty(m_root, serialized);
 	return serialized;
 }
 

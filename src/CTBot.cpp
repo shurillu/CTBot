@@ -1,6 +1,12 @@
 #define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
 #include <ArduinoJson.h>
-#include <ESP8266WiFi.h>
+#if defined(ESP32)
+	#include <WiFi.h>
+#elif defined(ESP8266)
+	#include <ESP8266WiFi.h>
+#else
+	#error "This library work only with ESP8266 or ESP32"
+#endif
 #include <WiFiClientSecure.h>
 #include "CTBot.h"
 #include "Utilities.h"
@@ -30,18 +36,21 @@ CTBot::CTBot() {
 	setFingerprint(fingerprint);   // set the default fingerprint
 }
 
-CTBot::~CTBot() = default;
+CTBot::~CTBot() {};
+
+
 
 String CTBot::sendCommand(String command, String parameters)
 {
-#if CTBOT_USE_FINGERPRINT == 0
+#if defined(ESP32)
+	WiFiClientSecure telegramServer;
+	//telegramServer.setFingerprint(m_fingerprint);
+#elif CTBOT_USE_FINGERPRINT == 0 
 	WiFiClientSecure telegramServer;
 #else
 	BearSSL::WiFiClientSecure telegramServer;
 	telegramServer.setFingerprint(m_fingerprint);
 #endif	
-
-
 
 	// check for using symbolic URLs
 	if (m_useDNS) {
@@ -80,8 +89,14 @@ String CTBot::sendCommand(String command, String parameters)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
 	// must filter command + parameters from escape sequences and spaces
-//	const String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
-	const String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
+	//	const String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
+	String  URL = "GET /bot";
+			URL += m_token;
+			URL += "/" ;
+			URL += command;
+			URL += parameters;
+
+	// Serial.println(URL);
 
 	// send the HTTP request
 	telegramServer.println(URL);
@@ -198,47 +213,52 @@ void CTBot::setStatusPin(int8_t pin)
 void CTBot::setTelegramToken(String token)
 {	m_token = token;}
 
+
 bool CTBot::testConnection(){
 	TBUser user;
 	return getMe(user);
 }
+
 
 bool CTBot::getMe(TBUser &user) {
 	String response = sendCommand("getMe");
 	if (response.length() == 0)
 		return false;
 
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
-	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+	DynamicJsonDocument root(CTBOT_BUFFER_SIZE_SMALL);
 #else
-	DynamicJsonBuffer jsonBuffer;
+	#pragma message  "CTBOT_BUFFER_SIZE_SMALL MUST BE > 0"
 #endif
-	JsonObject& root = jsonBuffer.parse(response);
+	deserializeJson(root, response);
 
 	bool ok = root["ok"];
 	if (!ok) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("getMe error:");
-		root.printTo(Serial);
+		serializeJson(root, Serial);
 		serialLog("\n");
 #endif
 		return false;
 	}
 
 #if CTBOT_DEBUG_MODE > 0
-	root.printTo(Serial);
+	serialLog("getMe message:\n");
+	serializeJson(root, Serial);
 	serialLog("\n");
 #endif
 
 	user.id           = root["result"]["id"];
 	user.isBot        = root["result"]["is_bot"];
-	user.firstName    = root["result"]["first_name"].as<String>();
-	user.lastName     = root["result"]["last_name"].as<String>();
-	user.username     = root["result"]["username"].as<String>();
-	user.languageCode = root["result"]["language_code"].as<String>();
+	user.firstName    = root["result"]["first_name"];
+	user.username     = root["result"]["username"];
+	user.lastName     = root["result"]["last_name"];
+	user.languageCode = root["result"]["language_code"];
 	return true;
 }
+
+
+
 
 CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	char buf[21];
@@ -249,9 +269,13 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	// polling timeout: add &timeout=<seconds>
 	// default is zero (short polling).
 	String parameters = "?limit=1&allowed_updates=message,callback_query";
-	if (m_lastUpdate != 0)
-		parameters += "&offset=" + (String)buf;
+	if (m_lastUpdate != 0) {
+		parameters += "&offset=";
+		parameters += (String)buf;
+	}
+		
 	String response = sendCommand("getUpdates", parameters);
+
 	if (response.length() == 0) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("getNewMessage error: response with no data\n");
@@ -259,87 +283,93 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		return CTBotMessageNoData;
 	}
 
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
-	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+	DynamicJsonDocument root(CTBOT_BUFFER_SIZE);
 #else
-	DynamicJsonBuffer jsonBuffer;
+	#pragma message  "CTBOT_BUFFER_SIZE MUST BE > 0"
 #endif
 
 	if (m_UTF8Encoding)
 		response = toUTF8(response);
 
-	JsonObject& root = jsonBuffer.parse(response);
+	deserializeJson(root, response);
+
+	//Serial.println(response);
 
 	bool ok = root["ok"];
 	if (!ok) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("getNewMessage error: ");
-		root.prettyPrintTo(Serial);
+		serializeJsonPretty(root, Serial);
 		serialLog("\n");
 #endif
 		return CTBotMessageNoData;
 	}
 
 #if CTBOT_DEBUG_MODE > 0
-	serialLog("getNewMessage JSON: ");
-	root.prettyPrintTo(Serial);
+	serialLog("getNewMessage JSON: \n");
+	serializeJsonPretty(root, Serial);
 	serialLog("\n");
 #endif
 
-	uint32_t updateID = root["result"][0]["update_id"].as<int32_t>();
-	if (updateID == 0)
+	uint32_t updateID = root["result"][0]["update_id"];
+	if (updateID == 0){
 		return CTBotMessageNoData;
+	}
 	m_lastUpdate = updateID + 1;
 
-	if (root["result"][0]["callback_query"]["id"] != 0) {
+	uint64_t callbackID = root["result"][0]["callback_query"]["id"].as<uint64_t>() ;
+	uint32_t messageID  = root["result"][0]["message"]["message_id"].as<uint32_t>() ;
+	String 	 msg	    = root["result"][0]["message"].as<String>();
+	
+	if (callbackID != 0) {
 		// this is a callback query
-		message.messageID         = root["result"][0]["callback_query"]["message"]["message_id"].as<int32_t>();
-		message.text              = root["result"][0]["callback_query"]["message"]["text"].as<String>();
-		message.date              = root["result"][0]["callback_query"]["message"]["date"].as<int32_t>();
-		message.sender.id         = root["result"][0]["callback_query"]["from"]["id"].as<int32_t>();
-		message.sender.username   = root["result"][0]["callback_query"]["from"]["username"].as<String>();
-		message.sender.firstName  = root["result"][0]["callback_query"]["from"]["first_name"].as<String>();
-		message.sender.lastName   = root["result"][0]["callback_query"]["from"]["last_name"].as<String>();
-		message.callbackQueryID   = root["result"][0]["callback_query"]["id"].as<String>();
-		message.callbackQueryData = root["result"][0]["callback_query"]["data"].as<String>();
-		message.chatInstance      = root["result"][0]["callback_query"]["chat_instance"].as<String>();
+		message.callbackQueryID   = root["result"][0]["callback_query"]["id"];
+		message.sender.id         = root["result"][0]["callback_query"]["from"]["id"];
+		message.sender.username   = root["result"][0]["callback_query"]["from"]["username"];
+		message.sender.firstName  = root["result"][0]["callback_query"]["from"]["first_name"];
+		message.sender.lastName   = root["result"][0]["callback_query"]["from"]["last_name"];
+		message.messageID         = root["result"][0]["callback_query"]["message"]["message_id"];
+		message.text              = root["result"][0]["callback_query"]["message"]["text"];
+		message.date              = root["result"][0]["callback_query"]["message"]["date"];
+		message.chatInstance      = root["result"][0]["callback_query"]["chat_instance"];
+		message.callbackQueryData = root["result"][0]["callback_query"]["data"];
 		message.messageType       = CTBotMessageQuery;
 		return CTBotMessageQuery;
 	}
-	else if (root["result"][0]["message"]["message_id"] != 0) {
+	else if (messageID != 0) {
 		// this is a message
-		message.messageID        = root["result"][0]["message"]["message_id"].as<int32_t>();
-		message.sender.id        = root["result"][0]["message"]["from"]["id"].as<int32_t>();
-		message.sender.username  = root["result"][0]["message"]["from"]["username"].as<String>();
-		message.sender.firstName = root["result"][0]["message"]["from"]["first_name"].as<String>();
-		message.sender.lastName  = root["result"][0]["message"]["from"]["last_name"].as<String>();
-		message.group.id         = root["result"][0]["message"]["chat"]["id"].as<int64_t>();
-		message.group.title      = root["result"][0]["message"]["chat"]["title"].as<String>();
-		message.date             = root["result"][0]["message"]["date"].as<int32_t>();
+		message.messageID        = root["result"][0]["message"]["message_id"];
+		message.sender.id        = root["result"][0]["message"]["from"]["id"];
+		message.sender.username  = root["result"][0]["message"]["from"]["username"];
+		message.sender.firstName = root["result"][0]["message"]["from"]["first_name"];
+		message.sender.lastName  = root["result"][0]["message"]["from"]["last_name"];
+		message.group.id         = root["result"][0]["message"]["chat"]["id"];
+		message.group.title      = root["result"][0]["message"]["chat"]["title"];
+		message.date             = root["result"][0]["message"]["date"];
 		
-		if (root["result"][0]["message"]["text"].as<String>().length() != 0) {
-			// this is a text message
-		    message.text        = root["result"][0]["message"]["text"].as<String>();		    
-			message.messageType = CTBotMessageText;
-			return CTBotMessageText;
-		}
-		else if (root["result"][0]["message"]["location"] != 0) {
+	    if (msg.indexOf("\"location\":{") > -1) {
 			// this is a location message
-			message.location.longitude = root["result"][0]["message"]["location"]["longitude"].as<float>();
-			message.location.latitude = root["result"][0]["message"]["location"]["latitude"].as<float>();
+			message.location.longitude = root["result"][0]["message"]["location"]["longitude"];
+			message.location.latitude = root["result"][0]["message"]["location"]["latitude"];
 			message.messageType = CTBotMessageLocation;
 			return CTBotMessageLocation;
 		}
-		else if (root["result"][0]["message"]["contact"] != 0) {
+		else if (msg.indexOf("\"contact\":{") > -1) {
 			// this is a contact message
-			message.contact.id          = root["result"][0]["message"]["contact"]["user_id"].as<int32_t>();
-			message.contact.firstName   = root["result"][0]["message"]["contact"]["first_name"].as<String>();
-			message.contact.lastName    = root["result"][0]["message"]["contact"]["last_name"].as<String>();
-			message.contact.phoneNumber = root["result"][0]["message"]["contact"]["phone_number"].as<String>();
-			message.contact.vCard       = root["result"][0]["message"]["contact"]["vcard"].as<String>();
+			message.contact.id          = root["result"][0]["message"]["contact"]["user_id"];
+			message.contact.firstName   = root["result"][0]["message"]["contact"]["first_name"];
+			message.contact.lastName    = root["result"][0]["message"]["contact"]["last_name"];
+			message.contact.phoneNumber = root["result"][0]["message"]["contact"]["phone_number"];
+			message.contact.vCard       = root["result"][0]["message"]["contact"]["vcard"];
 			message.messageType = CTBotMessageContact;
 			return CTBotMessageContact;
+		}
+		else if (root["result"][0]["message"]["text"].as<String>().length() != 0) {
+			// this is a text message
+		    message.text        = root["result"][0]["message"]["text"];		    
+			message.messageType = CTBotMessageText;
+			return CTBotMessageText;
 		}
 	}
 	// no valid/handled message
@@ -351,16 +381,18 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 	if (0 == message.length())
 		return false;
 
-	String strID = int64ToAscii(id);
+	String 	parameters = "?chat_id=";
+		 	parameters += int64ToAscii(id) ;
+			parameters += "&text=";
+			parameters +=  URLEncodeMessage(message);
 
-	message = URLEncodeMessage(message); //-------------------------------------------------------------------------------------------------------------------------------------
-
-	String parameters = (String)"?chat_id=" + strID + (String)"&text=" + message;
-
-	if (keyboard.length() != 0)
-		parameters += (String)"&reply_markup=" + keyboard;
+	if (keyboard.length() != 0) {
+		parameters += "&reply_markup=" ;
+		parameters += keyboard;
+	}		
 
 	String response = sendCommand("sendMessage", parameters);
+
 	if (response.length() == 0) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("SendMessage error: response with no data\n");
@@ -368,19 +400,18 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 		return false;
 	}
 
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
-	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+	DynamicJsonDocument root(CTBOT_BUFFER_SIZE);
 #else
-	DynamicJsonBuffer jsonBuffer;
+	#pragma message  "CTBOT_BUFFER_SIZE MUST BE > 0"
 #endif
-	JsonObject& root = jsonBuffer.parse(response);
+ 	deserializeJson(root, response);
 
 	bool ok = root["ok"];
 	if (!ok) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("SendMessage error: ");
-		root.prettyPrintTo(Serial);
+		serializeJsonPretty(root, Serial);
 		serialLog("\n");
 #endif
 		return false;
@@ -388,62 +419,71 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 
 #if CTBOT_DEBUG_MODE > 0
 	serialLog("SendMessage JSON: ");
-	root.prettyPrintTo(Serial);
+	serializeJsonPretty(root, Serial);
 	serialLog("\n");
 #endif
 
 	return true;
 }
 
+
+
 bool CTBot::sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboard) {
 	return sendMessage(id, message, keyboard.getJSON());
 }
 
+
 bool CTBot::sendMessage(int64_t id, String message, CTBotReplyKeyboard &keyboard) {
 	return sendMessage(id, message, keyboard.getJSON());
 }
+
+
 
 bool CTBot::endQuery(String queryID, String message, bool alertMode)
 {
 	if (0 == queryID.length())
 		return false;
 
-	String parameters = (String)"?callback_query_id=" + queryID;
+	String 	parameters = "?callback_query_id=";
+			parameters += queryID;
 
 	if (message.length() != 0) {
-		
-		message = URLEncodeMessage(message); //---------------------------------------------------------------------------------------------------------------------------------
 
-		if (alertMode)
-			parameters += (String)"&text=" + message + (String)"&show_alert=true";
-		else
-			parameters += (String)"&text=" + message + (String)"&show_alert=false";
+		if (alertMode) {
+			parameters += "&text=";
+			parameters += URLEncodeMessage(message); ;
+			parameters += "&show_alert=true";
+		}			
+		else {
+			parameters += "&text=" ;
+			parameters += URLEncodeMessage(message); ;
+			parameters += "&show_alert=false";
+		}
 	}
 
 	String response = sendCommand("answerCallbackQuery", parameters);
 	if (response.length() == 0)
 		return false;
 
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 #if CTBOT_BUFFER_SIZE > 0
-	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+	DynamicJsonDocument root(CTBOT_BUFFER_SIZE);
 #else
-	DynamicJsonBuffer jsonBuffer;
+	#pragma message  "CTBOT_BUFFER_SIZE MUST BE > 0"
 #endif
-	JsonObject& root = jsonBuffer.parse(response);
+	deserializeJson(root, response);
 
 	bool ok = root["ok"];
 	if (!ok) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("answerCallbackQuery error:");
-		root.prettyPrintTo(Serial);
+		serializeJsonPretty(root, Serial);
 		serialLog("\n");
 #endif
 		return false;
 	}
 
 #if CTBOT_DEBUG_MODE > 0
-	root.printTo(Serial);
+	serializeJson(root, Serial);
 	serialLog("\n");
 #endif
 
@@ -452,15 +492,13 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 
 bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
-	DynamicJsonBuffer jsonBuffer;
+	DynamicJsonDocument root(CTBOT_BUFFER_SIZE_SMALL);
 	String command;
-	JsonObject& root = jsonBuffer.createObject();
 	root["remove_keyboard"] = true;
 	if (selective) {
 		root["selective"] = true;
 	}
-	root.printTo(command);
+	serializeJson(root, command);
 	return sendMessage(id, message, command);
 }
 
@@ -509,7 +547,9 @@ bool CTBot::wifiConnect(String ssid, String password) const
 {
 	// attempt to connect to Wifi network:
 	int tries = 0;
-	String message = (String)"\n\nConnecting Wifi: " + ssid + (String)"\n";
+	String message = "\n\nConnecting Wifi: " ;
+		   message += ssid ;
+		   message += "\n";
 	serialLog(message);
 
 #if CTBOT_STATION_MODE > 0
@@ -538,14 +578,18 @@ bool CTBot::wifiConnect(String ssid, String password) const
 
 	if (WiFi.status() == WL_CONNECTED) {
 		IPAddress ip = WiFi.localIP();
-		message = (String)"\nWiFi connected\nIP address: " + ip.toString() + (String)"\n";
+		message = "\nWiFi connected\nIP address: " ;
+		message += ip.toString() ;
+		message += "\n";
 		serialLog(message);
 		if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 			digitalWrite(m_statusPin, LOW);
 		return true;
 	}
 	else {
-		message = (String)"\nUnable to connect to " + ssid + (String)" network.\n";
+		message = "\nUnable to connect to ";
+		message += ssid ;
+		message += " network.\n";
 		serialLog(message);
 		if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 			 digitalWrite(m_statusPin, HIGH);

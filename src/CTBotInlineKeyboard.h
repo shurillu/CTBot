@@ -15,14 +15,13 @@ enum CTBotInlineKeyboardButtonType {
 class CTBotInlineKeyboard
 {
 private:
-#pragma message  "ArduinoJson - DA CONVERTIRE"
-	DynamicJsonBuffer m_jsonBuffer;
-	JsonObject *m_root;
-	JsonArray  *m_rows;
-	JsonArray  *m_buttons;
-	bool m_isRowEmpty;
+	//DynamicJsonDocument m_jsonBuffer;
+	//JsonObject m_root;
 
-	void initialize(void);
+	DynamicJsonDocument  m_root;
+	JsonArray  m_rows;
+	JsonArray  m_buttons;
+	bool m_isRowEmpty;
 
 public:
 	CTBotInlineKeyboard();
@@ -50,6 +49,7 @@ public:
 	// returns:
 	//   the JSON of the inline keyboard 
 	String getJSON(void) const;
+	String getJSONPretty(void) const;
 };
 
 

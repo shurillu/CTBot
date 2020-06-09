@@ -7,19 +7,19 @@
 #include "CTBotInlineKeyboard.h"
 #include "CTBotReplyKeyboard.h"
 
-#define CTBOT_DEBUG_MODE       0 // enable debugmode -> print debug data on the Serial
-                                 // Zero -> debug disabled
-#define CTBOT_BUFFER_SIZE      0 // json parser buffer size
-                                 // Zero -> dynamic allocation 
-#define CTBOT_STATION_MODE     1 // Station mode -> Set the mode to WIFI_STA (no access point)
-                                 // Zero -> WIFI_AP_STA
-#define CTBOT_USE_FINGERPRINT  1 // use Telegram fingerprint server validation
-                                 // MUST be enabled for ESP8266 Core library > 2.4.2
-                                 // Zero -> disabled
-#define CTBOT_CHECK_JSON       1 // Check every JSON received from Telegram Server. Speedup the bot.
-                                 // Zero -> Set it to zero if the bot doesn't receive messages anymore 
-                                 //         slow down the bot
+#define CTBOT_DEBUG_MODE       	0 // enable debugmode -> print debug data on the Serial
+                                  // Zero -> debug disabled
+#define CTBOT_BUFFER_SIZE       2048 	// json parser buffer size (ArduinoJson v6)
+#define CTBOT_BUFFER_SIZE_SMALL 256 	// json parser buffer size (ArduinoJson v6)
 
+#define CTBOT_STATION_MODE     	1 // Station mode -> Set the mode to WIFI_STA (no access point)
+                                  // Zero -> WIFI_AP_STA
+#define CTBOT_USE_FINGERPRINT  	1 // use Telegram fingerprint server validation
+                                  // MUST be enabled for ESP8266 Core library > 2.4.2
+                                  // Zero -> disabled
+#define CTBOT_CHECK_JSON      	1 // Check every JSON received from Telegram Server. Speedup the bot.
+                                  // Zero -> Set it to zero if the bot doesn't receive messages anymore 
+                                  //         slow down the bot
 
 // value for disabling the status pin. It is utilized for led notification on the board
 #define CTBOT_DISABLE_STATUS_PIN -1
@@ -112,6 +112,7 @@ public:
 	//   true if no error occurred
 	bool sendMessage(int64_t id, String message, String keyboard = "");
 	bool sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboard);
+	
 	bool sendMessage(int64_t id, String message, CTBotReplyKeyboard  &keyboard);
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:

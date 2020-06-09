@@ -2,7 +2,8 @@
 #ifndef CTBOT_INLINE_KEYBOARD
 #define CTBOT_INLINE_KEYBOARD
 
-#define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
+// for using int_64 data
+#define ARDUINOJSON_USE_LONG_LONG 1 
 #include <ArduinoJson.h>
 #include <Arduino.h>
 

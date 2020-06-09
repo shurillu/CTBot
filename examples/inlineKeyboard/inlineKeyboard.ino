@@ -26,6 +26,7 @@ uint8_t led = 2;            // the onboard ESP8266 LED.
                             // (replace 2 with BUILTIN_LED) 
                             // ATTENTION: this led use inverted logic
 
+
 void setup() {
   // initialize the Serial
   Serial.begin(115200);

@@ -24,17 +24,19 @@ void setup() {
 	Serial.begin(115200);
 	Serial.println("Starting TelegramBot...");
 
-	// connect the ESP8266 to the desired access point
+    	// connect to the desired access point
+    	myBot.useDNS(true);
 	myBot.wifiConnect(ssid, pass);
 
 	// set the telegram bot token
 	myBot.setTelegramToken(token);
+	Serial.print("\nTest Telegram connection... ");
 
 	// check if all things are ok
 	if (myBot.testConnection())
-		Serial.println("\ntestConnection OK");
+		Serial.println("OK");
 	else
-		Serial.println("\ntestConnection NOK");
+		Serial.println("NOK");
 
 	// set the pin connected to the LED to act as output pin
 	pinMode(led, OUTPUT);
@@ -49,18 +51,20 @@ void loop() {
 	// if there is an incoming message...
 	if (myBot.getNewMessage(msg)) {
 
-		if (msg.text.equalsIgnoreCase("LIGHT ON")) {              // if the received message is "LIGHT ON"...
+		if (String(msg.text).equalsIgnoreCase("LIGHT ON")) {              // if the received message is "LIGHT ON"...
 			digitalWrite(led, LOW);                               // turn on the LED (inverted logic!)
 			myBot.sendMessage(msg.sender.id, "Light is now ON");  // notify the sender
 		}
-		else if (msg.text.equalsIgnoreCase("LIGHT OFF")) {        // if the received message is "LIGHT OFF"...
+		else if (String(msg.text).equalsIgnoreCase("LIGHT OFF")) {        // if the received message is "LIGHT OFF"...
 			digitalWrite(led, HIGH);                              // turn off the led (inverted logic!)
 			myBot.sendMessage(msg.sender.id, "Light is now OFF"); // notify the sender
 		}
 		else {                                                    // otherwise...
 			// generate the message for the sender
 			String reply;
-			reply = (String)"Welcome " + msg.sender.username + (String)". Try LIGHT ON or LIGHT OFF.";
+			reply = "Welcome " ;
+			reply += msg.sender.username;
+			reply += ". Try LIGHT ON or LIGHT OFF.";
 			myBot.sendMessage(msg.sender.id, reply);             // and send it
 		}
 	}

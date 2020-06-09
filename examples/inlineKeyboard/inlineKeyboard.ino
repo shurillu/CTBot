@@ -55,7 +55,7 @@ void setup() {
   // add a new empty button row
   myKbd.addRow();
   // add a URL button to the second row of the inline keyboard
-  myKbd.addButton("see docs", "https://github.com/shurillu/CTBot", CTBotKeyboardButtonURL);
+  myKbd.addButton("see docs", "https://github.com/cotestatnt/CTBot", CTBotKeyboardButtonURL);
 }
 
 void loop() {
@@ -67,7 +67,7 @@ void loop() {
     // check what kind of message I received
     if (msg.messageType == CTBotMessageText) {
       // received a text message
-      if (msg.text.equalsIgnoreCase("show keyboard")) {
+      if (String(msg.text).equalsIgnoreCase("show keyboard")) {
         // the user is asking to show the inline keyboard --> show it
         myBot.sendMessage(msg.sender.id, "Inline Keyboard", myKbd);
       }
@@ -77,12 +77,12 @@ void loop() {
       }
     } else if (msg.messageType == CTBotMessageQuery) {
       // received a callback query message
-      if (msg.callbackQueryData.equals(LIGHT_ON_CALLBACK)) {
+      if (String(msg.callbackQueryData).equals(LIGHT_ON_CALLBACK)) {
         // pushed "LIGHT ON" button...
         digitalWrite(led, LOW); // ...turn on the LED (inverted logic!)
         // terminate the callback with an alert message
         myBot.endQuery(msg.callbackQueryID, "Light on", true);
-      } else if (msg.callbackQueryData.equals(LIGHT_OFF_CALLBACK)) {
+      } else if (String(msg.callbackQueryData).equals(LIGHT_OFF_CALLBACK)) {
         // pushed "LIGHT OFF" button...
         digitalWrite(led, HIGH); // ...turn off the LED (inverted logic!)
         // terminate the callback with a popup message

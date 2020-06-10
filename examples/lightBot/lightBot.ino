@@ -68,6 +68,6 @@ void loop() {
 			myBot.sendMessage(msg.sender.id, reply);             // and send it
 		}
 	}
-	// wait 500 milliseconds
-	delay(500);
+	// wait 500 milliseconds  
+	// delay(500);  -> no more necessary (check min time inside the library class)
 }

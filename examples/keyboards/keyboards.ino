@@ -29,7 +29,6 @@ String token = "";    // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 void setup() {
 	// initialize the Serial
 	Serial.begin(115200);
-	Serial.println(ESP.getFreeHeap());
 	Serial.println("Starting TelegramBot...");
 
 	// connect to the desired access point

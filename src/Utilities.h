@@ -3,8 +3,6 @@
 #define UTILITIES
 #include <Arduino.h>
 
-#define KEYBOARD_BUFFER_SIZE       1024 	// json parser buffer size (ArduinoJson v6)
-
 // convert an UNICODE coded string to a UTF8 coded string
 // params
 //   unicode: the UNICODE string to convert

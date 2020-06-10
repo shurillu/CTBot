@@ -7,8 +7,13 @@
 #include "CTBotInlineKeyboard.h"
 #include "CTBotReplyKeyboard.h"
 
-#define CTBOT_DEBUG_MODE       	0 // enable debugmode -> print debug data on the Serial
-                                  // Zero -> debug disabled
+#define MAX_STRING_SIZE			1024	// Used for reserve() a fixed size of memory
+										// Increase if necessary
+
+#define SERVER_MIN_UPDATE_TIME	500		// Avoid query Telegram server to much often (ms)
+
+#define CTBOT_DEBUG_MODE       	0 		// enable debugmode -> print debug data on the Serial
+                                  		// Zero -> debug disabled
 #define CTBOT_BUFFER_SIZE       2048 	// json parser buffer size (ArduinoJson v6)
 #define CTBOT_BUFFER_SIZE_SMALL 256 	// json parser buffer size (ArduinoJson v6)
 
@@ -149,6 +154,7 @@ private:
 	int8_t    m_statusPin;
 	String    m_token;
 	int32_t   m_lastUpdate;
+	uint32_t  m_lastUpdateTime;
 	bool      m_useDNS;
 	bool      m_UTF8Encoding;
 	bool      m_needInsecureFlag;

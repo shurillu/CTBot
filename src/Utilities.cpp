@@ -51,6 +51,7 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 
 String int64ToAscii(int64_t value) {
 	String buffer;
+	buffer.reserve(24);
 	int64_t temp;
 	if (value < 0)
 		temp = -value;
@@ -69,7 +70,8 @@ String int64ToAscii(int64_t value) {
 }
 
 String URLEncodeMessage(String message) {
-	String encodedMessage("");
+	String encodedMessage;
+	encodedMessage.reserve(256);
 	char buffer[4];
 	buffer[0] = '%';
 	buffer[3] = 0x00;

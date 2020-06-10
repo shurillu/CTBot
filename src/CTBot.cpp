@@ -1,6 +1,4 @@
-// for using int_64 data
-#define ARDUINOJSON_USE_LONG_LONG 1 
-
+#define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
 #include <ArduinoJson.h>
 #if defined(ESP32)
 	#include <WiFi.h>
@@ -92,13 +90,15 @@ String CTBot::sendCommand(String command, String parameters)
 
 	// must filter command + parameters from escape sequences and spaces
 	//	const String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
-	String  URL = "GET /bot";
-			URL += m_token;
-			URL += "/" ;
-			URL += command;
-			URL += parameters;
+	String URL;
+	URL.reserve(MAX_STRING_SIZE);
+	URL = "GET /bot";
+	URL += m_token;
+	URL += "/" ;
+	URL += command;
+	URL += parameters;
 
-	// Serial.println(URL);
+	//Serial.println(URL);
 
 	// send the HTTP request
 	telegramServer.println(URL);
@@ -110,7 +110,8 @@ String CTBot::sendCommand(String command, String parameters)
 	return telegramServer.readString();
 #else
 
-	String response("");
+	String response;
+	response.reserve(MAX_STRING_SIZE);
 	int curlyCounter = -1; // count the open/closed curly bracket for identify the json
 	bool skipCounter = false; // for filtering curly bracket inside a text message
 	int c;
@@ -156,7 +157,8 @@ String CTBot::sendCommand(String command, String parameters)
 
 String CTBot::toUTF8(String message) const
 {
-	String converted("");
+	String converted;
+	converted.reserve(MAX_STRING_SIZE);
 	uint16_t i = 0;
 	while (i < message.length()) {
 		String subMessage(message[i]);
@@ -223,7 +225,9 @@ bool CTBot::testConnection(){
 
 
 bool CTBot::getMe(TBUser &user) {
-	String response = sendCommand("getMe");
+	String response;
+	response.reserve(MAX_STRING_SIZE);
+	response = sendCommand("getMe");
 	if (response.length() == 0)
 		return false;
 
@@ -263,20 +267,27 @@ bool CTBot::getMe(TBUser &user) {
 
 
 CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
-	char buf[21];
 
 	message.messageType = CTBotMessageNoData;
 
+	if(! (millis() - m_lastUpdateTime > SERVER_MIN_UPDATE_TIME))
+		return message.messageType;
+
+	char buf[21];
 	ltoa(m_lastUpdate, buf, 10);
 	// polling timeout: add &timeout=<seconds>
 	// default is zero (short polling).
-	String parameters = "?limit=1&allowed_updates=message,callback_query";
+	String parameters;
+	parameters.reserve(MAX_STRING_SIZE);
+	parameters = "?limit=1&allowed_updates=message,callback_query";
 	if (m_lastUpdate != 0) {
 		parameters += "&offset=";
 		parameters += (String)buf;
 	}
 		
-	String response = sendCommand("getUpdates", parameters);
+	String response;
+	response.reserve(MAX_STRING_SIZE);
+	response = sendCommand("getUpdates", parameters);
 
 	if (response.length() == 0) {
 #if CTBOT_DEBUG_MODE > 0
@@ -318,6 +329,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		return CTBotMessageNoData;
 	}
 	m_lastUpdate = updateID + 1;
+	m_lastUpdateTime = millis();
 	
 	if(root["result"][0]["callback_query"]["id"]){
 		// this is a callback query
@@ -375,13 +387,15 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 
 bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 {
-	if (0 == message.length())
+	if (message.length() == 0)
 		return false;
+	String 	parameters;
+	parameters.reserve(MAX_STRING_SIZE);
 
-	String 	parameters = "?chat_id=";
-		 	parameters += int64ToAscii(id) ;
-			parameters += "&text=";
-			parameters +=  URLEncodeMessage(message);
+	parameters = "?chat_id=";
+	parameters += int64ToAscii(id) ;
+	parameters += "&text=";
+	parameters +=  URLEncodeMessage(message);
 
 	if (keyboard.length() != 0) {
 		parameters += "&reply_markup=" ;
@@ -593,3 +607,4 @@ bool CTBot::wifiConnect(String ssid, String password) const
 		return false;
 	}
 }
+

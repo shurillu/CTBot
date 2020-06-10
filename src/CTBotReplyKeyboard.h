@@ -3,7 +3,9 @@
 #define CTBOT_REPLY_KEYBOARD
 
 // for using int_64 data
-#define ARDUINOJSON_USE_LONG_LONG 1 
+#define ARDUINOJSON_USE_LONG_LONG 	1 
+#define MIN_JSON_SIZE				256 
+
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
@@ -17,20 +19,14 @@ enum CTBotReplyKeyboardButtonType {
 class CTBotReplyKeyboard
 {
 private:
-	//DynamicJsonDocument m_jsonBuffer;
-	//JsonObject m_root; 
-	DynamicJsonDocument m_root;
-	JsonArray  m_rows;
-	JsonArray  m_buttons;
-	bool m_isRowEmpty;
+	String m_json;
+	size_t m_jsonSize = MIN_JSON_SIZE;
 
 public:
 	CTBotReplyKeyboard();
 	~CTBotReplyKeyboard();
 
-	// flush the buffer and initialize the data structure
-	void flushData(void);
-
+	
 	// add a new empty row of buttons
 	// return:
 	//    true if no error occurred
@@ -42,7 +38,10 @@ public:
 	//   buttonType: the type of the button (simple text, contact request, location request)
 	// return:
 	//    true if no error occurred
-	bool addButton(String text, CTBotReplyKeyboardButtonType buttonType = CTBotKeyboardButtonSimple);
+	
+	//bool addButton(String text, CTBotReplyKeyboardButtonType buttonType = CTBotKeyboardButtonSimple);
+
+	bool addButton(const char* text, CTBotReplyKeyboardButtonType buttonType = CTBotKeyboardButtonSimple);
 
 	// enable reply keyboard autoresizing (default: the same size of the standard keyboard)
 	void enableResize(void);

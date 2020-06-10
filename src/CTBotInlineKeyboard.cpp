@@ -2,63 +2,71 @@
 #include "Utilities.h"
 
 
-CTBotInlineKeyboard::CTBotInlineKeyboard() :  
-	m_root(KEYBOARD_BUFFER_SIZE)
+CTBotInlineKeyboard::CTBotInlineKeyboard() 
 {
-	m_rows = m_root.createNestedArray("inline_keyboard");
-	m_buttons = m_rows.createNestedArray();
-	m_isRowEmpty = true;
+	m_json = "{\"inline_keyboard\":[[]]}\"";
 }
 
 CTBotInlineKeyboard::~CTBotInlineKeyboard(){} 
 
 
-
-void CTBotInlineKeyboard::flushData()
-{
-	m_root.clear();
-}
-
 bool CTBotInlineKeyboard::addRow()
 {
-	if (m_isRowEmpty)
-		return false;
-	m_buttons = m_rows.createNestedArray();
-	m_isRowEmpty = true;
+	if(m_jsonSize < MIN_JSON_SIZE) m_jsonSize = MIN_JSON_SIZE;	
+	DynamicJsonDocument doc(m_jsonSize + 64);	 // Current size + space for new row (empty)
+	deserializeJson(doc, m_json);
+	JsonArray  rows = doc["inline_keyboard"];	
+	rows.createNestedArray();
+	m_json.clear();
+	serializeJson(doc, m_json);
+	m_jsonSize = doc.memoryUsage();
 	return true;
 }
 
-bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType)
+
+bool CTBotInlineKeyboard::addButton(const char* text, const char* command, CTBotInlineKeyboardButtonType buttonType)
 {
 	if ((buttonType != CTBotKeyboardButtonURL) && (buttonType != CTBotKeyboardButtonQuery))
 		return false;
+	// As reccomended use local JsonDocument instead global
+	// inline keyboard json structure will be stored in a String var
+	if(m_jsonSize < MIN_JSON_SIZE) m_jsonSize = MIN_JSON_SIZE;	
+	DynamicJsonDocument doc(m_jsonSize + 128);	 // Current size + space for new object (button)
+	deserializeJson(doc, m_json);
 
-	JsonObject button = m_buttons.createNestedObject();
-	text = URLEncodeMessage(text);
-	button["text"] = text;
+	JsonArray  rows = doc["inline_keyboard"];	
+	JsonObject button = rows[rows.size()-1].createNestedObject();
 
-	if (CTBotKeyboardButtonURL == buttonType) 
-		button["url"] = command;
-	else if (CTBotKeyboardButtonQuery == buttonType) 
-		button["callback_data"] = command;
+	button["text"] = URLEncodeMessage(text);
+	if(CTBotKeyboardButtonURL == buttonType)		
+		button["url"] = command;		
+	else if (CTBotKeyboardButtonQuery == buttonType) 		
+		button["callback_data"] = command;	
 
-	if (m_isRowEmpty)
-		m_isRowEmpty = false;
-	
+	// Store inline keyboard json structure
+	m_json.clear();
+	serializeJson(doc, m_json);
+	m_jsonSize = doc.memoryUsage();
 	return true;
 }
 
+
+
 String CTBotInlineKeyboard::getJSON() const
 {
-	String serialized;	
-	serializeJson(m_root, serialized);
-	return serialized;
+	return m_json;
 }
+
 
 String CTBotInlineKeyboard::getJSONPretty() const
 {
-	String serialized;	
-	serializeJsonPretty(m_root, serialized);
+	uint16_t jsonSize;
+	if(m_jsonSize < MIN_JSON_SIZE) jsonSize = MIN_JSON_SIZE;	
+	DynamicJsonDocument doc(jsonSize + 64);	// Current size + space for new lines
+	deserializeJson(doc, m_json);
+	
+	String serialized;		
+	serializeJsonPretty(doc, serialized);
 	return serialized;
 }
 

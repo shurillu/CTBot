@@ -1,4 +1,6 @@
-#define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
+// for using int_64 data
+#define ARDUINOJSON_USE_LONG_LONG 1 
+
 #include <ArduinoJson.h>
 #if defined(ESP32)
 	#include <WiFi.h>
@@ -293,7 +295,6 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		response = toUTF8(response);
 
 	deserializeJson(root, response);
-
 	//Serial.println(response);
 
 	bool ok = root["ok"];
@@ -317,12 +318,8 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		return CTBotMessageNoData;
 	}
 	m_lastUpdate = updateID + 1;
-
-	uint64_t callbackID = root["result"][0]["callback_query"]["id"].as<uint64_t>() ;
-	uint32_t messageID  = root["result"][0]["message"]["message_id"].as<uint32_t>() ;
-	String 	 msg	    = root["result"][0]["message"].as<String>();
 	
-	if (callbackID != 0) {
+	if(root["result"][0]["callback_query"]["id"]){
 		// this is a callback query
 		message.callbackQueryID   = root["result"][0]["callback_query"]["id"];
 		message.sender.id         = root["result"][0]["callback_query"]["from"]["id"];
@@ -336,8 +333,8 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.callbackQueryData = root["result"][0]["callback_query"]["data"];
 		message.messageType       = CTBotMessageQuery;
 		return CTBotMessageQuery;
-	}
-	else if (messageID != 0) {
+	}	
+	else if(root["result"][0]["message"]["message_id"]){
 		// this is a message
 		message.messageID        = root["result"][0]["message"]["message_id"];
 		message.sender.id        = root["result"][0]["message"]["from"]["id"];
@@ -347,15 +344,15 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.group.id         = root["result"][0]["message"]["chat"]["id"];
 		message.group.title      = root["result"][0]["message"]["chat"]["title"];
 		message.date             = root["result"][0]["message"]["date"];
-		
-	    if (msg.indexOf("\"location\":{") > -1) {
+			    
+		if(root["result"][0]["message"]["location"]){
 			// this is a location message
 			message.location.longitude = root["result"][0]["message"]["location"]["longitude"];
 			message.location.latitude = root["result"][0]["message"]["location"]["latitude"];
 			message.messageType = CTBotMessageLocation;
 			return CTBotMessageLocation;
-		}
-		else if (msg.indexOf("\"contact\":{") > -1) {
+		}		
+		else if(root["result"][0]["message"]["contact"]){
 			// this is a contact message
 			message.contact.id          = root["result"][0]["message"]["contact"]["user_id"];
 			message.contact.firstName   = root["result"][0]["message"]["contact"]["first_name"];
@@ -364,8 +361,8 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 			message.contact.vCard       = root["result"][0]["message"]["contact"]["vcard"];
 			message.messageType = CTBotMessageContact;
 			return CTBotMessageContact;
-		}
-		else if (root["result"][0]["message"]["text"].as<String>().length() != 0) {
+		}		
+		else if (root["result"][0]["message"]["text"]) {
 			// this is a text message
 		    message.text        = root["result"][0]["message"]["text"];		    
 			message.messageType = CTBotMessageText;
@@ -596,4 +593,3 @@ bool CTBot::wifiConnect(String ssid, String password) const
 		return false;
 	}
 }
-

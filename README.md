@@ -29,10 +29,10 @@ Don't you know Telegram bots and how to setup one? Check [this](https://core.tel
 The library works with the ESP8266 and ESP32 chipsetd.
 
 ### Simple usage
-See the EchoBot example provided in the [examples folder](https://github.com/shurillu/CTBot/tree/master/examples).
+See the EchoBot example provided in the [examples folder](https://github.com/cotestatnt/CTBot/tree/master/examples).
 
 ### Reference
-[Here how to use the library](https://github.com/shurillu/CTBot/blob/master/REFERENCE.md). 
+[Here how to use the library](https://github.com/cotestatnt/CTBot/blob/master/REFERENCE.md). 
 
 ### Special thanks
 A special thanks go to these people who helped me making this library 

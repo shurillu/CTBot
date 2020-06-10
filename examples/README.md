@@ -3,7 +3,7 @@ ___
 ### Table of contents
 + [echoBot](#echobot)
 + [lightBot](#lightbot)
-+ [inlineKeyboard](#inlinekeyboard)
++ [inlineKeyboard/replyKeyboard](#inlinekeyboard/replyKeyboard)
 ___
 ### echoBot
 This example simply check for new messages and send back to the sender the text received.
@@ -29,14 +29,14 @@ In order to run the example correctly, you have to provide:
 
 [Back to TOC](#table-of-contents) 
 
-### inlineKeyboard
+### inlineKeyboard/replyKeyboard
 This example show how to create an inline keyboard and manage the buttons. Show also the two types of messages (alert message and popup message) provided with the `endQuery()` method.
 
 + create a inline keyboard
 + if a _show keyboard_ text message is received, show the inline custom keyboard, otherwise reply the sender with _Try 'show keyboard'_ message
 + if _LIGHT ON_ inline keyboard button is pressed turn on the onboard LED and show an alert message
 + if _LIGHT OFF_ inline keyboard button is pressed, turn off the onboard LED and show a popup message
-+ if _see docs_ inline keyboard button is pressed, open a browser window with URL _https://github.com/shurillu/CTBot_
++ if _see docs_ inline keyboard button is pressed, open a browser window with URL _https://github.com/cotestatnt/CTBot_
 
 In order to run the example correctly, you have to provide:
 + your WiFi SSID

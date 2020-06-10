@@ -39,10 +39,6 @@ A special thanks go to these people who helped me making this library
 + Gianmaria Mancosu
 + Marco Madlena
 
-### Future work
-+ [x] Add Telegram inline keyboards
-+ [ ] Add ESP32 support & testing
-
 ### Changelog
 + 1.4.1 New Telegram Server IP and fingerprint update.
 + 1.4.0 Reply keyboard added. Contact messages functionality added.

@@ -17,17 +17,19 @@ void setup() {
 	Serial.begin(115200);
 	Serial.println("Starting TelegramBot...");
 
-	// connect the ESP8266 to the desired access point
+	// connect to the desired access point
+	myBot.useDNS(true);
 	myBot.wifiConnect(ssid, pass);
 
 	// set the telegram bot token
 	myBot.setTelegramToken(token);
-	
+	Serial.print("\nTest Telegram connection... ");
+
 	// check if all things are ok
 	if (myBot.testConnection())
-		Serial.println("\ntestConnection OK");
+		Serial.println("OK");
 	else
-		Serial.println("\ntestConnection NOK");
+		Serial.println("NOK");
 }
 
 void loop() {
@@ -39,6 +41,6 @@ void loop() {
 		// ...forward it to the sender
 		myBot.sendMessage(msg.sender.id, msg.text);
 	 
-	// wait 500 milliseconds
-	delay(500);
+	// wait 500 milliseconds  
+	// delay(500);  -> no more necessary (check inside the library class)
 }

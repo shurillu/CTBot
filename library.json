@@ -1,7 +1,7 @@
 {
   "name": "CTBot",
   "keywords": "telegram, bot",
-  "description": "Simple Arduino Telegram BOT library for ESP8266",
+  "description": "Simple Arduino Telegram BOT library for ESP8266/ESP32",
   "homepage": "https://github.com/shurillu/CTBot",
   "repository": {
     "type": "git",

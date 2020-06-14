@@ -13,19 +13,19 @@ Don't you know Telegram bots and how to setup one? Check [this](https://core.tel
 + **_Please pay attention to the installed version of ArduinoJson library: it MUST be 5.13.5 or lesser._**
 
 ### News
-+ Added reply keyboards support
-+ Added contact messages support
++ ESP32 support
 
 ### Feature
++ ESP8266/ESP32 support
 + Manage WiFi connection (methods for connecting to an access point, set a static IP)
 + Send and receive messages
 + Inline keyboards
 + Receive localization messages
-+ Reply keyboards (NEW)
-+ Receive contacts messages (NEW)
++ Reply keyboards
++ Receive contacts messages
 
 ### Supported boards
-The library works with the ESP8266 chipset: all the ESP8266 boards are supported.
+The library works with the ESP8266/ESP32 chipset: all the ESP8266/ESP32 boards are supported.
 
 ### Simple usage
 See the EchoBot example provided in the [examples folder](https://github.com/shurillu/CTBot/tree/master/examples).
@@ -40,9 +40,10 @@ A special thanks go to these people who helped me making this library
 
 ### Future work
 + [x] Add Telegram inline keyboards
-+ [ ] Add ESP32 support & testing
++ [X] Add ESP32 support & testing
 
 ### Changelog
++ 2.0.0 ESP32 support
 + 1.4.1 New Telegram Server IP and fingerprint update.
 + 1.4.0 Reply keyboard added. Contact messages functionality added.
 + 1.3.2 Bug fixing and new functionalities:

@@ -5,9 +5,9 @@
 
 ___
 ### Introduction
-CTBot is a simple Arduino class to manage Telegram Bot on ESP8266 platform.
+CTBot is a simple Arduino class to manage Telegram Bot on ESP8266/ESP32 platform.
 It relies on [ArduinoJson](https://github.com/bblanchon/ArduinoJson) library so, in order to use a CTBot object, you need to install the ArduinoJson library first (you can use library manager).
-You also need to install the [ESP8266 Arduino Core and Library](https://github.com/esp8266/Arduino).
+You also need to install the [ESP8266 Arduino Core and Library](https://github.com/esp8266/Arduino) or the [ESP32 Arduino Core and Library](https://github.com/espressif/arduino-esp32).
 Don't you know Telegram bots and how to setup one? Check [this](https://core.telegram.org/bots#6-botfather).
 
 + **_Please pay attention to the installed version of ArduinoJson library: it MUST be 5.13.5 or lesser._**

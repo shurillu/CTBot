@@ -80,17 +80,6 @@ public:
 	//   true if no error occurred
 	bool removeReplyKeyboard(int64_t id, String message, bool selective = false);
 
-///
-///private:
-///	uint8_t   m_wifiConnectionTries;
-///	int8_t    m_statusPin;
-///	String    m_token;
-///	int32_t   m_lastUpdate;
-///	bool      m_useDNS;
-///	bool      m_UTF8Encoding;
-///	bool      m_needInsecureFlag;
-///	uint8_t   m_fingerprint[20];
-///
 	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api
 	// params
 	//   command   : the command to send, i.e. getMe

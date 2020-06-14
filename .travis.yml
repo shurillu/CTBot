@@ -4,9 +4,9 @@ dist: bionic
 addons:
   apt:
     packages: 
-    - arduino-mk
     - wget
     - python3
+
 
 before_install:
   - echo `pwd`
@@ -15,12 +15,13 @@ before_install:
   - cd arduino-1.8.12
   - export PATH=$PATH:`pwd`
   - cd ..
-
-install:
-  - echo `pwd`
-  - echo $PATH
-  - arduino --pref boardsmanager.additional.urls=http://arduino.esp8266.com/stable/package_esp8266com_index.json --install-boards esp8266:esp8266
-  - arduino --install-library ArduinoJson:5.13.4
+  # the following iptables changes are just to suppress log-warnings where the arduinp-ide tries to make network connections
+  - sudo iptables -P INPUT DROP
+  - sudo iptables -P FORWARD DROP
+  - sudo iptables -P OUTPUT ACCEPT
+  - sudo iptables -A INPUT -i lo -j ACCEPT
+  - sudo iptables -A OUTPUT -o lo -j ACCEPT
+  - sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
 before_script:
   - echo ${TRAVIS_BUILD_DIR}
@@ -28,7 +29,25 @@ before_script:
   - echo `pwd`
   - for d in */; do cp ../src/* ${d}/; done
 
-script:
-  - cd ${TRAVIS_BUILD_DIR}/examples
-  - for d in */; do arduino --pref compiler.cpp.extra_flags="-Wall -Wextra -Werror" --board esp8266:esp8266:d1 --verify ${d}*.ino; done
-
+jobs:
+  include:
+    - stage: 
+      name: Build for ESP8266
+      install:
+        - echo `pwd`
+        - echo $PATH
+        - arduino --pref boardsmanager.additional.urls="http://arduino.esp8266.com/stable/package_esp8266com_index.json" --install-boards esp8266:esp8266
+        - arduino --install-library ArduinoJson:5.13.4
+      script:
+        - cd ${TRAVIS_BUILD_DIR}/examples
+        - for d in */; do arduino --pref compiler.cpp.extra_flags="-Wall -Wextra -Werror" --board esp8266:esp8266:d1 --verify ${d}*.ino; done
+    - stage: 
+      name: Build for ESP32
+      install:
+        - echo `pwd`
+        - echo $PATH
+        - arduino --pref boardsmanager.additional.urls="https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json" --install-boards esp32:esp32
+        - arduino --install-library ArduinoJson:5.13.4
+      script:
+        - cd ${TRAVIS_BUILD_DIR}/examples
+        - for d in */; do arduino --pref compiler.cpp.extra_flags="-Wall -Wextra -Werror" --board esp32:esp32:WeMosBat --verify ${d}*.ino; done

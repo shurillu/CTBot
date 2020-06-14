@@ -1,6 +1,7 @@
 #pragma once
 #ifndef UTILITIES
 #define UTILITIES
+#include "CTBotDefines.h"
 #include <Arduino.h>
 
 // convert an UNICODE coded string to a UTF8 coded string
@@ -25,5 +26,15 @@ String int64ToAscii(int64_t value);
 //   the encoded string
 String URLEncodeMessage(String message);
 
+// send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
+// params
+//    message: the message to send
+#if CTBOT_DEBUG_MODE > 0
+inline void serialLog(String message) {
+	Serial.print(message);
+}
+#else
+inline void serialLog(String) {}
+#endif
 
 #endif

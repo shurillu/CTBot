@@ -1,0 +1,21 @@
+{
+  "name": "CTBot",
+  "keywords": "telegram, bot",
+  "description": "Simple Arduino Telegram BOT library for ESP8266",
+  "homepage": "https://github.com/shurillu/CTBot",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shurillu/CTBot.git"
+  },
+  "version": "2.0.0",
+  "authors": {
+    "name": "Stefano Ledda",
+    "email": "shurillu@tiscalinet.it"
+  },
+  "frameworks": "arduino",
+  "platforms": "esp8266,esp32",
+  "dependencies": {
+    "name": "ArduinoJson",
+    "version": "5.13.4"
+  }
+}

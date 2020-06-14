@@ -3,7 +3,6 @@
 
 void CTBotInlineKeyboard::initialize()
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	JsonObject& root = m_jsonBuffer.createObject();
 	JsonArray&  rows = root.createNestedArray("inline_keyboard");
 	JsonArray&  buttons = rows.createNestedArray();
@@ -23,14 +22,12 @@ CTBotInlineKeyboard::~CTBotInlineKeyboard() = default;
 
 void CTBotInlineKeyboard::flushData()
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	m_jsonBuffer.clear();
 	initialize();
 }
 
 bool CTBotInlineKeyboard::addRow()
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	if (m_isRowEmpty)
 		return false;
 	JsonArray&  buttons = m_rows->createNestedArray();
@@ -44,7 +41,6 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 	if ((buttonType != CTBotKeyboardButtonURL) && (buttonType != CTBotKeyboardButtonQuery))
 		return false;
 
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	JsonObject& button = m_buttons->createNestedObject();
 	text = URLEncodeMessage(text);
 	button["text"] = text;
@@ -62,7 +58,6 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 
 String CTBotInlineKeyboard::getJSON() const
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	String serialized;
 	m_root->printTo(serialized);
 	return serialized;

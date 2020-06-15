@@ -117,7 +117,7 @@ private:
 public:
 	bool setIP(String ip, String gateway, String subnetMask, String dns1 = "", String dns2 = "") const;
 	bool wifiConnect(String ssid, String password = "") const;
-	void useDNS(bool value);
+	bool useDNS(bool value);
 	void setMaxConnectionRetries(uint8_t retries);
 	void setStatusPin(int8_t pin);
 	void setFingerprint(const uint8_t *newFingerprint);

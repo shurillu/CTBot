@@ -1,33 +1,11 @@
 #define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
 #include <ArduinoJson.h>
-///#include <ESP8266WiFi.h>
-///#include <WiFiClientSecure.h>
 #include "CTBot.h"
 #include "Utilities.h"
 
-///#define TELEGRAM_URL  "api.telegram.org"
-///#define TELEGRAM_IP   "149.154.167.220" // "149.154.167.198" <-- Old IP
-///#define TELEGRAM_PORT 443
-/// get fingerprints from https://www.grc.com/fingerprints.htm
-///const uint8_t fingerprint[20] = { 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 };
-///
-///
-///#if CTBOT_DEBUG_MODE > 0
-///inline void CTBot::serialLog(String message) const {
-///	Serial.print(message);
-///}
-///#else
-///inline void CTBot::serialLog(String) const {}
-///#endif
-///
 CTBot::CTBot() {
-///	m_wifiConnectionTries = 0;  // wait until connection to the AP is established (locking!)
-///	m_statusPin           = CTBOT_DISABLE_STATUS_PIN; // status pin disabled
-///	m_token               = ""; // no token
 	m_lastUpdate          = 0;  // not updated yet
-///	m_useDNS              = false; // use static IP for Telegram Server
 	m_UTF8Encoding        = false; // no UTF8 encoded string conversion
-///	setFingerprint(fingerprint);   // set the default fingerprint
 }
 
 CTBot::~CTBot() = default;
@@ -362,9 +340,9 @@ bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
 // ----------------------------| STUBS - FOR BACKWARD VERSION COMPATIBILITY
 
 
-void CTBot::useDNS(bool value)
+bool CTBot::useDNS(bool value)
 {	
-	m_connection.useDNS(value);
+	return(m_connection.useDNS(value));
 }
 
 void CTBot::setMaxConnectionRetries(uint8_t retries)
@@ -384,11 +362,11 @@ void CTBot::setFingerprint(const uint8_t * newFingerprint)
 
 bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, String dns2) const 
 {	
-	m_wifi.setIP(ip, gateway, subnetMask, dns1, dns2);
+	return(m_wifi.setIP(ip, gateway, subnetMask, dns1, dns2));
 }
 
 bool CTBot::wifiConnect(String ssid, String password) const
 {
-	m_wifi.wifiConnect(ssid, password);
+	return(m_wifi.wifiConnect(ssid, password));
 }
 

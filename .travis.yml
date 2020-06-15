@@ -37,7 +37,7 @@ jobs:
         - echo `pwd`
         - echo $PATH
         - arduino --pref boardsmanager.additional.urls="http://arduino.esp8266.com/stable/package_esp8266com_index.json" --install-boards esp8266:esp8266
-        - arduino --install-library ArduinoJson:5.13.4
+        - arduino --install-library ArduinoJson:5.13.5
       script:
         - cd ${TRAVIS_BUILD_DIR}/examples
         - for d in */; do arduino --pref compiler.cpp.extra_flags="-Wall -Wextra -Werror" --board esp8266:esp8266:d1 --verify ${d}*.ino; done

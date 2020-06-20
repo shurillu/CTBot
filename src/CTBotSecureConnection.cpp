@@ -15,13 +15,17 @@ CTBotSecureConnection::CTBotSecureConnection() {
 bool CTBotSecureConnection::useDNS(bool value)
 {
 	m_useDNS = value;
-	if (m_useDNS) {
-		WiFiClientSecure telegramServer;
-		if (!telegramServer.connect(TELEGRAM_URL, TELEGRAM_PORT)) {
-			m_useDNS = false;
-			return false;
-		}
-	}
+
+	// seems that it doesn't work with ESP32 - comment out for now
+	// the check is present (and work) on send() member function
+	//if (m_useDNS) {
+	//	WiFiClientSecure telegramServer;
+	//	if (!telegramServer.connect(TELEGRAM_URL, TELEGRAM_PORT)) {
+	//		telegramServer.stop();
+	//		m_useDNS = false;
+	//		return false;
+	//	}
+	//}
 	return true;
 }
 
@@ -36,16 +40,19 @@ void CTBotSecureConnection::setStatusPin(int8_t pin)
 	m_statusPin = pin;
 }
 
-
 String CTBotSecureConnection::send(const String& message) const
 {
-#if CTBOT_USE_FINGERPRINT == 0
+#if defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 0 // ESP8266 no HTTPS verification
 	WiFiClientSecure telegramServer;
-#elif defined(ARDUINO_ARCH_ESP8266) // ESP8266
+	telegramServer.setInsecure();
+	serialLog("ESP8266 no https verification");
+#elif defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 1 // ESP8266 with HTTPS verification
 	BearSSL::WiFiClientSecure telegramServer;
 	telegramServer.setFingerprint(m_fingerprint);
+	serialLog("ESP8266 with https verification");
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
 	WiFiClientSecure telegramServer;
+	serialLog("ESP32");
 #endif
 
 	// check for using symbolic URLs

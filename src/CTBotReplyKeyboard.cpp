@@ -3,7 +3,6 @@
 
 void CTBotReplyKeyboard::initialize()
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	JsonObject& root = m_jsonBuffer.createObject();
 	JsonArray&  rows = root.createNestedArray("keyboard");
 	JsonArray&  buttons = rows.createNestedArray();
@@ -23,14 +22,12 @@ CTBotReplyKeyboard::~CTBotReplyKeyboard() = default;
 
 void CTBotReplyKeyboard::flushData()
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	m_jsonBuffer.clear();
 	initialize();
 }
 
 bool CTBotReplyKeyboard::addRow()
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	if (m_isRowEmpty)
 		return false;
 	JsonArray&  buttons = m_rows->createNestedArray();
@@ -41,7 +38,6 @@ bool CTBotReplyKeyboard::addRow()
 
 bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType buttonType)
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	JsonObject& button = m_buttons->createNestedObject();
 	text = URLEncodeMessage(text);
 	button["text"] = text;
@@ -57,23 +53,19 @@ bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType but
 }
 
 void CTBotReplyKeyboard::enableResize() {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	(*m_root)["resize_keyboard"] = true;
 }
 
 void CTBotReplyKeyboard::enableOneTime() {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	(*m_root)["one_time_keyboard"] = true;
 }
 
 void CTBotReplyKeyboard::enableSelective() {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	(*m_root)["selective"] = true;
 }
 
 String CTBotReplyKeyboard::getJSON() const
 {
-#pragma message  "ArduinoJson - DA CONVERTIRE"
 	String serialized;
 	m_root->printTo(serialized);
 	return serialized;

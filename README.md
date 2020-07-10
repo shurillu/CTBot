@@ -37,7 +37,7 @@ See the EchoBot example provided in the [examples folder](https://github.com/shu
 A special thanks go to these people who helped me making this library 
 + Gianmaria Mancosu
 + Marco Madlena
-+ [michaelzs85](https://github.com/shurillu/CTBot/issues?q=is%3Apr+is%3Aopen+author%3Amichaelzs85)
++ [michaelzs85](https://github.com/michaelzs85)
 
 ### Future work
 + [x] Add Telegram inline keyboards

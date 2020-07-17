@@ -9,9 +9,9 @@
   #define serialLogn(x) Serial.println(x)
   #define SerialBegin(x) Serial.begin(x)
 #else
-  #define DEBUG(x)
-  #define DEBUG_LN(x)
-  #define DEBUG_BEGIN(x)
+  #define serialLog(x)
+  #define serialLogn(x)
+  #define SerialBegin(x)
 #endif
 
 #define TELEGRAM_URL  "api.telegram.org"
@@ -56,7 +56,7 @@ String AsyncTelegram::postCommand(const char* const& command, const char* const&
 		request += String(strlen(param));
 		request += "\n\n";
 		request += param;
-		DEBUG_LN(request);		
+		serialLogn(request);		
 		telegramClient.print(request);
 		httpData.waitingReply = true;
 		// Blocking mode
@@ -74,8 +74,8 @@ String AsyncTelegram::postCommand(const char* const& command, const char* const&
 				response += (char) telegramClient.read();
 			}
 			httpData.waitingReply = false;
-			DEBUG_LN();
-			DEBUG_LN(response);	
+			serialLogn();
+			serialLogn(response);	
 			return response;		
 		}
 	}
@@ -116,7 +116,7 @@ void AsyncTelegram::httpPostTask(void *args){
 		//bool connected = _this->checkConnection();	
 		if (_this->httpData.command.length() > 0 &&  WiFi.status()== WL_CONNECTED ) {			
 			char url[256];
-			DEBUG_LN(url);
+			serialLogn(url);
 			sniprintf(url, 256, "https://%s/bot%s/%s", TELEGRAM_URL, _this->m_token, _this->httpData.command.c_str() );			
 			https.begin(_this->telegramClient, url);
 			_this->httpData.waitingReply = true;			
@@ -136,11 +136,11 @@ void AsyncTelegram::httpPostTask(void *args){
 				// HTTP header has been send and Server response header has been handled
 				_this->httpData.payload  = https.getString();
 				_this->httpData.timestamp = millis();					
-				DEBUG("HTTPS payload: ");
-				DEBUG_LN(_this->httpData.payload );				
+				serialLog("HTTPS payload: ");
+				serialLogn(_this->httpData.payload );				
 			} else {
-				DEBUG("HTTPS error: ");
-				DEBUG_LN(https.errorToString(httpCode));
+				serialLog("HTTPS error: ");
+				serialLogn(https.errorToString(httpCode));
 			}		
 			_this->httpData.command.clear();
 			_this->httpData.param.clear();	
@@ -232,17 +232,17 @@ MessageType AsyncTelegram::getNewMessage(TBMessage &message )
 		bool ok = root["ok"];
 		if (!ok) {
 			#if DEBUG_MODE > 0
-			DEBUG("getNewMessage error: ");
+			serialLog("getNewMessage error: ");
 			serializeJsonPretty(root, Serial);
-			DEBUG("\n");
+			serialLog("\n");
 			#endif
 			return MessageNoData;
 		}
 
 		#if DEBUG_MODE > 0
-		DEBUG("getNewMessage JSON: \n");
+		serialLog("getNewMessage JSON: \n");
 		serializeJsonPretty(root, Serial);
-		DEBUG("\n");
+		serialLog("\n");
 		#endif
 
 		uint32_t updateID = root["result"][0]["update_id"];
@@ -345,17 +345,17 @@ bool AsyncTelegram::getMe(TBUser &user) {
 	bool ok = root["ok"];
 	if (!ok) {
 		#if DEBUG_MODE > 0
-		DEBUG("getMe error:");
+		serialLog("getMe error:");
 		serializeJson(root, Serial);
-		DEBUG("\n");
+		serialLog("\n");
 		#endif
 		return false;
 	}
 
 	#if DEBUG_MODE > 0
-	DEBUG("getMe message:\n");
+	serialLog("getMe message:\n");
 	serializeJson(root, Serial);
-	DEBUG("\n");
+	serialLog("\n");
 	#endif
 	user.id           = root["result"]["id"];
 	user.isBot        = root["result"]["is_bot"];
@@ -437,23 +437,20 @@ bool AsyncTelegram::serverReply(const char* const& replyMsg){
 	bool ok = root["ok"];
 	if (!ok) {
 #if DEBUG_MODE > 0
-		DEBUG("answerCallbackQuery error:");
+		serialLog("answerCallbackQuery error:");
 		serializeJsonPretty(root, Serial);
-		DEBUG("\n");
+		serialLog("\n");
 #endif
 		return false;
 	}
 
 #if DEBUG_MODE > 0
 	serializeJson(root, Serial);
-	DEBUG("\n");
+	serialLog("\n");
 #endif
 
 	return true;
 }
-
-
-
 
 
 
@@ -470,16 +467,16 @@ bool AsyncTelegram::checkConnection(){
 				IPAddress telegramServerIP;
 				telegramServerIP.fromString(TELEGRAM_IP);
 				if (!telegramClient.connect(telegramServerIP, TELEGRAM_PORT)) {
-					DEBUG("\nUnable to connect to Telegram server\n");					
+					serialLog("\nUnable to connect to Telegram server\n");					
 				}
 				else {
-					DEBUG("\nConnected using fixed IP\n");
+					serialLog("\nConnected using fixed IP\n");
 					telegramClient.setTimeout(SERVER_TIMEOUT);
 					useDNS(false);
 				}
 			}
 			else {
-				DEBUG("\nConnected using DNS\n"); 
+				serialLog("\nConnected using DNS\n"); 
 				telegramClient.setTimeout(SERVER_TIMEOUT);
 			}
 		}
@@ -488,10 +485,10 @@ bool AsyncTelegram::checkConnection(){
 			IPAddress telegramServerIP; // (149, 154, 167, 198);
 			telegramServerIP.fromString(TELEGRAM_IP);
 			if (!telegramClient.connect(telegramServerIP, TELEGRAM_PORT)) {
-				DEBUG("\nUnable to connect to Telegram server\n");
+				serialLog("\nUnable to connect to Telegram server\n");
 			}
 			else {
-				DEBUG("\nConnected using fixed IP\n");
+				serialLog("\nConnected using fixed IP\n");
 				telegramClient.setTimeout(SERVER_TIMEOUT);
 			}
 		}
@@ -520,137 +517,3 @@ void AsyncTelegram::setTelegramToken(const char* token)
 
 
 
-
-
-
-
-
-/*
-
-
-
-// NON Blocking https POST to server (for the rest of code because this task will run on core 0)
-
-void AsyncTelegram::httpPostTask2(void *args)
-{
-#if defined(ESP32) 
-	uint32_t t1 = millis();
-	Serial.print("\nStart http request task on core ");
-	Serial.println(xPortGetCoreID());
-
-	AsyncTelegram *_this = (AsyncTelegram *) args;  
-	for(;;) {		  
-		delay(1);	
-		//bool connected = _this->checkConnection();	
-		if (_this->httpData.command.length() > 0 ) {	
-			t1 = millis();
-			_this->checkConnection();
-			_this->httpData.waitingReply = true;
-			// Make a HTTP request:
-			String url;
-			url.reserve(512);
-			url = "POST https://" TELEGRAM_URL "/bot";
-			url += _this->m_token;
-			url += "/";
-			url += _this->httpData.command;
-			url += " HTTP/1.1";
-			DEBUG_LN(url);
-			_this->telegramClient.println(url);
-			if( _this->httpData.param.length() > 0 ){
-				_this->telegramClient.print("Host: "); _this->telegramClient.println(TELEGRAM_URL);
-				_this->telegramClient.print("Connection: keep-alive\n");
-				_this->telegramClient.print("Content-Type: application/json\n");
-				_this->telegramClient.print("Content-Length: ");
-				_this->telegramClient.print( String(_this->httpData.param.length()) );
-				_this->telegramClient.print("\n\n");	
-				_this->telegramClient.print( _this->httpData.param);	
-				_this->telegramClient.println();
-			}
-			
-			// wait reply from server (with timeout == m_minUpdateTime*3)
-			uint32_t timeout = millis();
-			
-
-			while (_this->httpData.waitingReply && millis() - timeout < _this->m_minUpdateTime*3 ) {
-				String response((char *)0);			
-				while (_this->telegramClient.connected()) {
-					String line = _this->telegramClient.readStringUntil('\n');
-					if (line == "\r") break;				
-				}
-				// If there are incoming bytes available from the server, read them and save
-				while (_this->telegramClient.available()) 
-					response += (char) _this->telegramClient.read();							
-				_this->httpData.waitingReply = false;
-				DEBUG_LN();
-				DEBUG_LN(response);		
-			}
-
-			Serial.print("POST Time: ");
-			Serial.println(millis() - t1);		
-			_this->telegramClient.flush();		
-		}
-	}
-    vTaskDelete(NULL);	
-#endif
-}
-
-
-void httpRequestTest( void* args){
-  uint32_t t1;
-  uint32_t lastTime = 0;
-  uint32_t timerDelay = 5000;
-
-	Serial.print("\nRunning on core ");
-	Serial.println(xPortGetCoreID());
-
-  HTTPClient http;
-  http.setReuse(true);
-
-  for(;;) {
-    if ((millis() - lastTime) > timerDelay) {
-      lastTime = millis();
-
-      t1 = millis();
-      if(WiFi.status()== WL_CONNECTED){        
-        String serverPath = "https://api.telegram.org/bot488075445:AAFLd-B-spUviVfhMTQFWrRApG7t4gIPSWQ/getUpdates";
-        http.begin(serverPath);
-
-        String param;
-        param = "{\"limit\":1, \"timeout\":3, \"allowed_updates\":\"message,callback_query\"";
-        //param += "\"offset\":519261811";
-        param +=  "}";
-            
-        // Send HTTP GET request
-        int httpResponseCode = http.POST(param);
-
-        if (httpResponseCode>0) {
-			Serial.print("\nHTTP Response code: ");
-			Serial.println(httpResponseCode);
-			String payload = http.getString();
-			Serial.println(payload);
-        }
-        else {
-			Serial.print("Error code: ");
-			Serial.println(httpResponseCode);
-        }
-        // Free resources
-        http.end();
-      }
-      else {
-        Serial.println("WiFi Disconnected");
-      }
-
-      Serial.printf("Total time: %lu", millis() -t1);
-    }
-
-  }
-  vTaskDelete(NULL);	
-
-}
-
-
-
-
-
-
-*/

@@ -166,6 +166,7 @@ void loop() {
       case MessageQuery:
         // received a callback query message
         Serial.print("\nCallback query message received");
+        /*
         if (strstr(msg.callbackQueryData, LIGHT_ON_CALLBACK)) {
           // pushed "LIGHT ON" button...
           Serial.println("\nSet light ON");
@@ -179,6 +180,7 @@ void loop() {
           // terminate the callback with a popup message
           myBot.endQuery(msg.callbackQueryID, "Light off");
         }
+        */
         break;
 
       case MessageLocation:

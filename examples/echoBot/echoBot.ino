@@ -1,35 +1,41 @@
 /*
  Name:		    echoBot.ino
- Created:	    12/21/2017
- Author:	    Stefano Ledda <shurillu@tiscalinet.it>
+ Created:     20/06/2020
+ Author:      Tolentino Cotesta <cotestatnt@yahoo.com>
  Description: a simple example that check for incoming messages
               and reply the sender with the received message
 */
-#include "CTBot.h"
-CTBot myBot;
+#include <Arduino.h>
+#include "AsyncTelegram.h"
+AsyncTelegram myBot;
 
-String ssid  = "mySSID"    ; // REPLACE mySSID WITH YOUR WIFI SSID
-String pass  = "myPassword"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-String token = "myToken"   ; // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+const char* ssid = "XXXXXXXX";     				// REPLACE mySSID WITH YOUR WIFI SSID
+const char* pass = "XXXXXXXX";     				// REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+const char* token = "XXXXXXXXXXXXXXXXXXXX";   	// REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
 void setup() {
 	// initialize the Serial
 	Serial.begin(115200);
 	Serial.println("Starting TelegramBot...");
 
-	// connect to the desired access point
-	myBot.useDNS(true);
-	myBot.wifiConnect(ssid, pass);
+	WiFi.setAutoConnect(true);   
+	WiFi.mode(WIFI_STA);
+ 	
+	WiFi.begin(ssid, pass);
+	delay(500);
+	while (WiFi.status() != WL_CONNECTED) {
+		Serial.print('.');
+		delay(500);
+	}
 
-	// set the telegram bot token
+	// Set the Telegram bot properies
+	myBot.setUpdateTime(5000);
 	myBot.setTelegramToken(token);
+	
+	// Check if all things are ok
 	Serial.print("\nTest Telegram connection... ");
+	myBot.begin() ? Serial.println("OK") : Serial.println("NOK");
 
-	// check if all things are ok
-	if (myBot.testConnection())
-		Serial.println("OK");
-	else
-		Serial.println("NOK");
 }
 
 void loop() {
@@ -40,7 +46,4 @@ void loop() {
 	if (myBot.getNewMessage(msg))
 		// ...forward it to the sender
 		myBot.sendMessage(msg.sender.id, msg.text);
-	 
-	// wait 500 milliseconds  
-	// delay(500);  -> no more necessary (check inside the library class)
 }

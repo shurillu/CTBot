@@ -49,52 +49,50 @@ bool unicodeToUTF8(String unicode, String &utf8) {
 	return false;
 }
 
-String int64ToAscii(int64_t value) {
-	String buffer;
-	buffer.reserve(24);
-	int64_t temp;
-	if (value < 0)
-		temp = -value;
-	else
-		temp = value;
 
-	while (temp != 0) {
-		uint8_t rest = temp % 10;
-		temp = (temp - rest) / 10;
-		char ascii = 0x30 + rest;
-		buffer = ascii + buffer;
-	}
-	if (value < 0)
-		buffer = '-' + buffer;
-	return buffer;
-}
 
-String URLEncodeMessage(String message) {
-	String encodedMessage;
-	encodedMessage.reserve(256);
-	char buffer[4];
-	buffer[0] = '%';
-	buffer[3] = 0x00;
-	uint16_t i;
-	for (i = 0; i < message.length(); i++) {
-		if (((message[i] >= 0x30) && (message[i] <= 0x39)) || // numbers
-			((message[i] >= 0x41) && (message[i] <= 0x5A)) || // caps letters
-			((message[i] >= 0x61) && (message[i] <= 0x7A)))   // letters
-			encodedMessage += (String)message[i];
-		else {
-			buffer[1] = message[i] >> 4;
-			if (buffer[1] <= 0x09)
-				buffer[1] += 0x30;
-			else
-				buffer[1] += 0x41 - 0x0A;
-			buffer[2] = message[i] & 0x0F;
-			if (buffer[2] <= 0x09)
-				buffer[2] += 0x30;
-			else
-				buffer[2] += 0x41 - 0x0A;
-
-			encodedMessage += (String)buffer;
+String toUTF8(String message)
+{
+	String converted;
+	uint16_t i = 0;
+	while (i < message.length()) {
+		String subMessage(message[i]);
+		if (message[i] != '\\') {
+			converted += subMessage;
+			i++;
+		} else {
+			// found "\"
+			i++;
+			if (i == message.length()) {
+				// no more characters
+				converted += subMessage;
+			} else {
+				subMessage += (String)message[i];
+				if (message[i] != 'u') {
+					converted += subMessage;
+					i++;
+				} else {
+					//found \u escape code
+					i++;
+					if (i == message.length()) {
+						// no more characters
+						converted += subMessage;
+					} else {
+						uint8_t j = 0;
+						while ((j < 4) && ((j + i) < message.length())) {
+							subMessage += (String)message[i + j];
+							j++;
+						}
+						i += j;
+						String utf8;
+						if (unicodeToUTF8(subMessage, utf8))
+							converted += utf8;
+						else
+							converted += subMessage;
+					}
+				}
+			}
 		}
 	}
-	return encodedMessage;
+	return converted;
 }

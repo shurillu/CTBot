@@ -1,12 +1,13 @@
-CTBot	KEYWORD1
-CTBotInlineKeyboard	KEYWORD1
+AsyncTelegram	KEYWORD1
+InlineKeyboard	KEYWORD1
+ReplyKeyboard	KEYWORD1
 
-setIP	KEYWORD2
-wifiConnect	KEYWORD2
+
+
 setTelegramToken	KEYWORD2
 useDNS	KEYWORD2
 enableUTF8Encoding	KEYWORD2
-setMaxConnectionRetries	KEYWORD2
+
 setStatusPin	KEYWORD2
 testConnection	KEYWORD2
 getNewMessage	KEYWORD2
@@ -14,20 +15,21 @@ sendMessage	KEYWORD2
 endQuery	KEYWORD2
 setFingerprint	KEYWORD2
 flushData	KEYWORD2
-addRow	KEYWORD2
+addRow	    KEYWORD2
 addButton	KEYWORD2
-getJson	KEYWORD2
+getJson	    KEYWORD2
+getPretty	KEYWORD2
 
 TBUser	KEYWORD3
 TBMessage	KEYWORD3
 TBLocation	KEYWORD3
-CTBotMessageType	KEYWORD3
-CTBotInlineKeyboardButtonType	KEYWORD3
+MessageType	KEYWORD3
+InlineKeyboardButtonType	KEYWORD3
+ReplyKeyboardButtonType	    KEYWORD3
 
-CTBOT_DISABLE_STATUS_PIN	LITERAL1
-CTBotMessageNoData	LITERAL1
-CTBotMessageText	LITERAL1
-CTBotMessageQuery	LITERAL1
-CTBotMessageLocation	LITERAL1
-CTBotKeyboardButtonURL	LITERAL1
-CTBotKeyboardButtonQuery	LITERAL1
+MessageNoData	LITERAL1
+MessageText	LITERAL1
+MessageQuery	LITERAL1
+MessageLocation	LITERAL1
+KeyboardButtonURL	LITERAL1
+KeyboardButtonQuery	LITERAL1

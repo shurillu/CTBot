@@ -1,7 +1,7 @@
 /*
 Name:        lightBot.ino
-Created:     17/01/2018
-Author:      Stefano Ledda <shurillu@tiscalinet.it>
+Created:     20/06/2020
+Author:      Tolentino Cotesta <cotestatnt@yahoo.com>
 Description: a simple example that do:
              1) parse incoming messages
              2) if "LIGHT ON" message is received, turn on the onboard LED
@@ -9,34 +9,40 @@ Description: a simple example that do:
              4) otherwise, reply to sender with a welcome message
 
 */
-#include "CTBot.h"
-CTBot myBot;
 
-String ssid = "mySSID";     // REPLACE mySSID WITH YOUR WIFI SSID
-String pass = "myPassword"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-String token = "myToken";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
-uint8_t led = 2;            // the onboard ESP8266 LED.    
-                            // If you have a NodeMCU you can use the BUILTIN_LED pin
-                            // (replace 2 with BUILTIN_LED)							
+#include <Arduino.h>
+#include "AsyncTelegram.h"
+AsyncTelegram myBot;
+
+const char* ssid = "XXXXXXXX";     				// REPLACE mySSID WITH YOUR WIFI SSID
+const char* pass = "XXXXXXXX";     				// REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+const char* token = "XXXXXXXXXXXXXXXXXXXX";   	// REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+
+uint8_t led = 2;            // the onboard ESP8266 LED.                                
+                            // (if supported from you board replace 2 with BUILTIN_LED)							
 
 void setup() {
 	// initialize the Serial
 	Serial.begin(115200);
 	Serial.println("Starting TelegramBot...");
 
-    	// connect to the desired access point
-    	myBot.useDNS(true);
-	myBot.wifiConnect(ssid, pass);
+	WiFi.setAutoConnect(true);   
+	WiFi.mode(WIFI_STA);
+ 	
+	WiFi.begin(ssid, pass);
+	delay(500);
+	while (WiFi.status() != WL_CONNECTED) {
+		Serial.print('.');
+		delay(500);
+	}
 
-	// set the telegram bot token
+	// Set the Telegram bot properies
+	myBot.setUpdateTime(5000);
 	myBot.setTelegramToken(token);
+	
+	// Check if all things are ok
 	Serial.print("\nTest Telegram connection... ");
-
-	// check if all things are ok
-	if (myBot.testConnection())
-		Serial.println("OK");
-	else
-		Serial.println("NOK");
+	myBot.begin() ? Serial.println("OK") : Serial.println("NOK");
 
 	// set the pin connected to the LED to act as output pin
 	pinMode(led, OUTPUT);
@@ -51,11 +57,11 @@ void loop() {
 	// if there is an incoming message...
 	if (myBot.getNewMessage(msg)) {
 
-		if (String(msg.text).equalsIgnoreCase("LIGHT ON")) {              // if the received message is "LIGHT ON"...
+		if (strstr(msg.text, "LIGHT ON")) {      // if the received message is "LIGHT ON"...
 			digitalWrite(led, LOW);                               // turn on the LED (inverted logic!)
 			myBot.sendMessage(msg.sender.id, "Light is now ON");  // notify the sender
 		}
-		else if (String(msg.text).equalsIgnoreCase("LIGHT OFF")) {        // if the received message is "LIGHT OFF"...
+		else if (strstr(msg.text, "LIGHT OFF")) {        // if the received message is "LIGHT OFF"...
 			digitalWrite(led, HIGH);                              // turn off the led (inverted logic!)
 			myBot.sendMessage(msg.sender.id, "Light is now OFF"); // notify the sender
 		}
@@ -68,6 +74,5 @@ void loop() {
 			myBot.sendMessage(msg.sender.id, reply);             // and send it
 		}
 	}
-	// wait 500 milliseconds  
-	// delay(500);  -> no more necessary (check min time inside the library class)
+	
 }

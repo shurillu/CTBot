@@ -11,19 +11,14 @@
 //   true if no error occurred
 bool unicodeToUTF8(String unicode, String &utf8);
 
-// convert an int64 value to an ASCII string
-// params
-//   value: the int64 value
-// returns
-//   the ASCII string of the converted value 
-String int64ToAscii(int64_t value);
 
-// encode an input string to a URL (URI) compliant string
+// convert an UNICODE string to UTF8 encoded string
 // params
-//   message: the string to be encoded
+//   message: the UNICODE message
 // returns
-//   the encoded string
-String URLEncodeMessage(String message);
+//   a string with the converted message in UTF8 
+String toUTF8(String message);
+
 
 
 #endif

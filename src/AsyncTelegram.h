@@ -18,7 +18,7 @@
 #include "InlineKeyboard.h"
 #include "ReplyKeyboard.h"
 
-#define DEBUG_MODE       	1 			// enable debugmode -> print debug data on the Serial
+#define DEBUG_MODE       	0 			// enable debugmode -> print debug data on the Serial
 #define BUFFER_BIG       	1024 		// json parser buffer size (ArduinoJson v6)
 #define BUFFER_SMALL      	256 		// json parser buffer size (ArduinoJson v6)
 #define USE_FINGERPRINT  	1 			// use Telegram fingerprint server validation

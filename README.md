@@ -1,4 +1,4 @@
-# AsyncTelegram
+# AsyncTelegram     -       WORK IN PROGRESS
 
 This library is mainly inpired from https://github.com/shurillu/CTBot
 

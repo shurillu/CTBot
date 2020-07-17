@@ -113,7 +113,8 @@ InlineKeyboard myKbd;  // custom inline keyboard object helper
 
 void setup() {
    Serial.begin(115200); // initialize the serial
-   myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+   WiFi.mode(WIFI_STA); 	
+   WiFi.begin(ssid, pass);
    myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
 
 	// inline keyboard - only a button called "My button"
@@ -307,19 +308,6 @@ ___
 Here you can find the basic member function. First you have to instantiate a AsyncTelegram object, like ` myBot`, then call the desired member function as `myBot.myDesiredFunction()`
 
 [back to TOC](#table-of-contents)
-### `AsyncTelegram::wifiConnect()`
-`bool AsyncTelegram::wifiConnect(String ssid, String password)` <br><br>
-Use this member function to connect the ESP8266 board to a WiFi Network. By default, it's a locking operation (the execution is locked until the connection is established), see [setMaxConnectionRetries()](#setmaxconnectionretries) for further details. <br>
-Parameters:
-+ `ssid`: the WiFi Network SSID
-+ `password`: (optional) the password of the WiFi Network
-
-Returns: `true ` if a connection to the specified WiFi Network is established. <br>
-Examples:
-+ `wifiConnect("mySSID")`: connect to a WiFi network named _mySSID_
-+ `wifiConnect("mySSID", "myPassword")`: connect to a WiFi network named _mySSID_ with password _myPassword_
-
-[back to TOC](#table-of-contents)
 ### `AsyncTelegram::setTelegramToken()`
 `void AsyncTelegram::setTelegramToken(String token)` <br><br>
 Set the Telegram Bot token. If you need infos about Telegram Bot and how to obtain a token, take a look  [here](https://core.telegram.org/bots#6-botfather). <br>
@@ -378,7 +366,8 @@ Example:
 AsyncTelegram myBot;
 void setup() {
 	Serial.begin(115200); // initialize the serial
-	myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+	WiFi.mode(WIFI_STA); 	
+	WiFi.begin(ssid, pass);
 	myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
 }
 void loop() {
@@ -437,7 +426,9 @@ Example:
 AsyncTelegram myBot;
 void setup() {
    Serial.begin(115200); // initialize the serial
-   myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+   WiFi.mode(WIFI_STA);
+ 	
+   WiFi.begin(ssid, pass);
    myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
 }
 void loop() {
@@ -474,7 +465,9 @@ InlineKeyboard myKbd;  // custom inline keyboard object helper
 
 void setup() {
    Serial.begin(115200); // initialize the serial
-   myBot.wifiConnect("mySSID", "myPassword"); // connect to the WiFi Network
+   WiFi.mode(WIFI_STA);
+ 	
+   WiFi.begin(ssid, pass);
    myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
 
 	// inline keyboard - only a button called "My button"
@@ -659,49 +652,7 @@ When instantiated, a AsyncTelegram object is configured as follow:
 With the following methods, is possible to change the behavior of the AsyncTelegram instantiated object.
 
 [back to TOC](#table-of-contents)
-### `AsyncTelegram::setMaxConnectionRetries()`
-`void AsyncTelegram::setMaxConnectionRetries(uint8_t retries)` <br><br>
-Set how many times the `wifiConnect()` method have to try to connect to the specified SSID. After each try, the `wifiConnect()` wait 500 milliseconds.
-A value of zero mean infinite retries. <br>
-Default value is zero (infinite retries). <br>
-Parameters:
-+ `retries`: how many times wifiConnect have to try to connect. Zero means infinites tries (locking).
 
-Returns: none. <br>
-Example 1: finite retries
-```c++
-#include "AsyncTelegram.h"
-AsyncTelegram myBot;
-void setup() {
-   bool status;
-   Serial.begin(115200); // initialize the serial
-   myBot.setMaxConnectionRetries(15); // try 15 times to connect to the specified SSID (mySSID)
-   status = myBot.wifiConnect("mySSID", "myPassword"); // try connect (15 times) to the WiFi Network
-   if (status == true)
-      // connection successful!
-      Serial.println("Connection established!");
-   else
-      // after 15 tries, the ESP8266 can't connect to the specified SSID
-      Serial.println("Unable to connect to the WiFi network");
-}
-void loop() {
-}
-```
-Example 2: infinite retries
-```c++
-#include "AsyncTelegram.h"
-AsyncTelegram myBot;
-void setup() {
-   Serial.begin(115200); // initialize the serial
-   myBot.setMaxConnectionRetries(0); // try infinite times (default value) 
-                                     // to connect to the specified SSID in wifiConnect
-   myBot.wifiConnect("mySSID", "myPassword"); // try connect (infinite times) to the WiFi Network
-
-   // the rest of the code is executed ONLY if there is an established connection (wifiConnect() is locking). 
-}
-void loop() {
-}
-```
 
 [back to TOC](#table-of-contents)
 ### `AsyncTelegram::useDNS()`

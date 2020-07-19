@@ -14,8 +14,8 @@ Description: a simple example that do:
 #include "AsyncTelegram.h"
 AsyncTelegram myBot;
 
-const char* ssid = "XXXXXXXX";     				// REPLACE mySSID WITH YOUR WIFI SSID
-const char* pass = "XXXXXXXX";     				// REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+const char* ssid = "XXXXXXXX";     		// REPLACE mySSID WITH YOUR WIFI SSID
+const char* pass = "XXXXXXXX";     		// REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
 const char* token = "XXXXXXXXXXXXXXXXXXXX";   	// REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
 uint8_t led = 2;            // the onboard ESP8266 LED.                                
@@ -37,7 +37,7 @@ void setup() {
 	}
 
 	// Set the Telegram bot properies
-	myBot.setUpdateTime(5000);
+	myBot.setUpdateTime(2000);
 	myBot.setTelegramToken(token);
 	
 	// Check if all things are ok
@@ -58,12 +58,12 @@ void loop() {
 	if (myBot.getNewMessage(msg)) {
 
 		if (strstr(msg.text, "LIGHT ON")) {      // if the received message is "LIGHT ON"...
-			digitalWrite(led, LOW);                               // turn on the LED (inverted logic!)
-			myBot.sendMessage(msg.sender.id, "Light is now ON");  // notify the sender
+			digitalWrite(led, LOW);                           // turn on the LED (inverted logic!)
+			myBot.sendMessage(msg, "Light is now ON");        // notify the sender
 		}
 		else if (strstr(msg.text, "LIGHT OFF")) {        // if the received message is "LIGHT OFF"...
-			digitalWrite(led, HIGH);                              // turn off the led (inverted logic!)
-			myBot.sendMessage(msg.sender.id, "Light is now OFF"); // notify the sender
+			digitalWrite(led, HIGH);                          // turn off the led (inverted logic!)
+			myBot.sendMessage(msg, "Light is now OFF");       // notify the sender
 		}
 		else {                                                    // otherwise...
 			// generate the message for the sender
@@ -71,7 +71,7 @@ void loop() {
 			reply = "Welcome " ;
 			reply += msg.sender.username;
 			reply += ". Try LIGHT ON or LIGHT OFF.";
-			myBot.sendMessage(msg.sender.id, reply);             // and send it
+			myBot.sendMessage(msg, reply);             // and send it
 		}
 	}
 	

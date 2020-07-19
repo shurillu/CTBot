@@ -98,9 +98,10 @@ public:
 	//   keyboard: the inline/reply keyboard (optional)
 	//             (in json format or using the inlineKeyboard/ReplyKeyboard class helper)
 	
-	void sendMessage(TBMessage msg, String message, String keyboard = "");
-	void sendMessage(TBMessage msg, String message, InlineKeyboard &keyboard);	
-	void sendMessage(TBMessage msg, String message, ReplyKeyboard  &keyboard);
+	void sendMessage(const TBMessage &msg, const char* message, String keyboard = "");
+	
+	void sendMessage(const TBMessage &msg, const char* message, InlineKeyboard &keyboard);	
+	void sendMessage(const TBMessage &msg, const char* message, ReplyKeyboard  &keyboard);
 	
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
@@ -112,7 +113,7 @@ public:
 	//   message  : an optional message
 	//   alertMode: false -> a simply popup message
 	//              true --> an alert message with ok button
-	void endQuery(String queryID, String message = "", bool alertMode = false);
+	void endQuery(const TBMessage &msg, const char* message, bool alertMode = false);
 
 	// remove an active reply keyboard for a selected user, sending a message
 	// params:
@@ -123,7 +124,7 @@ public:
 	//                       2) if the bot's message is a reply (has reply_to_message_id), sender of the original message
 	// return:
 	//   true if no error occurred
-	void removeReplyKeyboard(TBMessage msg, String message, bool selective = false);
+	void removeReplyKeyboard(const TBMessage &msg, const char* message, bool selective = false);
 
 	// set the new Telegram API server fingerprint overwriting the default one.
 	// It can be obtained by this service: https://www.grc.com/fingerprints.htm
@@ -200,8 +201,4 @@ private:
 
 };
 
-
 #endif
-
-
-

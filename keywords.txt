@@ -12,6 +12,7 @@ setStatusPin	KEYWORD2
 testConnection	KEYWORD2
 getNewMessage	KEYWORD2
 sendMessage	KEYWORD2
+removeReplyKeyboard	KEYWORD2
 endQuery	KEYWORD2
 setFingerprint	KEYWORD2
 flushData	KEYWORD2

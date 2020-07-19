@@ -371,9 +371,9 @@ bool AsyncTelegram::getMe(TBUser &user) {
 
 
 
-void AsyncTelegram::sendMessage(TBMessage msg, String message, String keyboard)
+void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, String keyboard)
 {
-	if (message.length() == 0)
+	if (sizeof(message) == 0)
 		return;
 	String param((char *)0);
 	param.reserve(512);
@@ -400,23 +400,22 @@ void AsyncTelegram::sendMessage(TBMessage msg, String message, String keyboard)
 }
 
 
-void AsyncTelegram::sendMessage(TBMessage msg, String message, InlineKeyboard &keyboard) {
+void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, InlineKeyboard &keyboard) {
 	return sendMessage(msg, message, keyboard.getJSON());
 }
 
 
-void AsyncTelegram::sendMessage(TBMessage msg, String message, ReplyKeyboard &keyboard) {
+void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, ReplyKeyboard &keyboard) {
 	return sendMessage(msg, message, keyboard.getJSON());
 }
 
 
-void AsyncTelegram::endQuery(String queryID, String message, bool alertMode)
-{
-	if (queryID.length() == 0)
+void AsyncTelegram::endQuery(const TBMessage &msg, const char* message, bool alertMode) {
+	if (sizeof(msg.callbackQueryID) == 0)
 		return;
 	DynamicJsonDocument root(BUFFER_SMALL);
-	root["callback_query_id"] = queryID;
-	if (message.length() != 0) {
+	root["callback_query_id"] = msg.callbackQueryID;
+	if (sizeof(message) != 0) {
 		root["text"] = message;
 		if (alertMode) 
 			root["show_alert"] = true;
@@ -430,8 +429,7 @@ void AsyncTelegram::endQuery(String queryID, String message, bool alertMode)
 }
 
 
-void AsyncTelegram::removeReplyKeyboard(TBMessage msg, String message, bool selective)
-{
+void AsyncTelegram::removeReplyKeyboard(const TBMessage &msg, const char* message, bool selective) {
 	DynamicJsonDocument root(BUFFER_SMALL);
 	String command((char *)0);
 	//command.reserve(128);
@@ -445,7 +443,7 @@ void AsyncTelegram::removeReplyKeyboard(TBMessage msg, String message, bool sele
 
 
 
-bool AsyncTelegram::serverReply(const char* const& replyMsg){	
+bool AsyncTelegram::serverReply(const char* const& replyMsg) {	
 	DynamicJsonDocument root(BUFFER_SMALL);
 	deserializeJson(root, replyMsg);
 
@@ -529,6 +527,3 @@ void AsyncTelegram::setUpdateTime(uint32_t pollingTime)
 
 void AsyncTelegram::setTelegramToken(const char* token)
 { m_token = (char*) token; }
-
-
-

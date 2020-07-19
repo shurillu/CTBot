@@ -20,9 +20,13 @@ InlineKeyboard myInlineKbd; // inline keyboard object helper
 
 bool isKeyboardActive;      // store if the reply keyboard is shown
 
-const char* ssid = "XXXXXXXX";     // REPLACE mySSID WITH YOUR WIFI SSID
-const char* pass = "XXXXXXXX";     // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-const char* token = "XXXXXXXXXXXXXXXXXXXX";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+const char* ssid = "PuccosNET";     // REPLACE mySSID WITH YOUR WIFI SSID
+const char* pass = "Tole76tnt"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+const char* token = "488075445:AAFLd-B-spUviVfhMTQFWrRApG7t4gIPSWQ";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+
+//const char* ssid = "XXXXXXXX";     // REPLACE mySSID WITH YOUR WIFI SSID
+//const char* pass = "XXXXXXXX";     // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+//const char* token = "XXXXXXXXXXXXXXXXXXXX";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
 
 #define LIGHT_ON_CALLBACK  "lightON"  // callback data sent when "LIGHT ON" button is pressed
@@ -37,6 +41,7 @@ void WiFiEvent(WiFiEvent_t event) {
     case SYSTEM_EVENT_STA_GOT_IP:
       Serial.print("\nWiFi connected! IP address: ");
       Serial.println(WiFi.localIP());
+
       break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
       Serial.println("\nWiFi lost connection");
@@ -127,67 +132,75 @@ void loop() {
   // if there is an incoming message...
   if (myBot.getNewMessage(msg)) {
     // check what kind of message I received
+    String tgReply;
     MessageType msgType = msg.messageType;
-
+    
+    
     switch (msgType) {
       case MessageText :
         // received a text message
+        tgReply = msg.text;
         Serial.print("\nText message received: ");
-        Serial.println(msg.text);
+        Serial.println(tgReply);
 
         // check if is show keyboard command
-        if (strstr(msg.text, "/reply_keyboard")) {
+        if (tgReply.equalsIgnoreCase("/reply_keyboard")) {
           // the user is asking to show the reply keyboard --> show it
-          myBot.sendMessage(msg.sender.id, "Reply keyboard enable.", myReplyKbd);
+          myBot.sendMessage(msg, "Reply keyboard enable.", myReplyKbd);
           isKeyboardActive = true;
         }
-        else if (strstr(msg.text, "/inline_keyboard")) {
-          myBot.sendMessage(msg.sender.id, "Inline Keyboard enable.", myInlineKbd);
+        else if (tgReply.equalsIgnoreCase("/inline_keyboard")) {
+          myBot.sendMessage(msg, "This is inline keyboard:", myInlineKbd);
+          
         }
+        
         // check if the reply keyboard is active
         else if (isKeyboardActive) {
           // is active -> manage the text messages sent by pressing the reply keyboard buttons
-          if (strstr(msg.text, "/hide_keyboard")) {
+          if (tgReply.equalsIgnoreCase("/hide_keyboard")) {
             // sent the "hide keyboard" message --> hide the reply keyboard
-            myBot.removeReplyKeyboard(msg.sender.id, "Reply keyboard removed");
+            myBot.removeReplyKeyboard(msg, "Reply keyboard removed");
             isKeyboardActive = false;
           } else {
             // print every others messages received
-            myBot.sendMessage(msg.sender.id, msg.text);
+            myBot.sendMessage(msg, msg.text);
           }
-        } else {
-          // the user write anything else and the reply keyboard is not active --> show a hint message
-          myBot.sendMessage(msg.sender.id, "Try /reply_keyboard or /inline_keyboard");
-          //myBot.sendMessage(msg.sender.id, "Hello World");
-        }
+        } 
 
+        // the user write anything else and the reply keyboard is not active --> show a hint message
+        else {          
+          myBot.sendMessage(msg, "Try /reply_keyboard or /inline_keyboard");
+        }
         break;
 
       case MessageQuery:
         // received a callback query message
-        Serial.print("\nCallback query message received");
-        /*
-        if (strstr(msg.callbackQueryData, LIGHT_ON_CALLBACK)) {
+        tgReply = msg.callbackQueryData;
+        Serial.print("\nCallback query message received: \n");
+        Serial.println(tgReply);
+        
+        if (tgReply.equalsIgnoreCase(LIGHT_ON_CALLBACK)) {
           // pushed "LIGHT ON" button...
           Serial.println("\nSet light ON");
           digitalWrite(LED, HIGH);
           // terminate the callback with an alert message
-          myBot.endQuery(msg.callbackQueryID, "Light on");
-        } else if (strstr(msg.callbackQueryData, LIGHT_OFF_CALLBACK)) {
+          myBot.endQuery(msg.callbackQueryID, "Light on", true);
+        } 
+        else if (tgReply.equalsIgnoreCase(LIGHT_OFF_CALLBACK)) {
           // pushed "LIGHT OFF" button...
           Serial.println("\nSet light OFF");
           digitalWrite(LED, LOW);
           // terminate the callback with a popup message
           myBot.endQuery(msg.callbackQueryID, "Light off");
         }
-        */
+        
         break;
 
       case MessageLocation:
         // received a location message --> send a message with the location coordinates
         char bufL[50];
         snprintf(bufL, sizeof(bufL), "Longitude: %f\nLatitude: %f\n", msg.location.longitude, msg.location.latitude) ;
-        myBot.sendMessage(msg.sender.id, bufL);
+        myBot.sendMessage(msg, bufL);
         Serial.println(bufL);
         break;
 
@@ -195,9 +208,10 @@ void loop() {
         char bufC[50];
         snprintf(bufC, sizeof(bufC), "Contact information received: %s - %s\n", msg.contact.firstName, msg.contact.phoneNumber ) ;
         // received a contact message --> send a message with the contact information
-        myBot.sendMessage(msg.sender.id, bufC);
+        myBot.sendMessage(msg, bufC);
         Serial.println(bufC);
         break;
+        
       default:
         break;
     }

@@ -29,7 +29,7 @@ void setup() {
 	}
 
 	// Set the Telegram bot properies
-	myBot.setUpdateTime(5000);
+	myBot.setUpdateTime(2000);
 	myBot.setTelegramToken(token);
 	
 	// Check if all things are ok
@@ -45,5 +45,5 @@ void loop() {
 	// if there is an incoming message...
 	if (myBot.getNewMessage(msg))
 		// ...forward it to the sender
-		myBot.sendMessage(msg.sender.id, msg.text);
+		myBot.sendMessage(msg, msg.text);
 }

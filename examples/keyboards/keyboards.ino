@@ -75,7 +75,7 @@ void setup() {
   }
 
   // Set the Telegram bot properies
-  myBot.setUpdateTime(2000);
+  myBot.setUpdateTime(3000);
   myBot.setTelegramToken(token);
 
   // Check if all things are ok
@@ -141,7 +141,7 @@ void loop() {
         // check if is show keyboard command
         if (tgReply.equalsIgnoreCase("/reply_keyboard")) {
           // the user is asking to show the reply keyboard --> show it
-          myBot.sendMessage(msg, "Reply keyboard enable.", myReplyKbd);
+          myBot.sendMessage(msg, "This is reply keyboard:", myReplyKbd);
           isKeyboardActive = true;
         }
         else if (tgReply.equalsIgnoreCase("/inline_keyboard")) {
@@ -171,7 +171,7 @@ void loop() {
       case MessageQuery:
         // received a callback query message
         tgReply = msg.callbackQueryData;
-        Serial.print("\nCallback query message received: \n");
+        Serial.print("\nCallback query message received: ");
         Serial.println(tgReply);
         
         if (tgReply.equalsIgnoreCase(LIGHT_ON_CALLBACK)) {

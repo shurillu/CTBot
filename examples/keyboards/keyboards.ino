@@ -20,14 +20,9 @@ InlineKeyboard myInlineKbd; // inline keyboard object helper
 
 bool isKeyboardActive;      // store if the reply keyboard is shown
 
-const char* ssid = "PuccosNET";     // REPLACE mySSID WITH YOUR WIFI SSID
-const char* pass = "Tole76tnt"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-const char* token = "488075445:AAFLd-B-spUviVfhMTQFWrRApG7t4gIPSWQ";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
-
-//const char* ssid = "XXXXXXXX";     // REPLACE mySSID WITH YOUR WIFI SSID
-//const char* pass = "XXXXXXXX";     // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-//const char* token = "XXXXXXXXXXXXXXXXXXXX";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
-
+const char* ssid = "XXXXXXXX";     // REPLACE mySSID WITH YOUR WIFI SSID
+const char* pass = "XXXXXXXX";     // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+const char* token = "XXXXXXXXXXXXXXXXXXXX";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
 #define LIGHT_ON_CALLBACK  "lightON"  // callback data sent when "LIGHT ON" button is pressed
 #define LIGHT_OFF_CALLBACK "lightOFF" // callback data sent when "LIGHT OFF" button is pressed

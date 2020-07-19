@@ -4,7 +4,7 @@
 
 // for using int_64 data
 #define ARDUINOJSON_USE_LONG_LONG 	1 
-#define MIN_JSON_SIZE				256 
+#define MIN_JSON_SIZE				512 
 
 #include <ArduinoJson.h>
 #include <Arduino.h>

@@ -56,8 +56,10 @@ String AsyncTelegram::postCommand(const char* const& command, const char* const&
 		request += String(strlen(param));
 		request += "\n\n";
 		request += param;
-		serialLogn(request);		
 		telegramClient.print(request);
+
+		serialLogn(request);		
+
 		httpData.waitingReply = true;
 		// Blocking mode
 		if (blocking) {		
@@ -74,8 +76,8 @@ String AsyncTelegram::postCommand(const char* const& command, const char* const&
 				response += (char) telegramClient.read();
 			}
 			httpData.waitingReply = false;
-			serialLogn();
-			serialLogn(response);	
+			//serialLogn("\nReply from Telegram server:");
+			//serialLogn(response);	
 			return response;		
 		}
 	}
@@ -170,7 +172,7 @@ bool AsyncTelegram::getUpdates(){
 			DynamicJsonDocument root(BUFFER_SMALL);
 			root["limit"] = 1;
 			// polling timeout: add &timeout=<seconds. zero for short polling.
-			root["timeout"] = 3;
+			// root["timeout"] = 3;
 			root["allowed_updates"] = "message,callback_query";		
 			if (m_lastUpdate != 0) {
 				root["offset"] = m_lastUpdate;
@@ -239,11 +241,14 @@ MessageType AsyncTelegram::getNewMessage(TBMessage &message )
 			return MessageNoData;
 		}
 
+		
 		#if DEBUG_MODE > 0
 		serialLog("getNewMessage JSON: \n");
-		serializeJsonPretty(root, Serial);
+		//serializeJsonPretty(root, Serial);
+		serializeJson(root, Serial);
 		serialLog("\n");
 		#endif
+		
 
 		uint32_t updateID = root["result"][0]["update_id"];
 		if (updateID == 0){
@@ -323,8 +328,7 @@ bool AsyncTelegram::begin(){
 	);    
 #endif
 	telegramClient.connect(TELEGRAM_URL, TELEGRAM_PORT);	
-	TBUser user;
-	return getMe(user);
+	return getMe(m_user);
 }
 
 
@@ -368,30 +372,42 @@ bool AsyncTelegram::getMe(TBUser &user) {
 
 
 
-void AsyncTelegram::sendMessage(int64_t id, String message, String keyboard)
+void AsyncTelegram::sendMessage(TBMessage msg, String message, String keyboard)
 {
 	if (message.length() == 0)
 		return;
 	String param((char *)0);
 	param.reserve(512);
-	DynamicJsonDocument root(BUFFER_BIG);
-	root["chat_id"] = id;
-	root["text"] = message; 
+	DynamicJsonDocument root(BUFFER_BIG);	
+
+	root["chat_id"] = msg.sender.id;
+	root["text"] = message;
 	
-	if (keyboard.length() != 0) 
-		root["reply_markup"] = keyboard;	
+	if (keyboard.length() != 0) {
+		DynamicJsonDocument doc(512);
+		deserializeJson(doc, keyboard);
+		JsonObject myKeyb = doc.as<JsonObject>();
+		root["reply_markup"] = myKeyb;
+	}
+	
 	serializeJson(root, param);
 	sendCommand("sendMessage", param.c_str());
+	
+	#if DEBUG_MODE > 0
+	serialLog("SEND message:\n");
+	serializeJsonPretty(root, Serial);
+	serialLog("\n");
+	#endif
 }
 
 
-void AsyncTelegram::sendMessage(int64_t id, String message, InlineKeyboard &keyboard) {
-	return sendMessage(id, message, keyboard.getJSON());
+void AsyncTelegram::sendMessage(TBMessage msg, String message, InlineKeyboard &keyboard) {
+	return sendMessage(msg, message, keyboard.getJSON());
 }
 
 
-void AsyncTelegram::sendMessage(int64_t id, String message, ReplyKeyboard &keyboard) {
-	return sendMessage(id, message, keyboard.getJSON());
+void AsyncTelegram::sendMessage(TBMessage msg, String message, ReplyKeyboard &keyboard) {
+	return sendMessage(msg, message, keyboard.getJSON());
 }
 
 
@@ -415,7 +431,7 @@ void AsyncTelegram::endQuery(String queryID, String message, bool alertMode)
 }
 
 
-void AsyncTelegram::removeReplyKeyboard(int64_t id, String message, bool selective)
+void AsyncTelegram::removeReplyKeyboard(TBMessage msg, String message, bool selective)
 {
 	DynamicJsonDocument root(BUFFER_SMALL);
 	String command((char *)0);
@@ -425,7 +441,7 @@ void AsyncTelegram::removeReplyKeyboard(int64_t id, String message, bool selecti
 		root["selective"] = true;
 	}
 	serializeJson(root, command);
-	sendMessage(id, message, command);
+	sendMessage(msg, message, command);
 }
 
 

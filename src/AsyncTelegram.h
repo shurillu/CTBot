@@ -19,7 +19,7 @@
 #include "ReplyKeyboard.h"
 
 #define DEBUG_MODE       	0 			// enable debugmode -> print debug data on the Serial
-#define BUFFER_BIG       	1024 		// json parser buffer size (ArduinoJson v6)
+#define BUFFER_BIG       	2048 		// json parser buffer size (ArduinoJson v6)
 #define BUFFER_SMALL      	256 		// json parser buffer size (ArduinoJson v6)
 #define USE_FINGERPRINT  	1 			// use Telegram fingerprint server validation
                                   		// MUST be enabled for ESP8266 Core library > 2.4.2
@@ -98,9 +98,10 @@ public:
 	//   keyboard: the inline/reply keyboard (optional)
 	//             (in json format or using the inlineKeyboard/ReplyKeyboard class helper)
 	
-	void sendMessage(int64_t id, String message, String keyboard = "");
-	void sendMessage(int64_t id, String message, InlineKeyboard &keyboard);	
-	void sendMessage(int64_t id, String message, ReplyKeyboard  &keyboard);
+	void sendMessage(TBMessage msg, String message, String keyboard = "");
+	void sendMessage(TBMessage msg, String message, InlineKeyboard &keyboard);	
+	void sendMessage(TBMessage msg, String message, ReplyKeyboard  &keyboard);
+	
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard
@@ -122,7 +123,7 @@ public:
 	//                       2) if the bot's message is a reply (has reply_to_message_id), sender of the original message
 	// return:
 	//   true if no error occurred
-	void removeReplyKeyboard(int64_t id, String message, bool selective = false);
+	void removeReplyKeyboard(TBMessage msg, String message, bool selective = false);
 
 	// set the new Telegram API server fingerprint overwriting the default one.
 	// It can be obtained by this service: https://www.grc.com/fingerprints.htm
@@ -148,6 +149,8 @@ private:
 	bool      m_useDNS = false;
 	bool      m_UTF8Encoding = false;	
 	uint8_t   m_fingerprint[20];
+	
+	TBUser 	  m_user;
 
 	// Struct for store telegram server reply and infos about it
 	HttpServerReply httpData;

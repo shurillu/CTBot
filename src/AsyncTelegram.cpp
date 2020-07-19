@@ -118,7 +118,6 @@ void AsyncTelegram::httpPostTask(void *args){
 		//bool connected = _this->checkConnection();	
 		if (_this->httpData.command.length() > 0 &&  WiFi.status()== WL_CONNECTED ) {			
 			char url[256];
-			serialLogn(url);
 			sniprintf(url, 256, "https://%s/bot%s/%s", TELEGRAM_URL, _this->m_token, _this->httpData.command.c_str() );			
 			https.begin(_this->telegramClient, url);
 			_this->httpData.waitingReply = true;			
@@ -150,7 +149,7 @@ void AsyncTelegram::httpPostTask(void *args){
 			#if DEBUG_MODE > 0
 			Serial.printf("\nTime: %lu", millis()-t1);
 			uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-			Serial.printf(", stack: %u", uxHighWaterMark);
+			Serial.printf(", stack: %u\n", uxHighWaterMark);
 			 #endif
 		}	
 		delay(1);

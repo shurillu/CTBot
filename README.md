@@ -1,6 +1,6 @@
 # AsyncTelegram     -       WORK IN PROGRESS
 
-This library is mainly inpired from https://github.com/shurillu/CTBot
+This library is mainly inspired from https://github.com/shurillu/CTBot
 
 ___
 ### Introduction

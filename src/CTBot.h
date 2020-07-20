@@ -3,6 +3,7 @@
 #define CTBOT
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include "CTBotSecureConnection.h"
 #include "CTBotDataStructures.h"
 #include "CTBotInlineKeyboard.h"

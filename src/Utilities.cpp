@@ -96,3 +96,17 @@ String URLEncodeMessage(String message) {
 	}
 	return encodedMessage;
 }
+
+
+DynamicJsonDocument deserializeDoc(String data, bool success) {
+	DynamicJsonDocument jsonDocument(CTBOT_BUFFER_SIZE);
+
+	auto parseError = deserializeJson(jsonDocument, data);
+	if(parseError) {
+		serialLog("deserializeJson() failed with code ");
+		serialLog(parseError.c_str());
+	} else success = true;
+
+	jsonDocument.shrinkToFit(); // Fit document size to size of used memory
+	return jsonDocument;
+}

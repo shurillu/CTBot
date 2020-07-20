@@ -3,9 +3,9 @@
 
 void CTBotReplyKeyboard::initialize()
 {
-	JsonObject& root = m_jsonBuffer.createObject();
-	JsonArray&  rows = root.createNestedArray("keyboard");
-	JsonArray&  buttons = rows.createNestedArray();
+	JsonObject root = m_jsonDocument->to<JsonObject>();
+	JsonArray  rows = root.createNestedArray("keyboard");
+	JsonArray  buttons = rows.createNestedArray();
 	
 	m_root = &root;
 	m_rows = &rows;
@@ -15,6 +15,8 @@ void CTBotReplyKeyboard::initialize()
 
 CTBotReplyKeyboard::CTBotReplyKeyboard()
 {
+	DynamicJsonDocument jsonDocument(1024);
+	m_jsonDocument = &jsonDocument;
 	initialize();
 }
 
@@ -22,7 +24,7 @@ CTBotReplyKeyboard::~CTBotReplyKeyboard() = default;
 
 void CTBotReplyKeyboard::flushData()
 {
-	m_jsonBuffer.clear();
+	m_jsonDocument->clear();
 	initialize();
 }
 
@@ -30,7 +32,7 @@ bool CTBotReplyKeyboard::addRow()
 {
 	if (m_isRowEmpty)
 		return false;
-	JsonArray&  buttons = m_rows->createNestedArray();
+	JsonArray buttons = m_rows->createNestedArray();
 	m_buttons = &buttons;
 	m_isRowEmpty = true;
 	return true;
@@ -38,7 +40,7 @@ bool CTBotReplyKeyboard::addRow()
 
 bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType buttonType)
 {
-	JsonObject& button = m_buttons->createNestedObject();
+	JsonObject button = m_buttons->createNestedObject();
 	text = URLEncodeMessage(text);
 	button["text"] = text;
 
@@ -67,7 +69,7 @@ void CTBotReplyKeyboard::enableSelective() {
 String CTBotReplyKeyboard::getJSON() const
 {
 	String serialized;
-	m_root->printTo(serialized);
+	serializeJson(*m_jsonDocument, serialized);
 	return serialized;
 }
 

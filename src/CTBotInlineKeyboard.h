@@ -2,7 +2,6 @@
 #ifndef CTBOT_INLINE_KEYBOARD
 #define CTBOT_INLINE_KEYBOARD
 
-#define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
@@ -15,7 +14,7 @@ enum CTBotInlineKeyboardButtonType {
 class CTBotInlineKeyboard
 {
 private:
-	DynamicJsonBuffer m_jsonBuffer;
+	DynamicJsonDocument *m_jsonDocument;
 	JsonObject *m_root;
 	JsonArray  *m_rows;
 	JsonArray  *m_buttons;

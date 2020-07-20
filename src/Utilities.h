@@ -3,6 +3,7 @@
 #define UTILITIES
 #include "CTBotDefines.h"
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 // convert an UNICODE coded string to a UTF8 coded string
 // params
@@ -33,8 +34,14 @@ String URLEncodeMessage(String message);
 inline void serialLog(String message) {
 	Serial.print(message);
 }
+inline void serialLog(DynamicJsonDocument doc) {
+	serializeJsonPretty(doc, Serial);
+}
 #else
 inline void serialLog(String) {}
+inline void serialLog(DynamicJsonDocument doc) {}
 #endif
+
+DynamicJsonDocument deserializeDoc(String data, bool success);
 
 #endif

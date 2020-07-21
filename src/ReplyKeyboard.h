@@ -4,10 +4,10 @@
 
 // for using int_64 data
 #define ARDUINOJSON_USE_LONG_LONG 	1 
-#define MIN_JSON_SIZE				256 
 
 #include <ArduinoJson.h>
 #include <Arduino.h>
+#include "DataStructures.h"
 
 enum ReplyKeyboardButtonType {
 	KeyboardButtonSimple   = 1,
@@ -20,7 +20,7 @@ class ReplyKeyboard
 {
 private:
 	String m_json;
-	size_t m_jsonSize = MIN_JSON_SIZE;
+	size_t m_jsonSize = BUFFER_SMALL;
 
 public:
 	ReplyKeyboard();

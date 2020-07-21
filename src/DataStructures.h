@@ -4,6 +4,9 @@
 
 #include <Arduino.h>
 
+#define BUFFER_BIG       	2048 		// json parser buffer size (ArduinoJson v6)
+#define BUFFER_SMALL      	512 		// json parser buffer size (ArduinoJson v6)
+
 enum MessageType {
 	MessageNoData   = 0,
 	MessageText     = 1,

@@ -6,24 +6,21 @@
 #if defined(ESP32)
 	#include <WiFi.h>
 	#include <HTTPClient.h>
-#elif defined(ESP8266)
+#elif defined(ESP8266)	
 	#include <ESP8266WiFi.h>
+	#include <ESP8266HTTPClient.h>
 	#include <WiFiClientSecure.h>
 #else
 	#error "This library work only with ESP8266 or ESP32"
 #endif
 
+#define DEBUG_MODE       	0 			// enable debugmode -> print debug data on the Serial
+#define USE_FINGERPRINT  	1 			// use Telegram fingerprint server validation
+#define SERVER_TIMEOUT		5000
 
 #include "DataStructures.h"
 #include "InlineKeyboard.h"
 #include "ReplyKeyboard.h"
-
-#define DEBUG_MODE       	0 			// enable debugmode -> print debug data on the Serial
-#define BUFFER_BIG       	2048 		// json parser buffer size (ArduinoJson v6)
-#define BUFFER_SMALL      	256 		// json parser buffer size (ArduinoJson v6)
-#define USE_FINGERPRINT  	1 			// use Telegram fingerprint server validation
-                                  		// MUST be enabled for ESP8266 Core library > 2.4.2
-#define SERVER_TIMEOUT		5000
 
 // Here we store the stuff related to the Telegram server reply
 typedef struct {
@@ -53,6 +50,9 @@ public:
 	// params
 	//   token: the telegram token
 	void setTelegramToken(const char* token);
+
+
+	bool updateFingerPrint(void);
 
 	// use the URL style address "api.telegram.org" or the fixed IP address "149.154.167.198"
 	// for all communication with the telegram server
@@ -113,6 +113,7 @@ public:
 	//   message  : an optional message
 	//   alertMode: false -> a simply popup message
 	//              true --> an alert message with ok button
+	void endQuery(int queryId, const char* message, bool alertMode = false);
 	void endQuery(const TBMessage &msg, const char* message, bool alertMode = false);
 
 	// remove an active reply keyboard for a selected user, sending a message
@@ -140,7 +141,6 @@ public:
 	//    pollingTime: interval time in milliseconds
 	void setUpdateTime(uint32_t pollingTime);
 
-
 private:
 	char*     m_token;
 	int32_t   m_lastUpdate = 0;
@@ -152,6 +152,7 @@ private:
 	uint8_t   m_fingerprint[20];
 	
 	TBUser 	  m_user;
+	InlineKeyboard 	m_inlineKeyboard;	// last inline keyboard showed in bot
 
 	// Struct for store telegram server reply and infos about it
 	HttpServerReply httpData;

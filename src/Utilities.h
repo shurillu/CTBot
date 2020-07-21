@@ -3,6 +3,8 @@
 #define UTILITIES
 #include <Arduino.h>
 
+
+
 // convert an UNICODE coded string to a UTF8 coded string
 // params
 //   unicode: the UNICODE string to convert
@@ -18,6 +20,7 @@ bool unicodeToUTF8(String unicode, String &utf8);
 // returns
 //   a string with the converted message in UTF8 
 String toUTF8(String message);
+
 
 
 

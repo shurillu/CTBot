@@ -38,6 +38,7 @@ bool InlineKeyboard::addButton(const char* text, const char* command, InlineKeyb
 	inlineButton->argCallback = onClick;
 	inlineButton->btnName = (char*)command;
 	_lastButton = inlineButton;
+	m_buttonsCounter++;
 	
 	// As reccomended use local JsonDocument instead global
 	// inline keyboard json structure will be stored in a String var

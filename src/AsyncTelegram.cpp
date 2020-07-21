@@ -567,48 +567,54 @@ bool AsyncTelegram::updateFingerPrint(void){
 
 	request = "https://www.grc.com/fingerprints.htm?chain=";
 	request += TELEGRAM_URL;
-	#if defined(ESP8266)
+
+#if defined(ESP8266)
 	client.setInsecure();
-	#endif
+#endif
+
 	serialLog("\n[HTTP] begin...");
-    if (http.begin(client, request)) {  // HTTP
-		serialLogn("[HTTP] GET...");	
+	if(!WiFi.isConnected())
+		return false;
+	
+	if (http.begin(client, request)) { 
+		serialLogn("\n[HTTP] GET...");	
 		int httpCode = http.GET();
-		// httpCode will be negative on error
 		if (httpCode > 0) {
 			// HTTP header has been send and Server response header has been handled			
 			if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {				
-				char 		buff[71];		
-				char 		newFP[59];	// "F2:AD:29:9C:34:48:DD:8D:F4:CF:52:32:F6:57:33:68:2E:81:C1:90"	
-				
-				WiFiClient * stream = http.getStreamPtr();
-				// read all data from server
-				while (http.connected()){
-					while (stream->available())	{
-						if(stream->find("<td class=\"ledge\">api.telegram.org</td>"))							
-							stream->readBytes(buff, 71);
-					}				
-				}								
-				// Parse data and find fingerprint data														
+				char _fingerPrintStr[59];	// Example "F2:AD:29:9C:34:48:DD:8D:F4:CF:52:32:F6:57:33:68:2E:81:C1:90"	
 				char * pch;
-				pch = strstr(buff,"<td>");
-				strncpy (newFP, pch + sizeof("<td>")-1, 59);
-				serialLogn("\nString from https://www.grc.com:");	
-				serialLogn(newFP);		
-				
-				char *p;
+
+				// get lenght of document (is -1 when Server sends no Content-Length header)
+                int len = http.getSize();
+                WiFiClient * stream = http.getStreamPtr();
+           
+                while(http.connected() && (len > 0 || len == -1)) {
+					// Find table cell with our fingerprint label string (skip all unnecessary data from stream)
+					if(stream->find("<td class=\"ledge\">api.telegram.org</td>")){
+						// Find next table cell where updated string is placed
+						if(stream->find("<td>")	){		
+							stream->readBytes(_fingerPrintStr, 59);		
+							http.end();				
+							break;							
+						}
+                   		delay(1);
+					}
+                }									
+										
+				// Split char _fingerPrintStr[] in uint8_t new_fingerprint[20]
 				uint8_t i = 0;
-				for (p = strtok(newFP,":"); p != NULL; p = strtok(NULL,":"), i++) {					
-					if(p != NULL)
-						new_fingerprint[i] = (uint8_t)strtol(p, NULL, 16);
-				}						
+				for (pch = strtok(_fingerPrintStr,":"); pch != NULL; pch = strtok(NULL,":"), i++) {					
+					if(pch != NULL)
+						new_fingerprint[i] = (uint8_t)strtol(pch, NULL, 16);
+				}		
 				#if DEBUG_MODE > 0
-					Serial.println("\nFingerprint updated:");	
-					Serial.println("%02X", new_fingerprint[0]);
+					Serial.printf("\nFingerprint updated:\n");	
+					Serial.printf("%02X", new_fingerprint[0]);
 					for(uint8_t i=1; i<sizeof(new_fingerprint); i++)
 						Serial.printf(":%02X", new_fingerprint[i]);
 					Serial.println();	
-				#endif								
+				#endif										
 			}
 		} 
 		else {
@@ -621,7 +627,7 @@ bool AsyncTelegram::updateFingerPrint(void){
 		serialLogn("\nUnable to connect to host \"https://www.grc.com\"");    
 		return false;
 	}
-	
+		
 	setFingerprint(new_fingerprint);
 	return true;
 }

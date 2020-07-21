@@ -117,7 +117,7 @@ void setup() {
   // add a button that will open browser pointing to this GitHub repository
   myInlineKbd1.addButton("GitHub", "https://github.com/cotestatnt/AsyncTelegram/", KeyboardButtonURL);
   
-  Serial.printf("Added %d buttons to keyboard\n", myInlineKbd2.getButtonsNumber());
+  Serial.printf("Added %d buttons to keyboard\n", myInlineKbd1.getButtonsNumber());
   
   // Add another inline keyboard
   myInlineKbd2.addButton("Button 1", BUTTON1_CALLBACK, KeyboardButtonQuery, button1Pressed);

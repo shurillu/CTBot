@@ -165,7 +165,7 @@ void loop() {
           // write back feedback message and show a hint
           String text = "You write: \"";
           text += msg.text;
-          text += "\". Try /inline_keyboard1 or /inline_keyboard2";
+          text += "\"\nTry /inline_keyboard1 or /inline_keyboard2";
           myBot.sendMessage(msg, text);
         }
         break;

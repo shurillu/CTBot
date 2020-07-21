@@ -422,6 +422,9 @@ void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, Reply
 }
 
 
+void AsyncTelegram::sendMessage(const TBMessage &msg, String &message, String keyboard) {
+	return sendMessage(msg, message.c_str(), keyboard);
+}
 
 void AsyncTelegram::endQuery(int queryId, const char* message, bool alertMode) {
 	if (queryId == 0)

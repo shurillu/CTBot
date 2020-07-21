@@ -40,7 +40,7 @@ Take a look at the examples provided in the [examples folder](https://github.com
 ### Reference
 [Here how to use the library](https://github.com/cotestatnt/AsyncTelegram/blob/master/REFERENCE.md). 
 
-+ 1.0.2   Added method for update Telegram server fingerprint (with online service https://www.grc.com/fingerprints.htm
++ 1.0.2   Added method for update Telegram server fingerprint (with online service https://www.grc.com/fingerprints.htm )
 + 1.0.1   Now is possible assign a callback function for every "inline keyboard button"
 + 1.0.0   Initial version
 

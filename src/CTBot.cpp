@@ -81,9 +81,8 @@ bool CTBot::getMe(TBUser &user) {
 	if (response.length() == 0)
 		return false;
 
-	bool success = false;
-	DynamicJsonDocument jsonDocument = deserializeDoc(response, success);
-	if (!success) return false;
+	DynamicJsonDocument jsonDocument(CTBOT_BUFFER_SIZE);
+	if(!deserializeDoc(jsonDocument, response)) return CTBotMessageNoData;
 
 	bool ok = jsonDocument["ok"];
 	if (!ok) {
@@ -96,12 +95,12 @@ bool CTBot::getMe(TBUser &user) {
 	serialLog(jsonDocument);
 	serialLog("\n");
 
-	user.id           = jsonDocument["result"]["id"];
-	user.isBot        = jsonDocument["result"]["is_bot"];
-	user.firstName    = jsonDocument["result"]["first_name"].as<String>();
-	user.lastName     = jsonDocument["result"]["last_name"].as<String>();
-	user.username     = jsonDocument["result"]["username"].as<String>();
-	user.languageCode = jsonDocument["result"]["language_code"].as<String>();
+	user.id           = jsonDocument["result"]["id"]			.as<int32_t>();
+	user.isBot        = jsonDocument["result"]["is_bot"]		.as<bool>();
+	user.firstName    = jsonDocument["result"]["first_name"]	.as<String>();
+	user.lastName     = jsonDocument["result"]["last_name"]		.as<String>();
+	user.username     = jsonDocument["result"]["username"]		.as<String>();
+	user.languageCode = jsonDocument["result"]["language_code"]	.as<String>();
 	return true;
 }
 
@@ -121,13 +120,12 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		serialLog("getNewMessage error: response with no data\n");
 		return CTBotMessageNoData;
 	}
-	
-	bool success = false;
-	DynamicJsonDocument jsonDocument = deserializeDoc(response, success); 
-	if(!success) return CTBotMessageNoData;
 
 	if (m_UTF8Encoding)
 		response = toUTF8(response);
+	
+	DynamicJsonDocument jsonDocument(CTBOT_BUFFER_SIZE);	
+	if(!deserializeDoc(jsonDocument, response)) return CTBotMessageNoData;
 
 	bool ok = jsonDocument["ok"];
 	if (!ok) {
@@ -141,13 +139,14 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	serialLog(jsonDocument);
 	serialLog("\n");
 
-	uint32_t updateID = jsonDocument["result"][0]["update_id"];
+	uint32_t updateID = jsonDocument["result"][0]["update_id"].as<uint32_t>();
 	if (updateID == 0)
 		return CTBotMessageNoData;
 	m_lastUpdate = updateID + 1;
 
-	if (jsonDocument["result"][0]["callback_query"]["id"] != 0) {
+	if (!jsonDocument["result"][0]["callback_query"]["id"].isNull()) {
 		// this is a callback query
+		serialLog("Callback query\n");
 		message.messageID         = jsonDocument["result"][0]["callback_query"]["message"]["message_id"].as<int32_t>();
 		message.text              = jsonDocument["result"][0]["callback_query"]["message"]["text"]		.as<String>();
 		message.date              = jsonDocument["result"][0]["callback_query"]["message"]["date"]		.as<int32_t>();
@@ -161,7 +160,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.messageType       = CTBotMessageQuery;
 		return CTBotMessageQuery;
 	}
-	else if (jsonDocument["result"][0]["message"]["message_id"] != 0) {
+	else if (!jsonDocument["result"][0]["message"]["message_id"].isNull()) {
 		// this is a message
 		message.messageID        = jsonDocument["result"][0]["message"]["message_id"]			.as<int32_t>();
 		message.sender.id        = jsonDocument["result"][0]["message"]["from"]["id"]			.as<int32_t>();
@@ -171,21 +170,21 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.group.id         = jsonDocument["result"][0]["message"]["chat"]["id"]			.as<int64_t>();
 		message.group.title      = jsonDocument["result"][0]["message"]["chat"]["title"]		.as<String>();
 		message.date             = jsonDocument["result"][0]["message"]["date"]					.as<int32_t>();
-		
-		if (jsonDocument["result"][0]["message"]["text"].as<String>().length() != 0) {
+
+		if (!jsonDocument["result"][0]["message"]["text"].isNull()) {
 			// this is a text message
 		    message.text        = jsonDocument["result"][0]["message"]["text"].as<String>();		    
 			message.messageType = CTBotMessageText;
 			return CTBotMessageText;
 		}
-		else if (jsonDocument["result"][0]["message"]["location"] != 0) {
+		else if (!jsonDocument["result"][0]["message"]["location"].isNull()) {
 			// this is a location message
 			message.location.longitude = jsonDocument["result"][0]["message"]["location"]["longitude"]	.as<float>();
 			message.location.latitude = jsonDocument["result"][0]["message"]["location"]["latitude"]	.as<float>();
 			message.messageType = CTBotMessageLocation;
 			return CTBotMessageLocation;
 		}
-		else if (jsonDocument["result"][0]["message"]["contact"] != 0) {
+		else if (!jsonDocument["result"][0]["message"]["contact"].isNull()) {
 			// this is a contact message
 			message.contact.id          = jsonDocument["result"][0]["message"]["contact"]["user_id"]		.as<int32_t>();
 			message.contact.firstName   = jsonDocument["result"][0]["message"]["contact"]["first_name"]		.as<String>();
@@ -220,20 +219,20 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 		return false;
 	}
 
-	bool success = false;
-	DynamicJsonDocument jsonDocument = deserializeDoc(response, success);
-	if(!success) return CTBotMessageNoData;
+	DynamicJsonDocument jsonDocument(CTBOT_BUFFER_SIZE);
+	
+	if(!deserializeDoc(jsonDocument, response)) return CTBotMessageNoData;
 
 	bool ok = jsonDocument["ok"];
 	if (!ok) {
 		serialLog("SendMessage error: ");
-		serializeJsonPretty(jsonDocument, Serial);
+		serialLog(jsonDocument);
 		serialLog("\n");
 		return false;
 	}
 
 	serialLog("SendMessage JSON: ");
-	serializeJsonPretty(jsonDocument, Serial);
+	serialLog(jsonDocument);
 	serialLog("\n");
 
 	return true;
@@ -268,19 +267,18 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 	if (response.length() == 0)
 		return false;
 
-	bool success = false;
-	DynamicJsonDocument jsonDocument = deserializeDoc(response, success);
-	if (!success) return CTBotMessageNoData;
+	DynamicJsonDocument jsonDocument(CTBOT_BUFFER_SIZE);
+	if(!deserializeDoc(jsonDocument, response)) return CTBotMessageNoData;
 
 	bool ok = jsonDocument["ok"];
 	if (!ok) {
 		serialLog("answerCallbackQuery error:");
-		serializeJsonPretty(jsonDocument, Serial);
+		serialLog(jsonDocument);
 		serialLog("\n");
 		return false;
 	}
 
-	serializeJsonPretty(jsonDocument, Serial);
+	serialLog(jsonDocument);
 	serialLog("\n");
 	return true;
 }

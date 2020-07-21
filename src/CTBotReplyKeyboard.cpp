@@ -4,7 +4,7 @@
 void CTBotReplyKeyboard::initialize()
 {
 	JsonObject root = m_jsonDocument->to<JsonObject>();
-	JsonArray  rows = root.createNestedArray("keyboard");
+	JsonArray  rows = root.createNestedArray("inline_keyboard");
 	JsonArray  buttons = rows.createNestedArray();
 	
 	m_root = &root;

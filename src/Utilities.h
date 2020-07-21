@@ -34,14 +34,26 @@ String URLEncodeMessage(String message);
 inline void serialLog(String message) {
 	Serial.print(message);
 }
-inline void serialLog(DynamicJsonDocument doc) {
+inline void serialLog(DynamicJsonDocument &doc) {
 	serializeJsonPretty(doc, Serial);
+	Serial.print('\n');
 }
 #else
 inline void serialLog(String) {}
-inline void serialLog(DynamicJsonDocument doc) {}
+inline void serialLog(DynamicJsonDocument &doc) {}
 #endif
 
-DynamicJsonDocument deserializeDoc(String data, bool success);
+inline bool deserializeDoc(DynamicJsonDocument &jsonDocument, String &data) {
+	auto parseError = deserializeJson(jsonDocument, data);
+	if(parseError) {
+		serialLog("deserializeJson() failed with code ");
+		serialLog((String)parseError.c_str() + (String)"\n");
+		serialLog(data + "\n");
+		return false;
+	}
+	jsonDocument.shrinkToFit();
+	serialLog((String)jsonDocument.capacity() + '\n');
+	return true;	
+}
 
 #endif

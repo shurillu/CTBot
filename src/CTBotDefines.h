@@ -25,10 +25,10 @@
 #if CTBOT_BUFFER_SIZE == 0 // If buffer size equals zero we will use the maximum free amount of memory to deserialize document
     #if defined(ARDUINO_ARCH_ESP8266)
         #undef CTBOT_BUFFER_SIZE
-        #define CTBOT_BUFFER_SIZE ESP.getMaxFreeBlockSize() // We call a function that returns the size of the largest block of free memory
+        #define CTBOT_BUFFER_SIZE ESP.getMaxFreeBlockSize() - 10 // We call a function that returns the size of the largest block of free memory
     #elif defined(ARDUINO_ARCH_ESP32)
         #undef CTBOT_BUFFER_SIZE
-        #define CTBOT_BUFFER_SIZE ESP.getMaxAllocHeap() // We call a function that returns the size of the largest block of free memory
+        #define CTBOT_BUFFER_SIZE ESP.getMaxAllocHeap() - 10 // We call a function that returns the size of the largest block of free memory
     #endif
 #endif
 

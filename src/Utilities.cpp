@@ -72,9 +72,8 @@ String URLEncodeMessage(String message) {
 	String encodedMessage("");
 	char buffer[4];
 	buffer[0] = '%';
-	buffer[3] = 0x00;
-	uint16_t i;
-	for (i = 0; i < message.length(); i++) {
+	buffer[3] = 0x00;	
+	for (unsigned int i = 0; i < message.length(); i++) {
 		if (((message[i] >= 0x30) && (message[i] <= 0x39)) || // numbers
 			((message[i] >= 0x41) && (message[i] <= 0x5A)) || // caps letters
 			((message[i] >= 0x61) && (message[i] <= 0x7A)))   // letters
@@ -98,15 +97,17 @@ String URLEncodeMessage(String message) {
 }
 
 
-DynamicJsonDocument deserializeDoc(String data, bool success) {
-	DynamicJsonDocument jsonDocument(CTBOT_BUFFER_SIZE);
+// bool deserializeDoc(DynamicJsonDocument &jsonDocument, String &data) {
+// 	serialLog((String)jsonDocument.capacity() + '\n');
 
-	auto parseError = deserializeJson(jsonDocument, data);
-	if(parseError) {
-		serialLog("deserializeJson() failed with code ");
-		serialLog(parseError.c_str());
-	} else success = true;
-
-	jsonDocument.shrinkToFit(); // Fit document size to size of used memory
-	return jsonDocument;
-}
+// 	auto parseError = deserializeJson(jsonDocument, data);
+// 	if(parseError) {
+// 		serialLog("deserializeJson() failed with code ");
+// 		serialLog((String)parseError.c_str() + (String)"\n");
+// 		serialLog(data + "\n");
+// 		return false;
+// 	}
+// 	serialLog((String)jsonDocument.capacity() + '\n');
+// 	jsonDocument.shrinkToFit();
+// 	return true;	
+// }

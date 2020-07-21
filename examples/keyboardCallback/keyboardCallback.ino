@@ -3,13 +3,12 @@
   Created:     20/06/2020
   Author:      Tolentino Cotesta <cotestatnt@yahoo.com>
   Description: a more complex example that do:
-             1) if a "/inline_keyboard" text message is received, show the inline custom keyboard,
-                if a "/reply_keyboard" text message is received, show the reply custom keyboard,
-                otherwise reply the sender with "Try /reply_keyboard or /inline_keyboard" message
+             1) if a "/inline_keyboard1" text message is received, show the inline custom keyboard 1,
+                otherwise reply the sender with hint message
              2) if "LIGHT ON" inline keyboard button is pressed turn on the LED and show a message
              3) if "LIGHT OFF" inline keyboard button is pressed, turn off the LED and show a message
-             4) if "GitHub" inline keyboard button is pressed,
-                open a browser window with URL "https://github.com/cotestatnt/AsyncTelegram"
+             4) if "Button 1" inline keyboard button is pressed show a "modal" message with message box
+             5) if "Button 2" inline keyboard button is pressed show a message  
 */
 #include <Arduino.h>
 #include "AsyncTelegram.h"
@@ -68,7 +67,7 @@ void button1Pressed(const TBMessage &queryMsg){
 
 void button2Pressed(const TBMessage &queryMsg){
   Serial.printf("\nButton 2 pressed (callback); \nQueryId: %s\n\n", queryMsg.callbackQueryID);
-  myBot.endQuery(queryMsg, "You pressed Button 2", true);
+  myBot.endQuery(queryMsg, "You pressed Button 2", false);
 }
 
 void setup() {

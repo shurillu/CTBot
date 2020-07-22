@@ -1,5 +1,6 @@
 # Reference
-Here you can find an explanation of the functionalities provided and how to use the library. Check the [examples folder](https://github.com/shurillu/AsyncTelegram/tree/master/examples) for demos and examples.
+Here you can find an explanation of the functionalities provided and how to use the library. 
+Check the [examples folder](https://github.com/cotestatnt/AsyncTelegram/tree/master/examples) for demos and examples.
 ___
 ## Table of contents
 + [Introduction and quick start](#introduction-and-quick-start)
@@ -53,9 +54,9 @@ The `getNewMessage()` return a non-zero value if there is a new message and stor
 ```c++
 myBot.getNewMessage(msg);
 ```
-To send a simple message to a Telegram user, use the `sendMessage()` member function
+To send a simple message to a Telegram user, use the `sendMessage(TBMessage msg, String text )` member function 
 ```c++
-myBot.sendMessage(telegramUserID,"message");
+myBot.sendMessage(msg, "message");
 ```
 See the [echoBot example](https://github.com/cotestatnt/AsyncTelegram/blob/master/examples/echoBot/echoBot.ino) for further details.
 
@@ -65,7 +66,7 @@ ___
 The Inline Keyboards are special keyboards integrated directly into the messages they belong to: pressing buttons on inline keyboards doesn't result in messages sent to the chat. Instead, inline keyboards support buttons that work behind the scenes.
 AsyncTelegram class implements the following buttons:
 + URL buttons: these buttons have a small arrow icon to help the user understand that tapping on a URL button will open an external link. A confirmation alert message is shown before opening the link in the browser.
-+ Callback buttons: when a user presses a callback button, no messages are sent to the chat. Instead, the bot simply receives the relevant query. Upon receiving the query, the bot can display some result in a notification at the top of the chat screen or in an alert.
++ Callback buttons: when a user presses a callback button, no messages are sent to the chat. Instead, the bot simply receives the relevant query. Upon receiving the query, the bot can display some result in a notification at the top of the chat screen or in an alert. It's also possible associate a callback function that will be executed when user press the inline keyboard button.
 
 [back to TOC](#table-of-contents)
 
@@ -81,8 +82,8 @@ InlineKeyboard kbd;
 ```
 then add new buttons in the first row of the inline keyboard using the member fuction `addButton()` (See [addButton()](#addbutton) member function).
 ```c++
-kbd.addButton("First Button label", "URL for first button", KeyboardButtonURL); // URL button
-kbd.addButton("Second Button label", "Data for second button", KeyboardButtonQuery); // callback button
+kbd.addButton("First Button label", "URL for first button", KeyboardButtonURL);                // URL button
+kbd.addButton("Second Button label", "Data for second button", KeyboardButtonQuery, onPress);  // callback button
 ...
 ```
 If a new row of buttons is needed, call the addRow() member function...
@@ -96,7 +97,7 @@ kbd.addButton("New Row Button label", "URL for the new row button", KeyboardButt
 ```
 Once finished, send the inline keyboard using the `sendMessage` method:
 ```c++
-myBot.sendMessage(<telegramUserID>, "message", kbd);
+myBot.sendMessage(<msg>, "message", kbd);
 ...
 ```
 [back to TOC](#table-of-contents)
@@ -133,17 +134,17 @@ void loop() {
 				// pushed "My button" button --> do related things...
 
 				// close the callback query
-				myBot.endQuery(msg.callbackQueryID, "My button pressed");
+				myBot.endQuery(msg, "My button pressed");
 			}
 		} else {
 			// the received message is a text message --> reply with the inline keyboard
-			myBot.sendMessage(msg.sender.id, "Inline Keyboard", myKbd);
+			myBot.sendMessage(msg, "Inline Keyboard", myKbd);
 		}
 	}
 	delay(500); // wait 500 milliseconds
 }
 ```
-See the [inlineKeyboard example](https://github.com/shurillu/AsyncTelegram/blob/master/examples/inlineKeyboard/inlineKeyboard.ino) for further details. <br>
+See the [keyboards example](https://github.com/shurillu/AsyncTelegram/blob/master/examples/keyboards/keyboards.ino) for further details. <br>
 
 [back to TOC](#table-of-contents)
 ___
@@ -152,12 +153,12 @@ There are several usefully data structures used to store data typically sent by 
 ### `TBUser`
 `TBUser` data type is used to store user data like Telegram userID. The data structure contains:
 ```c++
-uint32_t id;
-bool   isBot;
-String firstName;
-String lastName;
-String username;
-String languageCode;
+uint32_t     id;
+bool         isBot;
+const char*  firstName;
+const char*  lastName;
+const char*  username;
+const char*  languageCode;
 ```
 where:
 + `id` is the unique Telegram user ID
@@ -186,8 +187,8 @@ For localization messages, see [TBMessage](#tbmessage)
 ### `TBGroup`
 `TBGroup` data type is used to store the group chat data. The data structure contains:
 ```c++
-int64_t id;
-String  title;
+int64_t       id;
+const char*   title;
 ```
 where:
 + `id` contains the ID of the group chat
@@ -196,24 +197,14 @@ where:
 [back to TOC](#table-of-contents)
 
 
-
-
-
-
-
-
-
-
-
-
 ### `TBContact`
 `TBContact` data type is used to store the contact data. The data structure contains:
 ```c++
-String  phoneNumber;
-String  firstName;
-String  lastName;
-int32_t id;
-String  vCard;
+const char*   phoneNumber;
+const char*   firstName;
+const char*   lastName;
+int32_t       id;
+const char*   vCard;
 ```
 where:
 + `phoneNumber` contains the phone number of the contact
@@ -225,16 +216,6 @@ where:
 [back to TOC](#table-of-contents)
 
 
-
-
-
-
-
-
-
-
-
-
 ### `TBMessage`
 `TBMessage` data type is used to store new messages. The data structure contains:
 ```c++
@@ -242,13 +223,13 @@ uint32_t         messageID;
 TBUser           sender;
 TBGroup          group;
 uint32_t         date;
-String           text;
-String           chatInstance;
-String           callbackQueryData;
-String           callbackQueryID;
+const char*      text;
+const char*      chatInstance;
+const char*      callbackQueryData;
+const char*      callbackQueryID;
 TBLocation       location;
 TBcontact        contact;
-CTBotMessageType messageType;
+MessageType      messageType;
 ```
 where:
 + `messageID` contains the unique message identifier associated to the received message
@@ -272,11 +253,11 @@ There are several usefully enumerators used to define method parameters or metho
 Enumerator used to define the possible message types received by [getNewMessage()](#getnewmessage) method. Used also by [TBMessage](#tbmessage).
 ```c++
 enum MessageType {
-	CTBotMessageNoData   = 0,
-	CTBotMessageText     = 1,
-	CTBotMessageQuery    = 2, 
-	CTBotMessageLocation = 3,
-	CTBotMessageContact  = 4
+	MessageNoData   = 0,
+	MessageText     = 1,
+	MessageQuery    = 2,
+	MessageLocation = 3,
+	MessageContact  = 4
 };
 ```
 where:
@@ -288,13 +269,14 @@ where:
 
 [back to TOC](#table-of-contents)
 
-### `CTBotInlineKeyboardButtonType`
+### `InlineKeyboardButtonType`
 Enumerator used to define the possible button types. Button types are used when creating an inline keyboard with [addButton()](#addbutton) method.
 ```c++
 enum InlineKeyboardButtonType {
 	KeyboardButtonURL    = 1,
 	KeyboardButtonQuery  = 2
 };
+
 ```
 where:
 + `KeyboardButtonURL`: define a URL button. When pressed, Telegram client will ask if open the URL in a browser
@@ -344,13 +326,12 @@ void loop() {
 
 [back to TOC](#table-of-contents)
 ### `AsyncTelegram::getNewMessage()`
-~~`bool AsyncTelegram::getNewMessage(TBMessage &message)`~~ <br><br>
+
 `AsyncTelegramMessageType AsyncTelegram::getNewMessage(TBMessage &message)` <br><br>
 Get the first unread message from the message queue. Fetch text message and callback query message (for callback query messages, see [Inline Keyboards](#inline-keyboards)). This is a destructive operation: once read, the message will be marked as read so a new `getNewMessage` will fetch the next message (if any). <br>
 Parameters:
 + `message`: a `TBMessage` data structure that will contains the message data retrieved
 
-~~Returns: `true` if there is a new message and fill the `message` parameter with the received message data.~~ <br>
 Returns:
 + `MessageNoData` if an error occurred
 + `MessageText` if the message received is a text message 
@@ -358,56 +339,15 @@ Returns:
 + `MessageLocation` if the message received is a location message
 + `MessageContact` if the message received is a contact message
 
-Compatibility with previous versions: you can still use the `false` statement to check if the `getNewMessage` method got errors as the following example do.<br>
-**IMPORTANT**: before using the data inside the `message` parameter, always check the return value: a ~~`false`~~ `AsyncTelegramMessageNoData` return value means that there are no valid data stored inside the `message` parameter. See the following example. <br>
-Example:
-```c++
-#include "AsyncTelegram.h"
-AsyncTelegram myBot;
-void setup() {
-	Serial.begin(115200); // initialize the serial
-	WiFi.mode(WIFI_STA); 	
-	WiFi.begin(ssid, pass);
-	myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
-}
-void loop() {
-	TBMessage msg; // a variable to store telegram message data
-	// check if there is a new incoming message
-	if (myBot.getNewMessage(msg)) {
-		// there is a valid message in msg
-		Serial.print("Received message from: ");
-		Serial.println(msg.sender.username);
-		if (msg.messageType == MessageText) {
-			// a text message is received
-			Serial.print("Text: ");
-			Serial.println(msg.text);
-		}
-		else if (msg.messageType == MessageLocation) {
-			// a position/location message is received
-			Serial.println("Position");
-			Serial.print(" - Latitude : ");
-			Serial.println(msg.location.latitude, 5);
-			Serial.print(" - Longitude: ");
-			Serial.println(msg.location.longitude, 5);
-		}
-		else
-			Serial.println("Invalid message received.");
-	}
-	else {
-		// no valid message in msg
-		Serial.println("No new message");
-	}
-	delay(500); // wait 500 milliseconds
-}
-```
 
 [back to TOC](#table-of-contents)
 ### `AsyncTelegram::sendMessage()`
-`bool AsyncTelegram::sendMessage(uint32_t id, String message, String keyboard)` <br>
-`bool AsyncTelegram::sendMessage(uint32_t id, String message, InlineKeyboard keyboard)` <br>
-`bool AsyncTelegram::sendMessage(int64_t id, String message, ReplyKeyboard  &keyboard)` <br><br>
+`void sendMessage(const TBMessage &msg, const char* message, String keyboard = "");` <br>
+`void sendMessage(const TBMessage &msg, String &message, String keyboard = "");` <br>
+`void sendMessage(const TBMessage &msg, const char* message, ReplyKeyboard  &keyboard);` <br>
+`void sendMessage(const TBMessage &msg, const char* message, InlineKeyboard &keyboard);	` <br><br>
 
-Send a message to the specified Telegram user ID. <br>
+Send a message to the Telegram user ID associated with recevied msg. <br>
 If `keyboard` parameter is specified, send the message and display the custom keyboard (inline or reply). 
 + Inline keyboard are defined by a JSON structure (see the Telegram API documentation [InlineKeyboardMarkup](https://core.telegram.org/bots/api#inlinekeyboardmarkup))<br>
 You can also use the helper class InlineKeyboard for creating inline keyboards.<br> 
@@ -415,105 +355,11 @@ You can also use the helper class InlineKeyboard for creating inline keyboards.<
 You can also use the helper class ReplyKeyboard for creating inline keyboards.<br> 
 
 Parameters:
-+ `id`: the recipient Telegram user ID
++ `msg`: the TBMessage recipient structure
 + `message`: the message to send
 + `keyboard`: (optional) the inline/reply keyboard
 
-Returns: `true` if no error occurred. <br>
-Example:
-```c++
-#include "AsyncTelegram.h"
-AsyncTelegram myBot;
-void setup() {
-   Serial.begin(115200); // initialize the serial
-   WiFi.mode(WIFI_STA);
- 	
-   WiFi.begin(ssid, pass);
-   myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
-}
-void loop() {
-   TBMessage msg; // a variable to store telegram message data
-	// if there is an incoming message...
-	if (myBot.getNewMessage(msg))
-		// ...forward it to the sender
-		myBot.sendMessage(msg.sender.id, msg.text);
-	delay(500); // wait 500 milliseconds
-}
-```
-Examples using inline keyboard can be found here: 
-+ [Handling callback messages](#handling-callback-messages)
-+ [inlineKeyboard example](https://github.com/shurillu/AsyncTelegram/blob/master/examples/inlineKeyboard/inlineKeyboard.ino)
-
 [back to TOC](#table-of-contents)
-### `AsyncTelegram::endQuery()`
-`bool endQuery(String queryID, String message = "", bool alertMode = false)` <br><br>
-Terminate a query started by pressing an inlineKeyboard button. See [Handling callback messages](#handling-callback-messages) for further details. <br>
-Parameters:
-+ `queryID`: the unique query ID (retrieved with [getNewMessage](#getnewmessage) method)
-+ `message`: (optional) a message to display
-+ `alertMode`: (optional) the way how to display the message: 
-   + `false` display a popup message
-   + `true` display an alert windowed message with an ok button
-
-Returns: `true` if no error occurred. <br>
-Example:
-```c++
-#include "AsyncTelegram.h"
-#define CALLBACK_QUERY_DATA  "QueryData"  // callback data sent when the button is pressed
-AsyncTelegram myBot;
-InlineKeyboard myKbd;  // custom inline keyboard object helper
-
-void setup() {
-   Serial.begin(115200); // initialize the serial
-   WiFi.mode(WIFI_STA);
- 	
-   WiFi.begin(ssid, pass);
-   myBot.setTelegramToken("myTelegramBotToken"); // set the telegram bot token
-
-	// inline keyboard - only a button called "My button"
-	myKbd.addButton("My button", CALLBACK_QUERY_DATA, KeyboardButtonQuery);
-}
-
-void loop() {
-	TBMessage msg; // a variable to store telegram message data
-
-	// if there is an incoming message...
-	if (myBot.getNewMessage(msg)) {
-		// ...and if it is a callback query message
-	    if (msg.messageType == CTBotMessageQuery) {
-			// received a callback query message, check if it is the "My button" callback
-			if (msg.callbackQueryData.equals(CALLBACK_QUERY_DATA)) {
-				// pushed "My button" button --> do related things...
-
-				// close the callback query
-				myBot.endQuery(msg.callbackQueryID, "My button pressed");
-			}
-		} else {
-			// the received message is a text message --> reply with the inline keyboard
-			myBot.sendMessage(msg.sender.id, "Inline Keyboard", myKbd);
-		}
-	}
-	delay(500); // wait 500 milliseconds
-}
-```
-
-[back to TOC](#table-of-contents)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -523,45 +369,19 @@ void loop() {
 `bool removeReplyKeyboard(int64_t id, String message, bool selective = false)` <br><br>
 Remove an active replyKeyboard for a specified user by sending a message. <br>
 Parameters:
-+ `id`: the Telegram user ID
++ `msg`: the TBMessage recipient structure
 + `message`: the message to be show to the selected user ID
 + `selective`: (optional) enable the selective mode (hide the keyboard for specific users only). Useful for hiding the keyboard for users that are @mentioned in the text of the Message object or if the bot's message is a reply (has reply_to_message_id), sender of the original message
 
 Returns: `true` if no error occurred. <br>
-Example:
-```c++
-
-VALUTARE ESEMPIO
-
-```
 
 [back to TOC](#table-of-contents)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### `InlineKeyboard::addButton()`
-`bool InlineKeyboard::addButton(String text, String command, InlineKeyboardButtonType buttonType)` <br><br>
+`bool addButton(const char* text, const char* command, InlineKeyboardButtonType buttonType, CallbackType onClick = nullptr)` <br><br>
 Add a button to the current keyboard row of an InlineKeyboard object. For a description of button types, see [Inline Keyboards](#inline-keyboards).<br>
 Parameters: 
 + `text`: the botton text (label) displayed on the inline keyboard
@@ -571,15 +391,8 @@ Parameters:
 + `buttonType`: set the behavior of the button. It can be:
   + `KeyboardButtonURL` - the added button will be a URL button
   + `KeyboardButtonQuery` - the added button will be a query button
++ `onClick`: pointer to callback function
 Returns: `true` if no error occurred. <br>
-Example
-```c++
-InlineKeyboard kbd; // create an inline keyboard object
-// add an URL button to the inline keyboard
-kbd.addButton("My URL Button", "URL", KeyboardButtonURL);
-// add an URL button to the inline keyboard
-kbd.addButton("My Query Button", "queryData", KeyboardButtonQuery);
-```
 
 [back to TOC](#table-of-contents)
 
@@ -588,38 +401,7 @@ kbd.addButton("My Query Button", "queryData", KeyboardButtonQuery);
 Add a new empty row of buttons to the inline keyboard: all the new keyboard buttons will be added to this new row.
 Parameters: none <br>
 Returns: `true` if no error occurred. <br>
-Example
-```c++
-InlineKeyboard kbd; // create an inline keyboard object
-// add an URL button to the inline keyboard
-kbd.addButton("My URL Button", "URL", KeyboardButtonURL);
-// add an URL button to the inline keyboard
-kbd.addButton("My Query Button", "queryData", KeyboardButtonQuery);
-kbd.addRow(); // new row: all the new buttons will be added here
-// this button will be added to the new row.
-kbd.addButton("My Button", "anotherQueryData", KeyboardButtonQuery);
-```
 
-[back to TOC](#table-of-contents)
-
-### `InlineKeyboard::flushData()`
-`void InlineKeyboard::flushData(void)` <br><br>
-Remove all buttons/rows from an inline keyboard and initialize it to a new inline keyboard.
-Parameters: none <br>
-Returns: none <br>
-Example
-```c++
-InlineKeyboard kbd; // create an inline keyboard object
-// add an URL button to the inline keyboard
-kbd.addButton("My URL Button", "URL", KeyboardButtonURL);
-// add an URL button to the inline keyboard
-kbd.addButton("My Query Button", "queryData", KeyboardButtonQuery);
-kbd.addRow(); // new row: all the new buttons will be added here
-// this button will be added to the new row.
-kbd.addButton("My Button", "anotherQueryData", KeyboardButtonQuery);
-...
-kbd.flushData(); // now the keyboard is empty
-```
 
 [back to TOC](#table-of-contents)
 
@@ -628,31 +410,12 @@ kbd.flushData(); // now the keyboard is empty
 Create a string that containsthe inline keyboard formatted in a JSON structure. Useful sending the inline keyboard with [sendMessage()](#sendmessage).
 Parameters: none <br>
 Returns: the JSON of the inline keyboard <br>
-Example
-```c++
-InlineKeyboard kbd; // create an inline keyboard object
-// add an URL button to the inline keyboard
-kbd.addButton("My URL Button", "URL", KeyboardButtonURL);
-// add an URL button to the inline keyboard
-kbd.addButton("My Query Button", "queryData", KeyboardButtonQuery);
-String kbdJSON = kbd.getJSON();
-
-```
 
 [back to TOC](#table-of-contents)
 
 ___
 ## Configuration methods
-When instantiated, a AsyncTelegram object is configured as follow:
-+ If the `wifiConnect()` method is executed, it wait until a connection with the specified WiFi network is established (locking operation). See [setMaxConnectionRetries()](#setmaxconnectionretries).
-+ Use the Telegram server static IP (149.154.167.198). See [useDNS()](#usedns).
-+ The incoming messages are not converted to UTF8. See [enableUTF8Encoding()](#enableutf8encoding).
-+ The status pin is disabled. See [setStatusPin()](#setstatuspin).
-
 With the following methods, is possible to change the behavior of the AsyncTelegram instantiated object.
-
-[back to TOC](#table-of-contents)
-
 
 [back to TOC](#table-of-contents)
 ### `AsyncTelegram::useDNS()`
@@ -684,22 +447,6 @@ Examples:
 + `enableUTF8Encoding(false)`: every incoming message is encoded as Telegram server do
 
 [back to TOC](#table-of-contents)
-### `AsyncTelegram::setStatusPin()`
-`void AsyncTelegram::setStatusPin(int8_t pin)` <br><br>
-A status pin is used to send blinking notification by connecting to the specified pin to a LED.
-Actually there are two notification:
-+ During the connection process to a WiFi network, the status pin will blink regularly.
-+ Every time a command is sent to the Telegram server, the status pin will pulse.
-
-Default value is `CTBOT_DISABLE_STATUS_PIN` (status pin disable). <br>
-Parameters:
-+ `pin`: the Arduino like pin to use as status pin. to disable this feature, set it to `CTBOT_DISABLE_STATUS_PIN`
-
-Returns: none. <br>
-Example:
-+ `setStatusPin(2)`: enable the status pin feature using the pin 2 (GPIO 4 - onboard LED of the ESP8266 chip)
-
-[back to TOC](#table-of-contents)
 ### `AsyncTelegram::setFingerprint()`
 `void AsyncTelegram::setFingerprint(const uint8_t *newFingerprint)` <br><br>
 Set the new Telegram API server fingerprint overwriting the default one.
@@ -716,6 +463,28 @@ void setup() {
    ...
    uint8_t telegramFingerprint [20] = { 0xBB, 0xDC, 0x45, 0x2A, 0x07, 0xE3, 0x4A, 0x71, 0x33, 0x40, 0x32, 0xDA, 0xBE, 0x81, 0xF7, 0x72, 0x6F, 0x4A, 0x2B, 0x6B };
    myBot.setFingerprint(telegramFingerprint);
+   ...
+}
+
+void loop(){
+   ...
+}
+```
+[back to TOC](#table-of-contents)
+
+
+
+[back to TOC](#table-of-contents)
+### `AsyncTelegram::updateFingerprint()`
+`bool AsyncTelegram::updateFingerPrint(void);` <br><br>
+Parse the reply obtained from online service [this service](https://www.grc.com/fingerprints.htm?chain=api.telegram.org) and set the new Telegram API server fingerprint overwriting the default one.
+
+Returns: none. <br>
+Example:
+```c++
+void setup() {
+   ...
+   myBot.updateFingerprint();
    ...
 }
 

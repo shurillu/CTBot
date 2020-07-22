@@ -170,9 +170,13 @@ void loop() {
         break;
         
         /* 
-        *  Each query message reply (MessageQuery type) associated with inline keyboard buttons, 
-        *  will be handled in own callback function. 
+        * Telegram "inline keyboard" provide a callback_data field that can be used to fire a callback fucntion
+        * associated at every inline keyboard buttons press event and everything can be handled in it's own callback function. 
+        * Anyway, is still possible poll the messagetype in the same way as "reply keyboard" or both.              
         */
+        case MessageQuery:
+          break;
+        
         default:
           break;
     }

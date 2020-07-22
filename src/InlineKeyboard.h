@@ -5,8 +5,6 @@
 // for using int_64 data
 #define ARDUINOJSON_USE_LONG_LONG 	1 
 
-#define MAX_INLINE_BUTTONS			10
-
 #include <functional>
 #include <Arduino.h>
 #include <ArduinoJson.h>

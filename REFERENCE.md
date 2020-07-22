@@ -31,6 +31,7 @@ ___
   + [AsyncTelegram::useDNS()](#usedns)
   + [AsyncTelegram::enableUTF8Encoding()](#enableutf8encoding)
   + [AsyncTelegram::setFingerprint()](#setfingerprint)
+  + [AsyncTelegram::updateFingerprint()](#updatefingerprint)
 ___
 ## Introduction and quick start
 Once installed the library, you have to load it in your sketch...

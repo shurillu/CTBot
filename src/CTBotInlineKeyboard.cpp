@@ -3,13 +3,11 @@
 
 void CTBotInlineKeyboard::initialize()
 {
-	JsonObject root = m_jsonDocument.to<JsonObject>();
-	JsonArray  rows = root.createNestedArray("inline_keyboard");
-	JsonArray  buttons = rows.createNestedArray();
+	m_jsonDocument.to<JsonObject>()
+		.createNestedArray("inline_keyboard")
+		.createNestedArray();
 
-	m_root = root;
-	m_rows = rows;
-	m_buttons = buttons;
+	m_jsonDocument.shrinkToFit();
 	m_isRowEmpty = true;
 }
 
@@ -24,6 +22,7 @@ void CTBotInlineKeyboard::flushData()
 {
 	m_jsonDocument.clear();
 	m_jsonDocument.garbageCollect();
+	m_jsonDocument = DynamicJsonDocument(64);
 	initialize();
 }
 
@@ -31,8 +30,13 @@ bool CTBotInlineKeyboard::addRow()
 {
 	if (m_isRowEmpty)
 		return false;
-	JsonArray  buttons = m_rows.createNestedArray();
-	m_buttons = buttons;
+
+	DynamicJsonDocument t_doc(CTBOT_BUFFER_SIZE);
+	t_doc = m_jsonDocument;
+
+	getRows(t_doc).createNestedArray();
+	reallocDoc(t_doc);
+
 	m_isRowEmpty = true;
 	return true;
 }
@@ -42,18 +46,23 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 	if ((buttonType != CTBotKeyboardButtonURL) && (buttonType != CTBotKeyboardButtonQuery))
 		return false;
 
-	JsonObject button = m_buttons.createNestedObject();
+	DynamicJsonDocument t_doc(CTBOT_BUFFER_SIZE);
+	t_doc = m_jsonDocument;
+	JsonObject t_button = getLastRow(t_doc).createNestedObject();
+
 	text = URLEncodeMessage(text);
-	button["text"] = text;
+	t_button["text"] = text;
 
 	if (CTBotKeyboardButtonURL == buttonType) 
-		button["url"] = command;
+		t_button["url"] = command;
 	else if (CTBotKeyboardButtonQuery == buttonType) 
-		button["callback_data"] = command;
+		t_button["callback_data"] = command;
 
 
 	if (m_isRowEmpty)
 		m_isRowEmpty = false;
+	
+	reallocDoc(t_doc);
 	return true;
 }
 

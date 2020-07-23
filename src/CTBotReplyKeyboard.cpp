@@ -3,13 +3,10 @@
 
 void CTBotReplyKeyboard::initialize()
 {
-	JsonObject root = m_jsonDocument.to<JsonObject>();
-	JsonArray  rows = root.createNestedArray("keyboard");
-	JsonArray  buttons = rows.createNestedArray();
+	m_jsonDocument.to<JsonObject>()
+		.createNestedArray("keyboard")
+		.createNestedArray();
 	
-	m_root = root;
-	m_rows = rows;
-	m_buttons = buttons;
 	m_isRowEmpty = true;
 }
 
@@ -31,15 +28,25 @@ bool CTBotReplyKeyboard::addRow()
 {
 	if (m_isRowEmpty)
 		return false;
-	JsonArray buttons = m_rows.createNestedArray();
-	m_buttons = buttons;
+
+	DynamicJsonDocument t_doc(CTBOT_BUFFER_SIZE);
+	t_doc = m_jsonDocument;
+
+	getRows(t_doc).createNestedArray();
+
+	reallocDoc(t_doc);
+
 	m_isRowEmpty = true;
 	return true;
 }
 
 bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType buttonType)
 {
-	JsonObject button = m_buttons.createNestedObject();
+
+	DynamicJsonDocument t_doc(CTBOT_BUFFER_SIZE);
+	t_doc = m_jsonDocument;
+
+	JsonObject button = getLastRow(t_doc).createNestedObject();
 	text = URLEncodeMessage(text);
 	button["text"] = text;
 
@@ -50,19 +57,21 @@ bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType but
 
 	if (m_isRowEmpty)
 		m_isRowEmpty = false;
+
+	reallocDoc(t_doc);
 	return true;
 }
 
 void CTBotReplyKeyboard::enableResize() {
-	m_root["resize_keyboard"] = true;
+	m_jsonDocument["resize_keyboard"] = true;
 }
 
 void CTBotReplyKeyboard::enableOneTime() {
-	m_root["one_time_keyboard"] = true;
+	m_jsonDocument["one_time_keyboard"] = true;
 }
 
 void CTBotReplyKeyboard::enableSelective() {
-	m_root["selective"] = true;
+	m_jsonDocument["selective"] = true;
 }
 
 String CTBotReplyKeyboard::getJSON() const

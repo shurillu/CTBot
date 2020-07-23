@@ -5,6 +5,17 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
+// #define CTBOT_INLINE_KBD_MAKE_COPY 
+// 	DynamicJsonDocument t_doc(CTBOT_BUFFER_SIZE); 
+// 	t_doc = m_jsonDocument; 
+// 	m_jsonDocument.clear(); 
+// 	m_jsonDocument.garbageCollect();
+
+// #define CTBOT_INLINE_KBD_REALLOC_DOC(t_doc) 
+// 	 
+// 	t_doc.shrinkToFit(); 
+// 	m_jsonDocument = t_doc; 
+
 
 enum CTBotInlineKeyboardButtonType {
 	CTBotKeyboardButtonURL    = 1,
@@ -13,15 +24,27 @@ enum CTBotInlineKeyboardButtonType {
 
 class CTBotInlineKeyboard
 {
+	
 private:
-	StaticJsonDocument<1024> m_jsonDocument;
-	// Using static document because it can be constructed in header
-	JsonObject m_root;
-	JsonArray  m_rows;
-	JsonArray  m_buttons;
+	DynamicJsonDocument m_jsonDocument = DynamicJsonDocument(64);
 	bool m_isRowEmpty = true;
 
 	void initialize(void);
+
+	JsonArray getRows(DynamicJsonDocument &t_doc) {
+		return t_doc["inline_keyboard"].as<JsonArray>();
+	}
+
+	JsonArray getLastRow(DynamicJsonDocument &t_doc) {
+		return getRows(t_doc)[getRows(t_doc).size() - 1];
+	}
+
+	void reallocDoc(DynamicJsonDocument &newDoc) {
+		m_jsonDocument.clear();
+		m_jsonDocument.garbageCollect();
+		newDoc.shrinkToFit();
+		m_jsonDocument = newDoc;
+	}
 
 public:
 	CTBotInlineKeyboard();

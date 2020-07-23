@@ -15,14 +15,25 @@ enum CTBotReplyKeyboardButtonType {
 class CTBotReplyKeyboard
 {
 private:
-	StaticJsonDocument<1024> m_jsonDocument; 
-	// Using static document because it can be constructed in header
-	JsonObject m_root;
-	JsonArray  m_rows;
-	JsonArray  m_buttons;
+	DynamicJsonDocument m_jsonDocument = DynamicJsonDocument(64); 
 	bool m_isRowEmpty = true;
 
 	void initialize(void);
+
+	JsonArray getRows(DynamicJsonDocument &t_doc) {
+		return t_doc["keyboard"].as<JsonArray>();
+	}
+
+	JsonArray getLastRow(DynamicJsonDocument &t_doc) {
+		return getRows(t_doc)[getRows(t_doc).size() - 1];
+	}
+
+	void reallocDoc(DynamicJsonDocument &newDoc) {
+		m_jsonDocument.clear();
+		m_jsonDocument.garbageCollect();
+		newDoc.shrinkToFit();
+		m_jsonDocument = newDoc;
+	}
 
 public:
 	CTBotReplyKeyboard();

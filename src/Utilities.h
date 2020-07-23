@@ -52,7 +52,6 @@ inline bool deserializeDoc(DynamicJsonDocument &jsonDocument, String &data) {
 		return false;
 	}
 	jsonDocument.shrinkToFit();
-	serialLog((String)jsonDocument.capacity() + '\n');
 	return true;	
 }
 

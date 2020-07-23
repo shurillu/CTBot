@@ -146,7 +146,6 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 
 	if (!jsonDocument["result"][0]["callback_query"]["id"].isNull()) {
 		// this is a callback query
-		serialLog("Callback query\n");
 		message.messageID         = jsonDocument["result"][0]["callback_query"]["message"]["message_id"].as<int32_t>();
 		message.text              = jsonDocument["result"][0]["callback_query"]["message"]["text"]		.as<String>();
 		message.date              = jsonDocument["result"][0]["callback_query"]["message"]["date"]		.as<int32_t>();

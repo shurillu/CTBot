@@ -95,19 +95,3 @@ String URLEncodeMessage(String message) {
 	}
 	return encodedMessage;
 }
-
-
-// bool deserializeDoc(DynamicJsonDocument &jsonDocument, String &data) {
-// 	serialLog((String)jsonDocument.capacity() + '\n');
-
-// 	auto parseError = deserializeJson(jsonDocument, data);
-// 	if(parseError) {
-// 		serialLog("deserializeJson() failed with code ");
-// 		serialLog((String)parseError.c_str() + (String)"\n");
-// 		serialLog(data + "\n");
-// 		return false;
-// 	}
-// 	serialLog((String)jsonDocument.capacity() + '\n');
-// 	jsonDocument.shrinkToFit();
-// 	return true;	
-// }

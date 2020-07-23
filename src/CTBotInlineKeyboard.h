@@ -5,18 +5,6 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
-// #define CTBOT_INLINE_KBD_MAKE_COPY 
-// 	DynamicJsonDocument t_doc(CTBOT_BUFFER_SIZE); 
-// 	t_doc = m_jsonDocument; 
-// 	m_jsonDocument.clear(); 
-// 	m_jsonDocument.garbageCollect();
-
-// #define CTBOT_INLINE_KBD_REALLOC_DOC(t_doc) 
-// 	 
-// 	t_doc.shrinkToFit(); 
-// 	m_jsonDocument = t_doc; 
-
-
 enum CTBotInlineKeyboardButtonType {
 	CTBotKeyboardButtonURL    = 1,
 	CTBotKeyboardButtonQuery  = 2

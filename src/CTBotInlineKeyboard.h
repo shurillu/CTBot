@@ -14,11 +14,12 @@ enum CTBotInlineKeyboardButtonType {
 class CTBotInlineKeyboard
 {
 private:
-	DynamicJsonDocument *m_jsonDocument;
-	JsonObject *m_root;
-	JsonArray  *m_rows;
-	JsonArray  *m_buttons;
-	bool m_isRowEmpty;
+	StaticJsonDocument<1024> m_jsonDocument;
+	// Using static document because it can be constructed in header
+	JsonObject m_root;
+	JsonArray  m_rows;
+	JsonArray  m_buttons;
+	bool m_isRowEmpty = true;
 
 	void initialize(void);
 

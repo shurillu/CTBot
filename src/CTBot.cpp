@@ -285,7 +285,7 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 
 bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
 {
-	DynamicJsonDocument jsonDocument(CTBOT_BUFFER_SIZE);
+	StaticJsonDocument<JSON_OBJECT_SIZE(2)> jsonDocument;
 	String command;
 	JsonObject root = jsonDocument.to<JsonObject>();
 	root["remove_keyboard"] = true;

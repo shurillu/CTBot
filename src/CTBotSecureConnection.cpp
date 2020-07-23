@@ -45,14 +45,14 @@ String CTBotSecureConnection::send(const String& message) const
 #if defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 0 // ESP8266 no HTTPS verification
 	WiFiClientSecure telegramServer;
 	telegramServer.setInsecure();
-	serialLog("ESP8266 no https verification");
+	serialLog(F("ESP8266 no https verification"));
 #elif defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 1 // ESP8266 with HTTPS verification
 	BearSSL::WiFiClientSecure telegramServer;
 	telegramServer.setFingerprint(m_fingerprint);
-	serialLog("ESP8266 with https verification");
+	serialLog(F("ESP8266 with https verification"));
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
 	WiFiClientSecure telegramServer;
-	serialLog("ESP32");
+	serialLog(F("ESP32"));
 #endif
 
 	// check for using symbolic URLs
@@ -63,15 +63,15 @@ String CTBotSecureConnection::send(const String& message) const
 			IPAddress telegramServerIP;
 			telegramServerIP.fromString(TELEGRAM_IP);
 			if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-				serialLog("\nUnable to connect to Telegram server! (use-DNS-mode)\n");
+				serialLog(F("\nUnable to connect to Telegram server! (use-DNS-mode)\n"));
 				return {};
 			}
 			else {
-				serialLog("\nConnected using fixed IP\n");
+				serialLog(F("\nConnected using fixed IP\n"));
 			}
 		}
 		else {
-			serialLog("\nConnected using DNS\n");
+			serialLog(F("\nConnected using DNS\n"));
 		}
 
 	}
@@ -80,11 +80,11 @@ String CTBotSecureConnection::send(const String& message) const
 		IPAddress telegramServerIP; // (149, 154, 167, 198);
 		telegramServerIP.fromString(TELEGRAM_IP);
 		if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-			serialLog("\nUnable to connect to Telegram server! (use-IP-mode)\n");
+			serialLog(F("\nUnable to connect to Telegram server! (use-IP-mode)\n"));
 			return "";
 		}
 		else
-			serialLog("\nConnected using fixed IP\n");
+			serialLog(F("\nConnected using fixed IP\n"));
 	}
 
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)

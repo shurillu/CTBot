@@ -21,7 +21,7 @@ private:
 	void initialize(void);
 
 	JsonArray getRows(DynamicJsonDocument &t_doc) {
-		return t_doc["keyboard"].as<JsonArray>();
+		return t_doc[F("keyboard")].as<JsonArray>();
 	}
 
 	JsonArray getLastRow(DynamicJsonDocument &t_doc) {

@@ -16,33 +16,33 @@ bool CTBotWifiSetup::setIP(String ip, String gateway, String subnetMask, String 
 	IPAddress IP, SN, GW, DNS1, DNS2;
 
 	if (!IP.fromString(ip)) {
-		serialLog("--- setIP: error on IP address\n");
+		serialLog(F("--- setIP: error on IP address\n"));
 		return false;
 	}
 	if (!SN.fromString(subnetMask)) {
-		serialLog("--- setIP: error on subnet mask\n");
+		serialLog(F("--- setIP: error on subnet mask\n"));
 		return false;
 	}
 	if (!GW.fromString(gateway)) {
-		serialLog("--- setIP: error on gateway address\n");
+		serialLog(F("--- setIP: error on gateway address\n"));
 		return false;
 	}
 	if (dns1.length() != 0) {
 		if (!DNS1.fromString(dns1)) {
-			serialLog("--- setIP: error on DNS1 address\n");
+			serialLog(F("--- setIP: error on DNS1 address\n"));
 			return false;
 		}
 	}
 	if (dns2.length() != 0) {
 		if (!DNS2.fromString(dns2)) {
-			serialLog("--- setIP: error on DNS1 address\n");
+			serialLog(F("--- setIP: error on DNS1 address\n"));
 			return false;
 		}
 	}
 	if (WiFi.config(IP, GW, SN, DNS1, DNS2))
 		return true;
 	else {
-		serialLog("--- setIP: error on setting the static ip address (WiFi.config)\n");
+		serialLog(F("--- setIP: error on setting the static ip address (WiFi.config)\n"));
 		return false;
 	}
 }
@@ -51,7 +51,7 @@ bool CTBotWifiSetup::wifiConnect(String ssid, String password) const
 {
 	// attempt to connect to Wifi network:
 	int tries = 0;
-	String message = (String)"\n\nConnecting Wifi: " + ssid + (String)"\n";
+	String message = (String)F("\n\nConnecting Wifi: ") + ssid + (String)"\n";
 	serialLog(message);
 
 #if CTBOT_STATION_MODE > 0
@@ -80,14 +80,14 @@ bool CTBotWifiSetup::wifiConnect(String ssid, String password) const
 
 	if (WiFi.status() == WL_CONNECTED) {
 		IPAddress ip = WiFi.localIP();
-		message = (String)"\nWiFi connected\nIP address: " + ip.toString() + (String)"\n";
+		message = (String)F("\nWiFi connected\nIP address: ") + ip.toString() + (String)"\n";
 		serialLog(message);
 		if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 			digitalWrite(m_statusPin, LOW);
 		return true;
 	}
 	else {
-		message = (String)"\nUnable to connect to " + ssid + (String)" network.\n";
+		message = (String)F("\nUnable to connect to ") + ssid + (String)F(" network.\n");
 		serialLog(message);
 		if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 			digitalWrite(m_statusPin, HIGH);

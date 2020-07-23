@@ -16,7 +16,7 @@ String CTBot::sendCommand(String command, String parameters)
 {
 
 	// must filter command + parameters from escape sequences and spaces
-	const String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
+	const String URL = (String)F("GET /bot") + m_token + (String)"/" + command + parameters;
 
 	// send the HTTP request
 	return(m_connection.send(URL));
@@ -77,16 +77,16 @@ bool CTBot::testConnection(){
 }
 
 bool CTBot::getMe(TBUser &user) {
-	String response = sendCommand("getMe");
+	String response = sendCommand(F("getMe"));
 	if (response.length() == 0)
 		return false;
 
 	DynamicJsonDocument jsonDocument(CTBOT_BUFFER_SIZE);
 	if(!deserializeDoc(jsonDocument, response)) return CTBotMessageNoData;
 
-	bool ok = jsonDocument["ok"];
+	bool ok = jsonDocument[F("ok")];
 	if (!ok) {
-		serialLog("getMe error:");
+		serialLog(F("getMe error:"));
 		serialLog(jsonDocument);
 		serialLog("\n");
 		return false;
@@ -95,12 +95,14 @@ bool CTBot::getMe(TBUser &user) {
 	serialLog(jsonDocument);
 	serialLog("\n");
 
-	user.id           = jsonDocument["result"]["id"]			.as<int32_t>();
-	user.isBot        = jsonDocument["result"]["is_bot"]		.as<bool>();
-	user.firstName    = jsonDocument["result"]["first_name"]	.as<String>();
-	user.lastName     = jsonDocument["result"]["last_name"]		.as<String>();
-	user.username     = jsonDocument["result"]["username"]		.as<String>();
-	user.languageCode = jsonDocument["result"]["language_code"]	.as<String>();
+	const String result = F("result");
+
+	user.id           = jsonDocument[result][F("id")]				.as<int32_t>();
+	user.isBot        = jsonDocument[result][F("is_bot")]			.as<bool>();
+	user.firstName    = jsonDocument[result][F("first_name")]		.as<String>();
+	user.lastName     = jsonDocument[result][F("last_name")]		.as<String>();
+	user.username     = jsonDocument[result][F("username")]			.as<String>();
+	user.languageCode = jsonDocument[result][F("language_code")]	.as<String>();
 	return true;
 }
 
@@ -112,12 +114,12 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	ltoa(m_lastUpdate, buf, 10);
 	// polling timeout: add &timeout=<seconds>
 	// default is zero (short polling).
-	String parameters = "?limit=1&allowed_updates=message,callback_query";
+	String parameters = F("?limit=1&allowed_updates=message,callback_query");
 	if (m_lastUpdate != 0)
-		parameters += "&offset=" + (String)buf;
-	String response = sendCommand("getUpdates", parameters);
+		parameters += (String)F("&offset=") + (String)buf;
+	String response = sendCommand(F("getUpdates"), parameters);
 	if (response.length() == 0) {
-		serialLog("getNewMessage error: response with no data\n");
+		serialLog(F("getNewMessage error: response with no data\n"));
 		return CTBotMessageNoData;
 	}
 
@@ -127,69 +129,77 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	DynamicJsonDocument jsonDocument(CTBOT_BUFFER_SIZE);	
 	if(!deserializeDoc(jsonDocument, response)) return CTBotMessageNoData;
 
-	bool ok = jsonDocument["ok"];
+	bool ok = jsonDocument[F("ok")];
 	if (!ok) {
-		serialLog("getNewMessage error: ");
+		serialLog(F("getNewMessage error: "));
 		serialLog(jsonDocument);
 		serialLog("\n");
 		return CTBotMessageNoData;
 	}
 
-	serialLog("getNewMessage JSON: ");
+	serialLog(F("getNewMessage JSON: "));
 	serialLog(jsonDocument);
 	serialLog("\n");
 
-	uint32_t updateID = jsonDocument["result"][0]["update_id"].as<uint32_t>();
+	const String result_key = F("result");
+	uint32_t updateID = jsonDocument[result_key][0][F("update_id")].as<uint32_t>();
 	if (updateID == 0)
 		return CTBotMessageNoData;
 	m_lastUpdate = updateID + 1;
 
-	if (!jsonDocument["result"][0]["callback_query"]["id"].isNull()) {
+
+	if (!jsonDocument[result_key][0][F("callback_query")][F("id")].isNull()) {
 		// this is a callback query
-		message.messageID         = jsonDocument["result"][0]["callback_query"]["message"]["message_id"].as<int32_t>();
-		message.text              = jsonDocument["result"][0]["callback_query"]["message"]["text"]		.as<String>();
-		message.date              = jsonDocument["result"][0]["callback_query"]["message"]["date"]		.as<int32_t>();
-		message.sender.id         = jsonDocument["result"][0]["callback_query"]["from"]["id"]			.as<int32_t>();
-		message.sender.username   = jsonDocument["result"][0]["callback_query"]["from"]["username"]		.as<String>();
-		message.sender.firstName  = jsonDocument["result"][0]["callback_query"]["from"]["first_name"]	.as<String>();
-		message.sender.lastName   = jsonDocument["result"][0]["callback_query"]["from"]["last_name"]	.as<String>();
-		message.callbackQueryID   = jsonDocument["result"][0]["callback_query"]["id"]					.as<String>();
-		message.callbackQueryData = jsonDocument["result"][0]["callback_query"]["data"]					.as<String>();
-		message.chatInstance      = jsonDocument["result"][0]["callback_query"]["chat_instance"]		.as<String>();
+		const String query_key = F("callback_query");
+
+		message.messageID         = jsonDocument[result_key][0][query_key][F("message")][F("message_id")].as<int32_t>();
+		message.text              = jsonDocument[result_key][0][query_key][F("message")][F("text")]		.as<String>();
+		message.date              = jsonDocument[result_key][0][query_key][F("message")][F("date")]		.as<int32_t>();
+		message.sender.id         = jsonDocument[result_key][0][query_key][F("from")][F("id")]			.as<int32_t>();
+		message.sender.username   = jsonDocument[result_key][0][query_key][F("from")][F("username")]	.as<String>();
+		message.sender.firstName  = jsonDocument[result_key][0][query_key][F("from")][F("first_name")]	.as<String>();
+		message.sender.lastName   = jsonDocument[result_key][0][query_key][F("from")][F("last_name")]	.as<String>();
+		message.callbackQueryID   = jsonDocument[result_key][0][query_key][F("id")]						.as<String>();
+		message.callbackQueryData = jsonDocument[result_key][0][query_key][F("data")]					.as<String>();
+		message.chatInstance      = jsonDocument[result_key][0][query_key][F("chat_instance")]			.as<String>();
 		message.messageType       = CTBotMessageQuery;
 		return CTBotMessageQuery;
 	}
-	else if (!jsonDocument["result"][0]["message"]["message_id"].isNull()) {
+	else if (!jsonDocument[result_key][0][F("message")][F("message_id")].isNull()) {
 		// this is a message
-		message.messageID        = jsonDocument["result"][0]["message"]["message_id"]			.as<int32_t>();
-		message.sender.id        = jsonDocument["result"][0]["message"]["from"]["id"]			.as<int32_t>();
-		message.sender.username  = jsonDocument["result"][0]["message"]["from"]["username"]		.as<String>();
-		message.sender.firstName = jsonDocument["result"][0]["message"]["from"]["first_name"]	.as<String>();
-		message.sender.lastName  = jsonDocument["result"][0]["message"]["from"]["last_name"]	.as<String>();
-		message.group.id         = jsonDocument["result"][0]["message"]["chat"]["id"]			.as<int64_t>();
-		message.group.title      = jsonDocument["result"][0]["message"]["chat"]["title"]		.as<String>();
-		message.date             = jsonDocument["result"][0]["message"]["date"]					.as<int32_t>();
+		const String msg_key = F("message");
 
-		if (!jsonDocument["result"][0]["message"]["text"].isNull()) {
+		message.messageID        = jsonDocument[result_key][0][msg_key][F("message_id")]			.as<int32_t>();
+		message.sender.id        = jsonDocument[result_key][0][msg_key][F("from")][F("id")]			.as<int32_t>();
+		message.sender.username  = jsonDocument[result_key][0][msg_key][F("from")][F("username")]	.as<String>();
+		message.sender.firstName = jsonDocument[result_key][0][msg_key][F("from")][F("first_name")]	.as<String>();
+		message.sender.lastName  = jsonDocument[result_key][0][msg_key][F("from")][F("last_name")]	.as<String>();
+		message.group.id         = jsonDocument[result_key][0][msg_key][F("chat")][F("id")]			.as<int64_t>();
+		message.group.title      = jsonDocument[result_key][0][msg_key][F("chat")][F("title")]		.as<String>();
+		message.date             = jsonDocument[result_key][0][msg_key][F("date")]					.as<int32_t>();
+
+		if (!jsonDocument[result_key][0][msg_key][F("text")].isNull()) {
 			// this is a text message
-		    message.text        = jsonDocument["result"][0]["message"]["text"].as<String>();		    
+		    message.text        = jsonDocument[result_key][0][msg_key][F("text")].as<String>();		    
 			message.messageType = CTBotMessageText;
 			return CTBotMessageText;
 		}
-		else if (!jsonDocument["result"][0]["message"]["location"].isNull()) {
+		else if (!jsonDocument[result_key][0][msg_key][F("location")].isNull()) {
 			// this is a location message
-			message.location.longitude = jsonDocument["result"][0]["message"]["location"]["longitude"]	.as<float>();
-			message.location.latitude = jsonDocument["result"][0]["message"]["location"]["latitude"]	.as<float>();
+			message.location.longitude = jsonDocument[result_key][0][msg_key][F("location")][F("longitude")]	.as<float>();
+			message.location.latitude = jsonDocument[result_key][0][msg_key][F("location")][F("latitude")]	.as<float>();
 			message.messageType = CTBotMessageLocation;
 			return CTBotMessageLocation;
 		}
-		else if (!jsonDocument["result"][0]["message"]["contact"].isNull()) {
+		else if (!jsonDocument[result_key][0][msg_key][F("contact")].isNull()) {
 			// this is a contact message
-			message.contact.id          = jsonDocument["result"][0]["message"]["contact"]["user_id"]		.as<int32_t>();
-			message.contact.firstName   = jsonDocument["result"][0]["message"]["contact"]["first_name"]		.as<String>();
-			message.contact.lastName    = jsonDocument["result"][0]["message"]["contact"]["last_name"]		.as<String>();
-			message.contact.phoneNumber = jsonDocument["result"][0]["message"]["contact"]["phone_number"]	.as<String>();
-			message.contact.vCard       = jsonDocument["result"][0]["message"]["contact"]["vcard"]			.as<String>();
+			const String contact_key = F("contact");
+
+			message.contact.id          = jsonDocument[result_key][0][msg_key][contact_key][F("user_id")]		.as<int32_t>();
+			message.contact.firstName   = jsonDocument[result_key][0][msg_key][contact_key][F("first_name")]	.as<String>();
+			message.contact.lastName    = jsonDocument[result_key][0][msg_key][contact_key][F("last_name")]		.as<String>();
+			message.contact.phoneNumber = jsonDocument[result_key][0][msg_key][contact_key][F("phone_number")]	.as<String>();
+			message.contact.vCard       = jsonDocument[result_key][0][msg_key][contact_key][F("vcard")]			.as<String>();
 			message.messageType = CTBotMessageContact;
 			return CTBotMessageContact;
 		}
@@ -207,14 +217,14 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 
 	message = URLEncodeMessage(message); //-------------------------------------------------------------------------------------------------------------------------------------
 
-	String parameters = (String)"?chat_id=" + strID + (String)"&text=" + message;
+	String parameters = (String)F("?chat_id=") + strID + (String)F("&text=") + message;
 
 	if (keyboard.length() != 0)
-		parameters += (String)"&reply_markup=" + keyboard;
+		parameters += (String)F("&reply_markup=") + keyboard;
 
-	String response = sendCommand("sendMessage", parameters);
+	String response = sendCommand(F("sendMessage"), parameters);
 	if (response.length() == 0) {
-		serialLog("SendMessage error: response with no data\n");
+		serialLog(F("SendMessage error: response with no data\n"));
 		return false;
 	}
 
@@ -222,15 +232,15 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 	
 	if(!deserializeDoc(jsonDocument, response)) return CTBotMessageNoData;
 
-	bool ok = jsonDocument["ok"];
+	bool ok = jsonDocument[F("ok")];
 	if (!ok) {
-		serialLog("SendMessage error: ");
+		serialLog(F("SendMessage error: "));
 		serialLog(jsonDocument);
 		serialLog("\n");
 		return false;
 	}
 
-	serialLog("SendMessage JSON: ");
+	serialLog(F("SendMessage JSON: "));
 	serialLog(jsonDocument);
 	serialLog("\n");
 
@@ -250,19 +260,20 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 	if (0 == queryID.length())
 		return false;
 
-	String parameters = (String)"?callback_query_id=" + queryID;
+	String parameters = (String)F("?callback_query_id=") + queryID;
 
 	if (message.length() != 0) {
 		
 		message = URLEncodeMessage(message); //---------------------------------------------------------------------------------------------------------------------------------
+		parameters += (String)F("&text=") + message + (String)F("&show_alert=") + alertMode ? "true" : "false";
 
-		if (alertMode)
-			parameters += (String)"&text=" + message + (String)"&show_alert=true";
-		else
-			parameters += (String)"&text=" + message + (String)"&show_alert=false";
+		// if (alertMode)
+		// 	parameters += (String)"&show_alert=true";
+		// else
+		// 	parameters += (String)"&show_alert=false";
 	}
 
-	String response = sendCommand("answerCallbackQuery", parameters);
+	String response = sendCommand(F("answerCallbackQuery"), parameters);
 	if (response.length() == 0)
 		return false;
 
@@ -271,7 +282,7 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 
 	bool ok = jsonDocument["ok"];
 	if (!ok) {
-		serialLog("answerCallbackQuery error:");
+		serialLog(F("answerCallbackQuery error:"));
 		serialLog(jsonDocument);
 		serialLog("\n");
 		return false;
@@ -287,9 +298,9 @@ bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
 	StaticJsonDocument<JSON_OBJECT_SIZE(2)> jsonDocument;
 	String command;
 	JsonObject root = jsonDocument.to<JsonObject>();
-	root["remove_keyboard"] = true;
+	root[F("remove_keyboard")] = true;
 	if (selective) {
-		root["selective"] = true;
+		root[F("selective")] = true;
 	}
 
 	serializeJson(jsonDocument, command);

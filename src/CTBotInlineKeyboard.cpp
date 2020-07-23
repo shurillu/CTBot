@@ -4,7 +4,7 @@
 void CTBotInlineKeyboard::initialize()
 {
 	m_jsonDocument.to<JsonObject>()
-		.createNestedArray("inline_keyboard")
+		.createNestedArray(F("inline_keyboard"))
 		.createNestedArray();
 
 	m_jsonDocument.shrinkToFit();
@@ -51,12 +51,12 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 	JsonObject t_button = getLastRow(t_doc).createNestedObject();
 
 	text = URLEncodeMessage(text);
-	t_button["text"] = text;
+	t_button[F("text")] = text;
 
 	if (CTBotKeyboardButtonURL == buttonType) 
-		t_button["url"] = command;
+		t_button[F("url")] = command;
 	else if (CTBotKeyboardButtonQuery == buttonType) 
-		t_button["callback_data"] = command;
+		t_button[F("callback_data")] = command;
 
 
 	if (m_isRowEmpty)

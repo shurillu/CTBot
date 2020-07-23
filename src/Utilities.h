@@ -46,7 +46,7 @@ inline void serialLog(DynamicJsonDocument &doc) {}
 inline bool deserializeDoc(DynamicJsonDocument &jsonDocument, String &data) {
 	auto parseError = deserializeJson(jsonDocument, data);
 	if(parseError) {
-		serialLog("deserializeJson() failed with code ");
+		serialLog(F("deserializeJson() failed with code "));
 		serialLog((String)parseError.c_str() + (String)"\n");
 		serialLog(data + "\n");
 		return false;

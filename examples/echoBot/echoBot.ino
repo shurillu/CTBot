@@ -45,7 +45,7 @@ void loop() {
 	// if there is an incoming message...
 	if (myBot.getNewMessage(msg))
 		// ...forward it to the sender
-		String reply = "You write: ";
+		String reply = "bot> ";
         	reply += msg.text;
 		myBot.sendMessage(msg, msg.text);
 }

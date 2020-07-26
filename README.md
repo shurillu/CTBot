@@ -10,11 +10,11 @@ It relies on [ArduinoJson](https://github.com/bblanchon/ArduinoJson) library so,
 You also need to install the [ESP8266 Arduino Core and Library](https://github.com/esp8266/Arduino) or the [ESP32 Arduino Core and Library](https://github.com/espressif/arduino-esp32).
 Don't you know Telegram bots and how to setup one? Check [this](https://core.telegram.org/bots#6-botfather).
 
-+ **_Now ArduinoJSON 5 and 6 supported!_**
++ **_Now ArduinoJson version 5 and 6 are supported!_**
 
 ### News
 + ESP32 supported
-+ ArduinoJSON 5 and 6 supported
++ ArduinoJson version 5 and 6 supported
 
 ### Feature
 + ESP8266/ESP32 supported

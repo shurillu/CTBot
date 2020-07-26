@@ -10,13 +10,14 @@ It relies on [ArduinoJson](https://github.com/bblanchon/ArduinoJson) library so,
 You also need to install the [ESP8266 Arduino Core and Library](https://github.com/esp8266/Arduino) or the [ESP32 Arduino Core and Library](https://github.com/espressif/arduino-esp32).
 Don't you know Telegram bots and how to setup one? Check [this](https://core.telegram.org/bots#6-botfather).
 
-+ **_Please pay attention to the installed version of ArduinoJson library: it MUST be 5.13.5 or lesser._**
++ **_Now ArduinoJSON 5 and 6 supported!_**
 
 ### News
-+ ESP32 support
++ ESP32 supported
++ ArduinoJSON 5 and 6 supported
 
 ### Feature
-+ ESP8266/ESP32 support
++ ESP8266/ESP32 supported
 + Manage WiFi connection (methods for connecting to an access point, set a static IP)
 + Send and receive messages
 + Inline keyboards
@@ -38,15 +39,18 @@ A special thanks go to these people who helped me making this library
 + Gianmaria Mancosu
 + Marco Madlena
 + [michaelzs85](https://github.com/michaelzs85)
++ [Di-Strix](https://github.com/Di-Strix)
 
 ### Future work
 + [x] Add Telegram inline keyboards
-+ [X] Add ESP32 support & testing
++ [x] Add ESP32 support & testing
++ [x] ArduinoJSON 6 support
 
 ### Changelog
++ 2.1.0 ArduinoJSON 5 and 6 support
 + 2.0.0 ESP32 support
-+ 1.4.1 New Telegram Server IP and fingerprint update.
-+ 1.4.0 Reply keyboard added. Contact messages functionality added.
++ 1.4.1 New Telegram Server IP and fingerprint update
++ 1.4.0 Reply keyboard added. Contact messages functionality added
 + 1.3.2 Bug fixing and new functionalities:
   + URL encoding: now it is possible to send all kind of characters
   + Added group infos (ID and Group title) in the TBMessage structure

@@ -1,7 +1,13 @@
-#define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
+// for using int_64 data
+#define ARDUINOJSON_USE_LONG_LONG  1
+// for decoding UTF8/UNICODE
+#define ARDUINOJSON_DECODE_UNICODE 1 
 #include <ArduinoJson.h>
 #include "CTBot.h"
 #include "Utilities.h"
+
+// const strings for memory optimization
+
 
 CTBot::CTBot() {
 	m_lastUpdate          = 0;  // not updated yet
@@ -17,7 +23,7 @@ String CTBot::sendCommand(String command, String parameters)
 {
 
 	// must filter command + parameters from escape sequences and spaces
-	const String URL = "GET /bot" + m_token + (String)"/" + command + parameters;
+	const String URL = (String)"GET /bot" + m_token + (String)"/" + command + parameters;
 
 	// send the HTTP request
 	return(m_connection.send(URL));
@@ -83,27 +89,59 @@ bool CTBot::getMe(TBUser &user) {
 		return false;
 
 #if CTBOT_BUFFER_SIZE > 0
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	StaticJsonDocument<CTBOT_BUFFER_SIZE> root;
+#endif
 #else
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	DynamicJsonBuffer jsonBuffer;
 #endif
-	JsonObject& root = jsonBuffer.parse(response);
 
-	bool ok = root["ok"];
-	if (!ok) {
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DynamicJsonDocument root(DYNAMIC_JSON6_SIZE);
+#endif
+#endif
+
+#if ARDUINOJSON_VERSION_MAJOR == 5
+	JsonObject& root = jsonBuffer.parse(response);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DeserializationError error = deserializeJson(root, response);
+	if (error) {
+		serialLog("getNewMessage error: ArduinoJson deserialization error code: ");
+		serialLog(error.c_str());
+		serialLog("\n");
+		return CTBotMessageNoData;
+	}
+#endif
+
+
+	if (!root["ok"]) {
 #if CTBOT_DEBUG_MODE > 0
-		serialLog("getMe error:");
-		root.printTo(Serial);
+		serialLog("getMe error:\n");
+#if ARDUINOJSON_VERSION_MAJOR == 5
+		root.prettyPrintTo(Serial);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+		serializeJsonPretty(root, Serial);
+#endif
 		serialLog("\n");
 #endif
 		return false;
 	}
 
 #if CTBOT_DEBUG_MODE > 0
-	root.printTo(Serial);
+#if ARDUINOJSON_VERSION_MAJOR == 5
+	root.prettyPrintTo(Serial);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	serializeJsonPretty(root, Serial);
+#endif
 	serialLog("\n");
 #endif
-
 	user.id           = root["result"]["id"];
 	user.isBot        = root["result"]["is_bot"];
 	user.firstName    = root["result"]["first_name"].as<String>();
@@ -113,7 +151,7 @@ bool CTBot::getMe(TBUser &user) {
 	return true;
 }
 
-CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
+CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
 	char buf[21];
 
 	message.messageType = CTBotMessageNoData;
@@ -122,32 +160,56 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 	// polling timeout: add &timeout=<seconds>
 	// default is zero (short polling).
 	String parameters = "?limit=1&allowed_updates=message,callback_query";
+
 	if (m_lastUpdate != 0)
-		parameters += "&offset=" + (String)buf;
+		parameters += (String)"&offset=" + (String)buf;
 	String response = sendCommand("getUpdates", parameters);
 	if (response.length() == 0) {
-#if CTBOT_DEBUG_MODE > 0
 		serialLog("getNewMessage error: response with no data\n");
-#endif
 		return CTBotMessageNoData;
 	}
 
 #if CTBOT_BUFFER_SIZE > 0
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	StaticJsonDocument<CTBOT_BUFFER_SIZE> root;
+#endif
 #else
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	DynamicJsonBuffer jsonBuffer;
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DynamicJsonDocument root(DYNAMIC_JSON6_SIZE);
+#endif
 #endif
 
 	if (m_UTF8Encoding)
 		response = toUTF8(response);
 
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	JsonObject& root = jsonBuffer.parse(response);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DeserializationError error = deserializeJson(root, response);
+	if (error) {
+		serialLog("getNewMessage error: ArduinoJson deserialization error code: ");
+		serialLog(error.c_str());
+		serialLog("\n");
+		return CTBotMessageNoData;
+    }
+#endif
 
-	bool ok = root["ok"];
-	if (!ok) {
+	if (!root["ok"]) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("getNewMessage error: ");
+#if ARDUINOJSON_VERSION_MAJOR == 5
 		root.prettyPrintTo(Serial);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+		serializeJsonPretty(root, Serial);
+#endif
 		serialLog("\n");
 #endif
 		return CTBotMessageNoData;
@@ -155,16 +217,21 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 
 #if CTBOT_DEBUG_MODE > 0
 	serialLog("getNewMessage JSON: ");
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	root.prettyPrintTo(Serial);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	serializeJsonPretty(root, Serial);
+#endif
 	serialLog("\n");
 #endif
 
 	uint32_t updateID = root["result"][0]["update_id"].as<int32_t>();
-	if (updateID == 0)
+	if (0 == updateID)
 		return CTBotMessageNoData;
 	m_lastUpdate = updateID + 1;
 
-	if (root["result"][0]["callback_query"]["id"] != 0) {
+	if (root["result"][0]["callback_query"]["id"]) {
 		// this is a callback query
 		message.messageID         = root["result"][0]["callback_query"]["message"]["message_id"].as<int32_t>();
 		message.text              = root["result"][0]["callback_query"]["message"]["text"].as<String>();
@@ -179,7 +246,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.messageType       = CTBotMessageQuery;
 		return CTBotMessageQuery;
 	}
-	else if (root["result"][0]["message"]["message_id"] != 0) {
+	else if (root["result"][0]["message"]["message_id"]) {
 		// this is a message
 		message.messageID        = root["result"][0]["message"]["message_id"].as<int32_t>();
 		message.sender.id        = root["result"][0]["message"]["from"]["id"].as<int32_t>();
@@ -189,21 +256,26 @@ CTBotMessageType CTBot::getNewMessage(TBMessage &message) {
 		message.group.id         = root["result"][0]["message"]["chat"]["id"].as<int64_t>();
 		message.group.title      = root["result"][0]["message"]["chat"]["title"].as<String>();
 		message.date             = root["result"][0]["message"]["date"].as<int32_t>();
-		
+
+#if ARDUINOJSON_VERSION_MAJOR == 5
 		if (root["result"][0]["message"]["text"].as<String>().length() != 0) {
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+			if (root["result"][0]["message"]["text"]) {
+#endif
 			// this is a text message
 		    message.text        = root["result"][0]["message"]["text"].as<String>();		    
 			message.messageType = CTBotMessageText;
 			return CTBotMessageText;
 		}
-		else if (root["result"][0]["message"]["location"] != 0) {
+		else if (root["result"][0]["message"]["location"]) {
 			// this is a location message
 			message.location.longitude = root["result"][0]["message"]["location"]["longitude"].as<float>();
-			message.location.latitude = root["result"][0]["message"]["location"]["latitude"].as<float>();
+			message.location.latitude  = root["result"][0]["message"]["location"]["latitude"].as<float>();
 			message.messageType = CTBotMessageLocation;
 			return CTBotMessageLocation;
 		}
-		else if (root["result"][0]["message"]["contact"] != 0) {
+		else if (root["result"][0]["message"]["contact"]) {
 			// this is a contact message
 			message.contact.id          = root["result"][0]["message"]["contact"]["user_id"].as<int32_t>();
 			message.contact.firstName   = root["result"][0]["message"]["contact"]["first_name"].as<String>();
@@ -225,7 +297,7 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 
 	String strID = int64ToAscii(id);
 
-	message = URLEncodeMessage(message); //-------------------------------------------------------------------------------------------------------------------------------------
+	message = URLEncodeMessage(message);
 
 	String parameters = (String)"?chat_id=" + strID + (String)"&text=" + message;
 
@@ -234,24 +306,49 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 
 	String response = sendCommand("sendMessage", parameters);
 	if (response.length() == 0) {
-#if CTBOT_DEBUG_MODE > 0
 		serialLog("SendMessage error: response with no data\n");
-#endif
 		return false;
 	}
 
 #if CTBOT_BUFFER_SIZE > 0
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	StaticJsonDocument<CTBOT_BUFFER_SIZE> root;
+#endif
 #else
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	DynamicJsonBuffer jsonBuffer;
 #endif
-	JsonObject& root = jsonBuffer.parse(response);
 
-	bool ok = root["ok"];
-	if (!ok) {
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DynamicJsonDocument root(DYNAMIC_JSON6_SIZE);
+#endif
+#endif
+
+#if ARDUINOJSON_VERSION_MAJOR == 5
+	JsonObject& root = jsonBuffer.parse(response);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DeserializationError error = deserializeJson(root, response);
+	if (error) {
+		serialLog("getNewMessage error: ArduinoJson deserialization error code: ");
+		serialLog(error.c_str());
+		serialLog("\n");
+		return CTBotMessageNoData;
+	}
+#endif
+
+	if (!root["ok"]) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("SendMessage error: ");
+#if ARDUINOJSON_VERSION_MAJOR == 5
 		root.prettyPrintTo(Serial);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+		serializeJsonPretty(root, Serial);
+#endif
 		serialLog("\n");
 #endif
 		return false;
@@ -259,7 +356,12 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 
 #if CTBOT_DEBUG_MODE > 0
 	serialLog("SendMessage JSON: ");
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	root.prettyPrintTo(Serial);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	serializeJsonPretty(root, Serial);
+#endif
 	serialLog("\n");
 #endif
 
@@ -280,40 +382,71 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 		return false;
 
 	String parameters = (String)"?callback_query_id=" + queryID;
-
 	if (message.length() != 0) {
-		
-		message = URLEncodeMessage(message); //---------------------------------------------------------------------------------------------------------------------------------
-
+		message = URLEncodeMessage(message);
+		parameters += (String)"&text=" + message;
 		if (alertMode)
-			parameters += (String)"&text=" + message + (String)"&show_alert=true";
+//			parameters += (String)"&text=" + message + (String)"&show_alert=true";
+			parameters += (String)"&show_alert=true";
 		else
-			parameters += (String)"&text=" + message + (String)"&show_alert=false";
+//			parameters += (String)"&text=" + message + (String)"&show_alert=false";
+			parameters += (String)"&show_alert=false";
 	}
-
 	String response = sendCommand("answerCallbackQuery", parameters);
 	if (response.length() == 0)
 		return false;
 
 #if CTBOT_BUFFER_SIZE > 0
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	StaticJsonDocument<CTBOT_BUFFER_SIZE> root;
+#endif
 #else
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	DynamicJsonBuffer jsonBuffer;
 #endif
-	JsonObject& root = jsonBuffer.parse(response);
 
-	bool ok = root["ok"];
-	if (!ok) {
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DynamicJsonDocument root(DYNAMIC_JSON6_SIZE);
+#endif
+#endif
+
+#if ARDUINOJSON_VERSION_MAJOR == 5
+	JsonObject& root = jsonBuffer.parse(response);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DeserializationError error = deserializeJson(root, response);
+	if (error) {
+		serialLog("getNewMessage error: ArduinoJson deserialization error code: ");
+		serialLog(error.c_str());
+		serialLog("\n");
+		return CTBotMessageNoData;
+	}
+#endif
+
+	if (!root["ok"]) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("answerCallbackQuery error:");
+#if ARDUINOJSON_VERSION_MAJOR == 5
 		root.prettyPrintTo(Serial);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+		serializeJsonPretty(root, Serial);
+#endif
 		serialLog("\n");
 #endif
 		return false;
 	}
 
 #if CTBOT_DEBUG_MODE > 0
-	root.printTo(Serial);
+#if ARDUINOJSON_VERSION_MAJOR == 5
+	root.prettyPrintTo(Serial);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	serializeJsonPretty(root, Serial);
+#endif
 	serialLog("\n");
 #endif
 
@@ -322,14 +455,30 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 
 bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
 {
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	DynamicJsonBuffer jsonBuffer;
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DynamicJsonDocument root(DYNAMIC_JSON6_SIZE);
+#endif
+
 	String command;
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	JsonObject& root = jsonBuffer.createObject();
+#endif
+
 	root["remove_keyboard"] = true;
 	if (selective) {
 		root["selective"] = true;
 	}
+
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	root.printTo(command);
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	serializeJson(root, command);
+#endif
+
 	return sendMessage(id, message, command);
 }
 

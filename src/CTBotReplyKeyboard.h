@@ -2,9 +2,13 @@
 #ifndef CTBOT_REPLY_KEYBOARD
 #define CTBOT_REPLY_KEYBOARD
 
-#define ARDUINOJSON_USE_LONG_LONG 1 // for using int_64 data
+// for using int_64 data
+#define ARDUINOJSON_USE_LONG_LONG  1
+// for decoding UTF8/UNICODE
+#define ARDUINOJSON_DECODE_UNICODE 1 
 #include <ArduinoJson.h>
 #include <Arduino.h>
+#include "CTBotDefines.h"
 
 enum CTBotReplyKeyboardButtonType {
 	CTBotKeyboardButtonSimple   = 1,
@@ -16,12 +20,19 @@ enum CTBotReplyKeyboardButtonType {
 class CTBotReplyKeyboard
 {
 private:
+#if ARDUINOJSON_VERSION_MAJOR == 5
 	DynamicJsonBuffer m_jsonBuffer;
-	JsonObject *m_root;
-	JsonArray  *m_rows;
-	JsonArray  *m_buttons;
-	bool m_isRowEmpty;
+	JsonObject* m_root;
+	JsonArray* m_rows;
+	JsonArray* m_buttons;
+#endif
+#if ARDUINOJSON_VERSION_MAJOR == 6
+	DynamicJsonDocument* m_root;
+	JsonArray m_rows;
+	JsonArray m_buttons;
+#endif
 
+	bool m_isRowEmpty;
 	void initialize(void);
 
 public:

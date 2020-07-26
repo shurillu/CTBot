@@ -33,8 +33,13 @@ String URLEncodeMessage(String message);
 inline void serialLog(String message) {
 	Serial.print(message);
 }
+inline void serialLog(int32_t value) {
+	Serial.print(value);
+}
+
 #else
 inline void serialLog(String) {}
+inline void serialLog(int32_t) {}
 #endif
 
 #endif

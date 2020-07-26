@@ -158,7 +158,9 @@ void loop() {
             isKeyboardActive = false;
           } else {
             // print every others messages received
-            myBot.sendMessage(msg, msg.text);
+            String reply = "bot> ";
+        	  reply += msg.text;
+            myBot.sendMessage(msg, reply);
           }
         } 
 

@@ -1,11 +1,10 @@
+#include <WiFiClientSecure.h>
 #include "CTBotSecureConnection.h"
 #include "Utilities.h"
-#include <WiFiClientSecure.h>
 
 constexpr const char* const TELEGRAM_URL = "api.telegram.org";
 constexpr const char* const TELEGRAM_IP = "149.154.167.220";
 constexpr uint32_t TELEGRAM_PORT = 443;
-
 
 CTBotSecureConnection::CTBotSecureConnection() {
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
@@ -37,7 +36,12 @@ void CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint)
 
 void CTBotSecureConnection::setStatusPin(int8_t pin)
 {
+	// check if a previous status pin was declared and put it in high impedance
+	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
+		pinMode(m_statusPin, INPUT);
 	m_statusPin = pin;
+	pinMode(m_statusPin, OUTPUT);
+
 }
 
 String CTBotSecureConnection::send(const String& message) const
@@ -53,6 +57,10 @@ String CTBotSecureConnection::send(const String& message) const
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
 	WiFiClientSecure telegramServer;
 	serialLog("ESP32");
+#endif
+
+#if defined(ARDUINO_ARCH_ESP8266) // only for ESP8266 reduce drastically the heap usage
+	telegramServer.setBufferSizes(CTBOT_JSON5_TCP_BUFFER_SIZE, CTBOT_JSON5_TCP_BUFFER_SIZE);
 #endif
 
 	// check for using symbolic URLs

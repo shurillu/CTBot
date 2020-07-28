@@ -12,19 +12,21 @@ void CTBotInlineKeyboard::initialize()
 	m_buttons = &buttons;
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
-	m_rows = m_root->createNestedArray((String)"inline_keyboard");
+	m_rows = m_root->createNestedArray("inline_keyboard");
 	m_buttons = m_rows.createNestedArray();
 #endif
+
 	m_isRowEmpty = true;
 }
 
 CTBotInlineKeyboard::CTBotInlineKeyboard()
 {
 #if ARDUINOJSON_VERSION_MAJOR == 6
-	m_root = new DynamicJsonDocument(DYNAMIC_JSON6_SIZE);
+	m_root = new DynamicJsonDocument(CTBOT_JSON6_BUFFER_SIZE);
 	if (!m_root)
 		serialLog("CTBotInlineKeyboard: Unable to allocate JsonDocument memory.\n");
 #endif
+
 	initialize();
 }
 
@@ -42,6 +44,7 @@ void CTBotInlineKeyboard::flushData()
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	m_root->clear();
 #endif
+
 	initialize();
 }
 
@@ -57,6 +60,7 @@ bool CTBotInlineKeyboard::addRow()
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	m_buttons = m_rows.createNestedArray();
 #endif
+
 	m_isRowEmpty = true;
 	return true;
 }
@@ -76,12 +80,10 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 
 	text = URLEncodeMessage(text);
 	button["text"] = text;
-
 	if (CTBotKeyboardButtonURL == buttonType) 
 		button["url"] = command;
 	else if (CTBotKeyboardButtonQuery == buttonType) 
 		button["callback_data"] = command;
-
 	if (m_isRowEmpty)
 		m_isRowEmpty = false;
 	return true;
@@ -90,12 +92,14 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 String CTBotInlineKeyboard::getJSON() const
 {
 	String serialized;
+
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	m_root->printTo(serialized);
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	serializeJson(*m_root, serialized);
 #endif
+
 	return serialized;
 }
 

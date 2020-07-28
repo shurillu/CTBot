@@ -12,16 +12,17 @@ void CTBotReplyKeyboard::initialize()
 	m_buttons = &buttons;
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
-	m_rows = m_root->createNestedArray((String)"keyboard");
+	m_rows = m_root->createNestedArray("keyboard");
 	m_buttons = m_rows.createNestedArray();
 #endif
+
 	m_isRowEmpty = true;
 }
 
 CTBotReplyKeyboard::CTBotReplyKeyboard()
 {
 #if ARDUINOJSON_VERSION_MAJOR == 6
-	m_root = new DynamicJsonDocument(DYNAMIC_JSON6_SIZE);
+	m_root = new DynamicJsonDocument(CTBOT_JSON6_BUFFER_SIZE);
 	if (!m_root)
 		serialLog("CTBotInlineKeyboard: Unable to allocate JsonDocument memory.\n");
 #endif
@@ -42,6 +43,7 @@ void CTBotReplyKeyboard::flushData()
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	m_root->clear();
 #endif
+
 	initialize();
 }
 
@@ -77,7 +79,7 @@ bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType but
 #endif
 
 	text = URLEncodeMessage(text);
-	button[(String)"text"] = text;
+	button["text"] = text;
 
 	if (CTBotKeyboardButtonContact == buttonType)
 		button["request_contact"] = true;
@@ -90,30 +92,15 @@ bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType but
 }
 
 void CTBotReplyKeyboard::enableResize() {
-#if ARDUINOJSON_VERSION_MAJOR == 5
 	(*m_root)["resize_keyboard"] = true;
-#endif
-#if ARDUINOJSON_VERSION_MAJOR == 6
-	(*m_root)["resize_keyboard"] = true;
-#endif
 }
 
 void CTBotReplyKeyboard::enableOneTime() {
-#if ARDUINOJSON_VERSION_MAJOR == 5
 	(*m_root)["one_time_keyboard"] = true;
-#endif
-#if ARDUINOJSON_VERSION_MAJOR == 6
-	(*m_root)["one_time_keyboard"] = true;
-#endif
 }
 
 void CTBotReplyKeyboard::enableSelective() {
-#if ARDUINOJSON_VERSION_MAJOR == 5
 	(*m_root)["selective"] = true;
-#endif
-#if ARDUINOJSON_VERSION_MAJOR == 6
-	(*m_root)["selective"] = true;
-#endif
 }
 
 String CTBotReplyKeyboard::getJSON() const

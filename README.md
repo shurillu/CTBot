@@ -47,6 +47,7 @@ A special thanks go to these people who helped me making this library
 + [x] ArduinoJSON 6 support
 
 ### Changelog
++ 2.1.1 Memory optimization
 + 2.1.0 ArduinoJSON 5 and 6 support
 + 2.0.0 ESP32 support
 + 1.4.1 New Telegram Server IP and fingerprint update

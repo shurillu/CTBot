@@ -1,5 +1,6 @@
 // for using int_64 data
-#define ARDUINOJSON_USE_LONG_LONG 1 
+#define ARDUINOJSON_USE_LONG_LONG   1 
+#define ARDUINOJSON_DECODE_UNICODE  1
 #include <ArduinoJson.h>
 #include "AsyncTelegram.h"
 #include "Utilities.h"
@@ -22,7 +23,6 @@
 #define TELEGRAM_PORT 443
 // get fingerprints from https://www.grc.com/fingerprints.htm
 uint8_t fingerprint[20] = { 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 };
-
 
 AsyncTelegram::AsyncTelegram() {
 	setFingerprint(fingerprint);   // set the default fingerprint	
@@ -62,7 +62,7 @@ String AsyncTelegram::postCommand(const char* const& command, const char* const&
 		request += param;
 		telegramClient.print(request);
 
-		serialLogn(request);		
+		//serialLogn(request);		
 
 		httpData.waitingReply = true;
 		// Blocking mode
@@ -262,23 +262,13 @@ MessageType AsyncTelegram::getNewMessage(TBMessage &message )
 			message.sender.firstName  = root["result"][0]["callback_query"]["from"]["first_name"];
 			message.sender.lastName   = root["result"][0]["callback_query"]["from"]["last_name"];
 			message.messageID         = root["result"][0]["callback_query"]["message"]["message_id"];
-			message.text              = root["result"][0]["callback_query"]["message"]["text"];
+			message.text              = root["result"][0]["callback_query"]["message"]["text"].as<String>();
 			message.date              = root["result"][0]["callback_query"]["message"]["date"];
 			message.chatInstance      = root["result"][0]["callback_query"]["chat_instance"];
 			message.callbackQueryData = root["result"][0]["callback_query"]["data"];
 			message.messageType       = MessageQuery;	
-			
-			/*
-			int buttonId = m_inlineKeyboard.getButtonId(message.callbackQueryData);			
-			if( buttonId > -1){
-				//Serial.print("Button name: ");
-				//Serial.println(m_inlineKeyboard.getButtonName(buttonId));
-				m_inlineKeyboard.runButtonCallback(buttonId, message);
-			}
-			*/
 			m_inlineKeyboard.checkCallback(message);
-			
-
+		
 		}	
 		else if(root["result"][0]["message"]["message_id"]){
 			// this is a message
@@ -308,7 +298,7 @@ MessageType AsyncTelegram::getNewMessage(TBMessage &message )
 			}		
 			else if (root["result"][0]["message"]["text"]) {
 				// this is a text message
-				message.text        = root["result"][0]["message"]["text"];		    
+				message.text        = root["result"][0]["message"]["text"].as<String>();		    
 				message.messageType = MessageText;			
 			}
 		}
@@ -411,6 +401,10 @@ void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, Strin
 }
 
 
+void AsyncTelegram::sendMessage(const TBMessage &msg, String message, String keyboard) {
+	return sendMessage(msg, message.c_str(), keyboard);
+}
+
 void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, InlineKeyboard &keyboard) {
 	m_inlineKeyboard = keyboard;
 	return sendMessage(msg, message, keyboard.getJSON());
@@ -421,28 +415,6 @@ void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, Reply
 	return sendMessage(msg, message, keyboard.getJSON());
 }
 
-
-void AsyncTelegram::sendMessage(const TBMessage &msg, String &message, String keyboard) {
-	return sendMessage(msg, message.c_str(), keyboard);
-}
-
-void AsyncTelegram::endQuery(int queryId, const char* message, bool alertMode) {
-	if (queryId == 0)
-		return;
-	DynamicJsonDocument root(BUFFER_SMALL);
-	root["callback_query_id"] =  String(queryId);
-	if (sizeof(message) != 0) {
-		root["text"] = message;
-		if (alertMode) 
-			root["show_alert"] = true;
-		else
-			root["show_alert"] = false;
-	}
-	String param((char *)0);
-	//param.reserve(128);
-	serializeJson(root, param);
-	sendCommand("answerCallbackQuery", param.c_str());
-}
 
 void AsyncTelegram::endQuery(const TBMessage &msg, const char* message, bool alertMode) {
 	if (sizeof(msg.callbackQueryID) == 0)

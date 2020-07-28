@@ -48,10 +48,10 @@ struct TBMessage {
 	TBUser           sender;
 	TBGroup          group;
 	int32_t          date;
-	const char*      text;
-	const char*      chatInstance;
+	String      	 text;
+	int32_t          chatInstance;
 	const char*      callbackQueryData;
-	const char*      callbackQueryID;
+	const char*   	 callbackQueryID;
 	TBLocation       location;
 	TBContact        contact;
 	MessageType 	 messageType;

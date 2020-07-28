@@ -93,13 +93,13 @@ public:
 
 	// send a message to the specified telegram user ID
 	// params
-	//   id      : the telegram recipient user ID 
+	//   msg      : the TBMessage telegram recipient with user ID 
 	//   message : the message to send
 	//   keyboard: the inline/reply keyboard (optional)
 	//             (in json format or using the inlineKeyboard/ReplyKeyboard class helper)
 	
 	void sendMessage(const TBMessage &msg, const char* message, String keyboard = "");
-	void sendMessage(const TBMessage &msg, String &message, String keyboard = "");
+	void sendMessage(const TBMessage &msg, String message, String keyboard = "");
 	
 	void sendMessage(const TBMessage &msg, const char* message, InlineKeyboard &keyboard);	
 	void sendMessage(const TBMessage &msg, const char* message, ReplyKeyboard  &keyboard);
@@ -110,16 +110,15 @@ public:
 	// 2) wait for a <message> (getNewMessage) of type MessageQuery
 	// 3) handle the query and then call endQuery with <message>.callbackQueryID 
 	// params
-	//   queryID  : the unique query ID (retrieved with getNewMessage method)
+	//   msg  : the TBMessage telegram recipient with unique query ID (retrieved with getNewMessage method)
 	//   message  : an optional message
 	//   alertMode: false -> a simply popup message
 	//              true --> an alert message with ok button
-	void endQuery(int queryId, const char* message, bool alertMode = false);
 	void endQuery(const TBMessage &msg, const char* message, bool alertMode = false);
 
 	// remove an active reply keyboard for a selected user, sending a message
 	// params:
-	//   id       : the telegram user ID 
+	//   msg      : the TBMessage telegram recipient with the telegram user ID 
 	//   message  : the message to be show to the selected user ID
 	//   selective: enable selective mode (hide the keyboard for specific users only)
 	//              Targets: 1) users that are @mentioned in the text of the Message object; 

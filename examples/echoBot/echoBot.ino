@@ -43,9 +43,10 @@ void loop() {
 	TBMessage msg;
 
 	// if there is an incoming message...
-	if (myBot.getNewMessage(msg))
+	if (myBot.getNewMessage(msg)){
 		// ...forward it to the sender
 		String reply = "bot> ";
-        	reply += msg.text;
+		reply += msg.text;
 		myBot.sendMessage(msg, msg.text);
+	}
 }

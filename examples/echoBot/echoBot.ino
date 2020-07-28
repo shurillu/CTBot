@@ -42,11 +42,11 @@ void setup() {
 
 void loop() {
 
-    static uint32_t ledTime = millis();
-    if (millis() - ledTime > 150) {
-        ledTime = millis();
-        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-    }
+	static uint32_t ledTime = millis();
+	if (millis() - ledTime > 150) {
+		ledTime = millis();
+		digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+	}
 
 	// a variable to store telegram message data
 	TBMessage msg;

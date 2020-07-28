@@ -18,8 +18,7 @@ const char* ssid = "XXXXXXXX";     		// REPLACE mySSID WITH YOUR WIFI SSID
 const char* pass = "XXXXXXXX";     		// REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
 const char* token = "XXXXXXXXXXXXXXXXXXXX";   	// REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
-uint8_t led = 2;            // the onboard ESP8266 LED.                                
-                            // (if supported from you board replace 2 with BUILTIN_LED)							
+const uint8_t LED = LED_BUILTIN;
 
 void setup() {
 	// initialize the Serial
@@ -37,7 +36,7 @@ void setup() {
 	}
 
 	// Set the Telegram bot properies
-	myBot.setUpdateTime(2000);
+	myBot.setUpdateTime(1000);
 	myBot.setTelegramToken(token);
 	
 	// Check if all things are ok
@@ -45,8 +44,8 @@ void setup() {
 	myBot.begin() ? Serial.println("OK") : Serial.println("NOK");
 
 	// set the pin connected to the LED to act as output pin
-	pinMode(led, OUTPUT);
-	digitalWrite(led, HIGH); // turn off the led (inverted logic!)
+	pinMode(LED, OUTPUT);
+	digitalWrite(LED, HIGH); // turn off the led (inverted logic!)
 
 }
 
@@ -57,12 +56,12 @@ void loop() {
 	// if there is an incoming message...
 	if (myBot.getNewMessage(msg)) {
 
-		if (strstr(msg.text, "LIGHT ON")) {      // if the received message is "LIGHT ON"...
-			digitalWrite(led, LOW);                           // turn on the LED (inverted logic!)
+		if (msg.text.equalsIgnoreCase("LIGHT ON")) {      // if the received message is "LIGHT ON"...
+			digitalWrite(LED, LOW);                           // turn on the LED (inverted logic!)
 			myBot.sendMessage(msg, "Light is now ON");        // notify the sender
 		}
-		else if (strstr(msg.text, "LIGHT OFF")) {        // if the received message is "LIGHT OFF"...
-			digitalWrite(led, HIGH);                          // turn off the led (inverted logic!)
+		else if (msg.text.equalsIgnoreCase("LIGHT OFF")) {        // if the received message is "LIGHT OFF"...
+			digitalWrite(LED, HIGH);                          // turn off the led (inverted logic!)
 			myBot.sendMessage(msg, "Light is now OFF");       // notify the sender
 		}
 		else {                                                    // otherwise...
@@ -70,7 +69,7 @@ void loop() {
 			String reply;
 			reply = "Welcome " ;
 			reply += msg.sender.username;
-			reply += ". Try LIGHT ON or LIGHT OFF.";
+			reply += ".\nTry LIGHT ON or LIGHT OFF (case insensitive)";
 			myBot.sendMessage(msg, reply);             // and send it
 		}
 	}

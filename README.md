@@ -40,6 +40,7 @@ A special thanks go to these people who helped me making this library
 + Marco Madlena
 + [michaelzs85](https://github.com/michaelzs85)
 + [Di-Strix](https://github.com/Di-Strix)
++ [ElVasquito](https://github.com/ElVasquito)
 
 ### Future work
 + [x] Add Telegram inline keyboards

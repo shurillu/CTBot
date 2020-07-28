@@ -16,9 +16,9 @@
 AsyncTelegram myBot;
 InlineKeyboard myInlineKbd1, myInlineKbd2; // inline keyboards object helper
 
-//const char* ssid = "XXXXXXXX";     // REPLACE mySSID WITH YOUR WIFI SSID
-//const char* pass = "XXXXXXXX";     // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-//const char* token = "XXXXXXXXXXXXXXXXXXXX";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+const char* ssid = "XXXXXXXX";     // REPLACE mySSID WITH YOUR WIFI SSID
+const char* pass = "XXXXXXXX";     // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+const char* token = "XXXXXXXXXXXXXXXXXXXX";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
 #define LIGHT_ON_CALLBACK  "lightON"   // callback data sent when "LIGHT ON" button is pressed
 #define LIGHT_OFF_CALLBACK "lightOFF"  // callback data sent when "LIGHT OFF" button is pressed
@@ -113,7 +113,7 @@ void setup() {
   // add a button that will turn off LED on pin assigned
   myInlineKbd1.addButton("OFF", LIGHT_OFF_CALLBACK, KeyboardButtonQuery, offPressed);
   // add a new empty button row
-  myInlineKbd.addRow();
+  myInlineKbd1.addRow();
   // add a button that will open browser pointing to this GitHub repository
   myInlineKbd1.addButton("GitHub", "https://github.com/cotestatnt/AsyncTelegram/", KeyboardButtonURL);
   

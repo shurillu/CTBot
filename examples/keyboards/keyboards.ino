@@ -75,7 +75,7 @@ void setup() {
   }
 
   // Set the Telegram bot properies
-  myBot.setUpdateTime(3000);
+  myBot.setUpdateTime(1000);
   myBot.setTelegramToken(token);
 
   // Check if all things are ok
@@ -158,9 +158,7 @@ void loop() {
             isKeyboardActive = false;
           } else {
             // print every others messages received
-            String reply = "bot> ";
-        	  reply += msg.text;
-            myBot.sendMessage(msg, reply);
+            myBot.sendMessage(msg, msg.text);
           }
         } 
 
@@ -181,14 +179,14 @@ void loop() {
           Serial.println("\nSet light ON");
           digitalWrite(LED, HIGH);
           // terminate the callback with an alert message
-          myBot.endQuery(msg.callbackQueryID, "Light on", true);
+          myBot.endQuery(msg, "Light on", true);
         } 
         else if (tgReply.equalsIgnoreCase(LIGHT_OFF_CALLBACK)) {
           // pushed "LIGHT OFF" button...
           Serial.println("\nSet light OFF");
           digitalWrite(LED, LOW);
           // terminate the callback with a popup message
-          myBot.endQuery(msg.callbackQueryID, "Light off");
+          myBot.endQuery(msg, "Light off");
         }
         
         break;

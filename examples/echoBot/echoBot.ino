@@ -12,8 +12,10 @@ AsyncTelegram myBot;
 const char* ssid = "XXXXXXXX";     				// REPLACE mySSID WITH YOUR WIFI SSID
 const char* pass = "XXXXXXXX";     				// REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
 const char* token = "XXXXXXXXXXXXXXXXXXXX";   	// REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+const uint8_t LED = 4;
 
 void setup() {
+     pinMode(LED_BUILTIN, OUTPUT);
 	// initialize the Serial
 	Serial.begin(115200);
 	Serial.println("Starting TelegramBot...");
@@ -39,14 +41,18 @@ void setup() {
 }
 
 void loop() {
+
+    static uint32_t ledTime = millis();
+    if (millis() - ledTime > 150) {
+        ledTime = millis();
+        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    }
+
 	// a variable to store telegram message data
 	TBMessage msg;
 
 	// if there is an incoming message...
-	if (myBot.getNewMessage(msg)){
-		// ...forward it to the sender
-		String reply = "bot> ";
-		reply += msg.text;
-		myBot.sendMessage(msg, msg.text);
-	}
+	if (myBot.getNewMessage(msg)){		
+		myBot.sendMessage(msg, msg.text);		
+    }
 }

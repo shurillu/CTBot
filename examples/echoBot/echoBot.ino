@@ -1,17 +1,23 @@
 /*
- Name:		    echoBot.ino
+ Name:	      echoBot.ino
  Created:     20/06/2020
  Author:      Tolentino Cotesta <cotestatnt@yahoo.com>
  Description: a simple example that check for incoming messages
-              and reply the sender with the received message
+              and reply the sender with the received message.
+	      The message will be forwarded also in a public channel
+	      and to a specific userid.
 */
 #include <Arduino.h>
 #include "AsyncTelegram.h"
 AsyncTelegram myBot;
 
-const char* ssid = "XXXXXXXX";     				// REPLACE mySSID WITH YOUR WIFI SSID
-const char* pass = "XXXXXXXX";     				// REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+const char* ssid = "XXXXXXXX";     		// REPLACE mySSID WITH YOUR WIFI SSID
+const char* pass = "XXXXXXXX";     		// REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
 const char* token = "XXXXXXXXXXXXXXXXXXXX";   	// REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+
+// Name of public channel (your bot must be in admin group)
+const char* channel = "@tolentino_cotesta";	
+
 const uint8_t LED = 4;
 
 void setup() {
@@ -37,7 +43,9 @@ void setup() {
 	// Check if all things are ok
 	Serial.print("\nTest Telegram connection... ");
 	myBot.begin() ? Serial.println("OK") : Serial.println("NOK");
-
+	
+	Serial.print("Bot name: @");	
+	Serial.println(myBot.userName);
 }
 
 void loop() {
@@ -53,6 +61,24 @@ void loop() {
 
 	// if there is an incoming message...
 	if (myBot.getNewMessage(msg)){		
-		myBot.sendMessage(msg, msg.text);		
+
+		// Send a message to your public channel
+		String message ;		
+		message += "Message from @";
+		message += myBot.userName;
+		message += ":\n";
+		message += msg.text;
+		Serial.println(message);		
+		myBot.sendToChannel(channel, message, true);		
+
+		// Send a message to specific user who has started your bot
+		// Target user can find it's own userid with the bot @JsonDumpBot 
+		// https://t.me/JsonDumpBot 				
+		int32_t userid = 1234567890;	
+		myBot.sendToUser(userid, msg.text);	
+
+		// echo the received message
+		myBot.sendMessage(msg, msg.text);				
     }
 }
+

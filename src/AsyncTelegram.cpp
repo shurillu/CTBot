@@ -332,6 +332,7 @@ bool AsyncTelegram::begin(){
 }
 
 
+
 // Blocking getMe function (we wait for a reply from Telegram server)
 bool AsyncTelegram::getMe(TBUser &user) {
 	String response((char *)0);
@@ -367,6 +368,7 @@ bool AsyncTelegram::getMe(TBUser &user) {
 	user.username     = root["result"]["username"];
 	user.lastName     = root["result"]["last_name"];
 	user.languageCode = root["result"]["language_code"];
+	userName = user.username ;
 	return true;
 }
 
@@ -401,7 +403,7 @@ void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, Strin
 }
 
 
-void AsyncTelegram::sendMessage(const TBMessage &msg, String message, String keyboard) {
+void AsyncTelegram::sendMessage(const TBMessage &msg, String &message, String keyboard) {
 	return sendMessage(msg, message.c_str(), keyboard);
 }
 
@@ -413,6 +415,36 @@ void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, Inlin
 
 void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, ReplyKeyboard &keyboard) {
 	return sendMessage(msg, message, keyboard.getJSON());
+}
+
+
+void AsyncTelegram::sendToUser(const int32_t userid, String &message, String keyboard) {
+	TBMessage msg;
+	msg.sender.id = userid;
+	return sendMessage(msg, message.c_str(), "");
+}
+
+
+void AsyncTelegram::sendToChannel(const char* &channel, String &message, bool silent) {
+	if (sizeof(message) == 0)
+		return;
+	String param((char *)0);
+	param.reserve(512);
+	DynamicJsonDocument root(BUFFER_BIG);	
+
+	root["chat_id"] = channel;
+	root["text"] = message;
+	if(silent)
+		root["silent"] = true;
+	
+	serializeJson(root, param);
+	sendCommand("sendMessage", param.c_str());
+	
+	#if DEBUG_MODE > 0
+	serialLog("SEND message:\n");
+	serializeJsonPretty(root, Serial);
+	serialLog("\n");
+	#endif
 }
 
 

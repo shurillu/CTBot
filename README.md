@@ -1,6 +1,6 @@
 # CTBot
 
-Branch: Master - [![Build Status](https://travis-ci.org/shurillu/CTBot.svg?branch=master)](https://travis-ci.org/shurillu/CTBot)
+Branch: dev - [![Build Status](https://travis-ci.org/shurillu/CTBot.svg?branch=dev)](https://travis-ci.org/shurillu/CTBot)
 
 
 ___

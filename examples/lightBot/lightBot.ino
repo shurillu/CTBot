@@ -36,6 +36,8 @@ void setup() {
 	}
 
 	// Set the Telegram bot properies
+	//if( myBot.updateFingerPrint())
+    //    Serial.println("Telegram fingerprint updated");
 	myBot.setUpdateTime(1000);
 	myBot.setTelegramToken(token);
 	

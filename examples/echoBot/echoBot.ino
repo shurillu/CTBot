@@ -18,10 +18,8 @@ const char* token = "XXXXXXXXXXXXXXXXXXXX";   	// REPLACE myToken WITH YOUR TELE
 // Name of public channel (your bot must be in admin group)
 const char* channel = "@tolentino_cotesta";	
 
-const uint8_t LED = 4;
-
 void setup() {
-     pinMode(LED_BUILTIN, OUTPUT);
+    pinMode(LED_BUILTIN, OUTPUT);
 	// initialize the Serial
 	Serial.begin(115200);
 	Serial.println("Starting TelegramBot...");
@@ -37,15 +35,17 @@ void setup() {
 	}
 
 	// Set the Telegram bot properies
-	myBot.setUpdateTime(2000);
-	myBot.setTelegramToken(token);
-	
-	// Check if all things are ok
-	Serial.print("\nTest Telegram connection... ");
-	myBot.begin() ? Serial.println("OK") : Serial.println("NOK");
-	
-	Serial.print("Bot name: @");	
-	Serial.println(myBot.userName);
+    //if( myBot.updateFingerPrint())
+    //    Serial.println("Telegram fingerprint updated");
+    myBot.setUpdateTime(2000);
+    myBot.setTelegramToken(token);
+    
+    // Check if all things are ok
+    Serial.print("\nTest Telegram connection... ");
+    myBot.begin() ? Serial.println("OK") : Serial.println("NOK");
+    
+    Serial.print("Bot name: @");	
+    Serial.println(myBot.userName);
 }
 
 void loop() {

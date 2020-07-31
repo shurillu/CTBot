@@ -40,6 +40,9 @@ Take a look at the examples provided in the [examples folder](https://github.com
 ### Reference
 [Here how to use the library](https://github.com/cotestatnt/AsyncTelegram/blob/master/REFERENCE.md). 
 
++ 1.0.5   Added possibility to forward a messege to a puclic channel (bot must be one of admins) or to a specific user
++ 1.0.4	  Fixed ArduinoJson ARDUINOJSON_DECODE_UNICODE define
++ 1.0.3   Bug fixes
 + 1.0.2   Added method for update Telegram server fingerprint (with online service https://www.grc.com/fingerprints.htm )
 + 1.0.1   Now is possible assign a callback function for every "inline keyboard button"
 + 1.0.0   Initial version

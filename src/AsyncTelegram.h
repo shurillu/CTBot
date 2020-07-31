@@ -74,7 +74,7 @@ public:
 	//    true if no error occurred
 	bool begin(void);
 
-
+	
 	// reset the connection between ESP8266 and the telegram server (ex. when connection was lost)
 	// returns
 	//    true if no error occurred
@@ -99,11 +99,18 @@ public:
 	//             (in json format or using the inlineKeyboard/ReplyKeyboard class helper)
 	
 	void sendMessage(const TBMessage &msg, const char* message, String keyboard = "");
-	void sendMessage(const TBMessage &msg, String message, String keyboard = "");
+	void sendMessage(const TBMessage &msg, String &message, String keyboard = "");
 	
 	void sendMessage(const TBMessage &msg, const char* message, InlineKeyboard &keyboard);	
 	void sendMessage(const TBMessage &msg, const char* message, ReplyKeyboard  &keyboard);
-	
+
+	// Send message to a channel. This bot must be in the admin group
+	void sendToChannel(const char*  &channel, String &message, bool silent) ;
+
+	// Send message to a specific user. In order to work properly two conditions is needed:
+	// 	- You have to find the userid (for example using the bot @JsonBumpBot  https://t.me/JsonDumpBot)
+	//	- User has to start your bot in it's own client. For example send a message with @<your bot name>
+	void sendToUser(const int32_t userid, String &message, String keyboard = "") ;
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard
@@ -141,8 +148,11 @@ public:
 	//    pollingTime: interval time in milliseconds
 	void setUpdateTime(uint32_t pollingTime);
 
+	String userName	;
+
 private:
-	char*     m_token;
+	const char*   m_token;
+	const char*	  m_botName;
 	int32_t   m_lastUpdate = 0;
 	uint32_t  m_lastUpdateTime;
 	uint32_t  m_minUpdateTime = 2000;
@@ -150,8 +160,8 @@ private:
 	bool      m_useDNS = false;
 	bool      m_UTF8Encoding = false;	
 	uint8_t   m_fingerprint[20];
-	
 	TBUser 	  m_user;
+		
 	InlineKeyboard 	m_inlineKeyboard;	// last inline keyboard showed in bot
 
 	// Struct for store telegram server reply and infos about it

@@ -3,16 +3,21 @@
 #define ASYNCTELEGRAM
 
 #include <Arduino.h>
-#if defined(ESP32)
+#include <FS.h>
+#if defined(ESP32) 
 	#include <WiFi.h>
 	#include <HTTPClient.h>
+	#include "FFat.h"
 #elif defined(ESP8266)	
 	#include <ESP8266WiFi.h>
 	#include <ESP8266HTTPClient.h>
 	#include <WiFiClientSecure.h>
+	#include <LittleFS.h>
 #else
 	#error "This library work only with ESP8266 or ESP32"
 #endif
+
+
 
 #define DEBUG_MODE       	0 			// enable debugmode -> print debug data on the Serial
 #define USE_FINGERPRINT  	1 			// use Telegram fingerprint server validation
@@ -50,6 +55,11 @@ public:
 	// params
 	//   token: the telegram token
 	void setTelegramToken(const char* token);
+
+	void sendPhotoByUrl(const uint32_t& chat_id,  const String& url, const String& caption);
+	
+	bool sendPhotoByFile(const uint32_t& chat_id,  const String& fileName);
+	bool sendPhotoByFile(const TBMessage &msg,  const String& fileName);
 
 
 	bool updateFingerPrint(void);
@@ -196,6 +206,20 @@ private:
 
 	// helper function used to select the properly working mode with ESP8266/ESP32
 	void sendCommand(const char* const&  command, const char* const& param);
+	
+	
+	// upload documents to Telegram server https://core.telegram.org/bots/api#sending-files
+	// params
+	//   command   : the command to send, i.e. getMe
+	//   chat_id   : the char to upload
+	//   filename  : the name of document uploaded
+	//   contentType  : the content type of document uploaded
+	// 	 binaryPropertyName: the type of data
+	// returns
+	//   true if no error
+	bool sendMultipartFormData( const String& command,  const uint32_t& chat_id,
+							const String& fileName, const char* contentType,
+							const char* binaryPropertyName );
 
 	// get some information about the bot
 	// params

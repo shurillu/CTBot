@@ -8,6 +8,7 @@
 #include "InlineKeyboard.h"
 #include "ReplyKeyboard.h"
 
+
 #if DEBUG_MODE 
   #define serialLog(x) Serial.print(x)
   #define serialLogn(x) Serial.println(x)
@@ -18,9 +19,9 @@
   #define SerialBegin(x)
 #endif
 
-#define TELEGRAM_URL  "api.telegram.org"
-#define TELEGRAM_IP   "149.154.167.220" 
-#define TELEGRAM_PORT 443
+#define TELEGRAM_HOST  "api.telegram.org"
+#define TELEGRAM_IP    "149.154.167.220" 
+#define TELEGRAM_PORT   443
 // get fingerprints from https://www.grc.com/fingerprints.htm
 uint8_t fingerprint[20] = { 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 };
 
@@ -34,6 +35,89 @@ AsyncTelegram::AsyncTelegram() {
 }
 
 AsyncTelegram::~AsyncTelegram() {};
+
+
+
+bool AsyncTelegram::sendMultipartFormData( const String& command,  const uint32_t& chat_id, const String& fileName, 
+										   const char* contentType, const char* binaryPropertyName )
+{
+
+	#define BOUNDARY 			"----WebKitFormBoundary7MA4YWxkTrZu0gW"
+	#define END_BOUNDARY 		"\r\n--" BOUNDARY "--\r\n"
+	#define BLOCK_SIZE 			2048
+	
+#if defined(ESP32) 
+	fs::FS fs = FFat;
+#elif defined(ESP8266)	
+	fs::FS fs = LittleFS;
+#endif
+  
+	File myFile = fs.open("/" + fileName, "r");
+	if (!myFile) {
+    	Serial.printf("Failed to open file %s\n", fileName.c_str());
+    	return false;
+ 	}
+
+	if (telegramClient.connected()) {
+		String formData;
+		formData += "--" BOUNDARY;    
+		formData += "\r\nContent-disposition: form-data; name=\"chat_id\"\r\n\r\n";
+		formData += String(chat_id);
+		formData += "\r\n--" BOUNDARY;    
+		formData += "\r\nContent-disposition: form-data; name=\"";
+		formData += binaryPropertyName;
+		formData += "\"; filename=\"";
+		formData += fileName;
+		formData += "\"\r\nContent-Type: ";
+		formData += contentType;
+		formData += "\r\n\r\n";    
+		
+		//Serial.println(formData);
+
+		String uri = "POST /bot";
+		uri += m_token;
+		uri += "/";
+		uri += command;
+		uri += " HTTP/1.1";
+		// Send POST request to host		
+		telegramClient.println(uri);		
+		// Headers
+		telegramClient.println("Host: " TELEGRAM_HOST);    
+		telegramClient.print("Content-Length: ");
+		int contentLength = myFile.size() + formData.length() + String(END_BOUNDARY).length();
+		telegramClient.println(String(contentLength));
+		telegramClient.print("Content-Type: multipart/form-data; boundary=");
+		telegramClient.println(BOUNDARY);
+		telegramClient.println();    
+		// Body of request
+		telegramClient.print(formData);
+
+		uint8_t buff[BLOCK_SIZE];
+		uint16_t count = 0;	
+		while (myFile.available()) {	
+			yield();	
+			buff[count++] = myFile.read();		
+			if (count == BLOCK_SIZE ) {
+				Serial.println(F("Sending binary photo full buffer"));			
+				telegramClient.write((const uint8_t *)buff, BLOCK_SIZE);
+				count = 0;
+			}
+		}
+		if (count > 0) {		
+			Serial.println(F("Sending binary photo remaining buffer"));	
+			telegramClient.write((const uint8_t *)buff, count);
+		}
+
+		telegramClient.print(END_BOUNDARY);
+		myFile.close();
+	}
+	else {
+		Serial.println("\nError: client not connected");
+		return false;
+	}
+	return true;
+}
+
 
 
 bool AsyncTelegram::reset(void){
@@ -51,7 +135,7 @@ String AsyncTelegram::postCommand(const char* const& command, const char* const&
 	if(connected){		
 		String request((char *)0);
 		request.reserve(512);
-		request = "POST https://" TELEGRAM_URL "/bot";
+		request = "POST https://" TELEGRAM_HOST "/bot";
 		request += m_token;
 		request += "/";
 		request += command;
@@ -122,11 +206,11 @@ void AsyncTelegram::httpPostTask(void *args){
 		//bool connected = _this->checkConnection();	
 		if (_this->httpData.command.length() > 0 &&  WiFi.status()== WL_CONNECTED ) {			
 			char url[256];
-			sniprintf(url, 256, "https://%s/bot%s/%s", TELEGRAM_URL, _this->m_token, _this->httpData.command.c_str() );			
+			sniprintf(url, 256, "https://%s/bot%s/%s", TELEGRAM_HOST, _this->m_token, _this->httpData.command.c_str() );			
 			https.begin(_this->telegramClient, url);
 			_this->httpData.waitingReply = true;			
 			if( _this->httpData.param.length() > 0 ){
-				https.addHeader("Host", TELEGRAM_URL, false, false);
+				https.addHeader("Host", TELEGRAM_HOST, false, false);
 				https.addHeader("Connection", "keep-alive", false, false);
 				https.addHeader("Content-Type", "application/json", false, false);
 				https.addHeader("Content-Length", String(_this->httpData.param.length()), false, false );		
@@ -198,7 +282,7 @@ bool AsyncTelegram::getUpdates(){
 		Serial.println("Reset connection");
 		telegramClient.flush();		
 		telegramClient.stopAll();	
-		telegramClient.connect(TELEGRAM_URL, TELEGRAM_PORT);
+		telegramClient.connect(TELEGRAM_HOST, TELEGRAM_PORT);
 		httpData.payload.clear();
 		httpData.timestamp = millis();
 		httpData.waitingReply = false;
@@ -327,7 +411,7 @@ bool AsyncTelegram::begin(){
 		0						//Core where the task should run
 	);    
 #endif
-	telegramClient.connect(TELEGRAM_URL, TELEGRAM_PORT);	
+	telegramClient.connect(TELEGRAM_HOST, TELEGRAM_PORT);	
 	return getMe(m_user);
 }
 
@@ -425,6 +509,34 @@ void AsyncTelegram::sendToUser(const int32_t userid, String &message, String key
 }
 
 
+bool AsyncTelegram::sendPhotoByFile(const uint32_t& chat_id, const String& fileName) {
+	return sendMultipartFormData("sendPhoto", chat_id, fileName,  "image/jpeg",  "photo" );
+}
+
+bool AsyncTelegram::sendPhotoByFile(const TBMessage &msg, const String& fileName) {
+	return sendMultipartFormData("sendPhoto", msg.sender.id, fileName, "image/jpeg",  "photo");
+}
+
+void AsyncTelegram::sendPhotoByUrl(const uint32_t& chat_id,  const String& url, const String& caption){	
+	if (sizeof(url) == 0)
+		return;
+	String param((char *)0);
+	param.reserve(512);
+	DynamicJsonDocument root(BUFFER_BIG);	
+	root["chat_id"] = chat_id;
+	root["photo"] = url;
+	root["caption"] = caption;	
+	serializeJson(root, param);
+	sendCommand("sendPhoto", param.c_str());
+	
+	#if DEBUG_MODE > 0
+	serialLog("SEND Photo:\n");
+	serializeJsonPretty(root, Serial);
+	serialLog("\n");
+	#endif	
+}
+
+
 void AsyncTelegram::sendToChannel(const char* &channel, String &message, bool silent) {
 	if (sizeof(message) == 0)
 		return;
@@ -512,7 +624,7 @@ bool AsyncTelegram::checkConnection(){
 		// check for using symbolic URLs
 		if (m_useDNS) {
 			// try to connect with URL
-			if (!telegramClient.connect(TELEGRAM_URL, TELEGRAM_PORT)) {
+			if (!telegramClient.connect(TELEGRAM_HOST, TELEGRAM_PORT)) {
 				// no way, try to connect with fixed IP
 				IPAddress telegramServerIP;
 				telegramServerIP.fromString(TELEGRAM_IP);
@@ -573,7 +685,7 @@ bool AsyncTelegram::updateFingerPrint(void){
 	uint8_t new_fingerprint[20];
 
 	request = "https://www.grc.com/fingerprints.htm?chain=";
-	request += TELEGRAM_URL;
+	request += TELEGRAM_HOST;
 
 #if defined(ESP8266)
 	client.setInsecure();

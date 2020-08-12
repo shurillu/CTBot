@@ -16,7 +16,7 @@ enum MessageType {
 };
 
 struct TBUser {
-	int32_t  id;
+	int32_t  id = 0;
 	bool     isBot;
 	const char*   firstName;
 	const char*   lastName;

@@ -22,6 +22,7 @@ Don't you know Telegram bots and how to setup one? Check [this](https://core.tel
 
 ### Features
 + Send and receive non-blocking messages to Telegram bot
++ Send photo both from url and from local filesystem (SPIFFS, LittleFS, FFAT, SD etc etc )
 + Inline keyboards
 + Reply keyboards 
 + Receive localization messages
@@ -29,7 +30,7 @@ Don't you know Telegram bots and how to setup one? Check [this](https://core.tel
 + Http communication on ESP32 work on own task pinned to Core0 
 
 ### To do
-+ Send and receive images
++ Send documents
 
 ### Supported boards
 The library works with the ESP8266 and ESP32 chipset.
@@ -40,6 +41,7 @@ Take a look at the examples provided in the [examples folder](https://github.com
 ### Reference
 [Here how to use the library](https://github.com/cotestatnt/AsyncTelegram/blob/master/REFERENCE.md). 
 
++ 1.0.6   AsyncTelegram now can send also pictures
 + 1.0.5   Added possibility to forward a messege to a puclic channel (bot must be one of admins) or to a specific user
 + 1.0.4	  Fixed ArduinoJson ARDUINOJSON_DECODE_UNICODE define
 + 1.0.3   Bug fixes

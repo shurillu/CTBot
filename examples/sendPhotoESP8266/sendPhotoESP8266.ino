@@ -173,13 +173,13 @@ void loop() {
       if (msg.text.equalsIgnoreCase("/photofs1")) {
         Serial.println("\nSending Photo from filesystem");          
         String myFile = "telegram-bot1.jpg";          
-        myBot.sendPhotoByFile(msg.sender.id, myFile);                    
+        myBot.sendPhotoByFile(msg.sender.id, myFile, LittleFS);                    
       }
 
       else if (msg.text.equalsIgnoreCase("/photofs2")) {
         Serial.println("\nSending Photo from filesystem");          
         String myFile = "telegram-bot2.jpg";          
-        myBot.sendPhotoByFile(msg.sender.id, myFile);                    
+        myBot.sendPhotoByFile(msg.sender.id, myFile, LittleFS);                    
       }
 
       else if (msg.text.indexOf("/photohost>") > -1 ) {          
@@ -189,7 +189,7 @@ void loop() {
         listDir("/");    
         Serial.println("\nSending Photo from LAN: "); 
         Serial.println(url);          
-        myBot.sendPhotoByFile(msg.sender.id, fileName);
+        myBot.sendPhotoByFile(msg.sender.id, fileName, LittleFS);
         LittleFS.remove("/" + fileName);
         listDir("/");          
       }

@@ -23,6 +23,7 @@
 */
 
 #include <Arduino.h>
+#include <LittleFS>
 #include "AsyncTelegram.h"
 
 AsyncTelegram myBot;
@@ -31,7 +32,7 @@ const char* pass = "XXXXXXXXX";     // REPLACE myPassword YOUR WIFI PASSWORD, IF
 const char* token = "XXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXX";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
 // You only need to format FFat the first time you run a test
-#define FORMAT_FS false
+#define FORMAT_FS true
 
 
 //Example url == "http://192.168.2.81/telegram.png"

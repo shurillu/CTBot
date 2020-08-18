@@ -7,11 +7,7 @@
     "type": "git",
     "url": "https://github.com/shurillu/CTBot.git"
   },
-<<<<<<< Updated upstream
-  "version": "2.1.1",
-=======
   "version": "2.1.2",
->>>>>>> Stashed changes
   "authors": {
     "name": "Stefano Ledda",
     "email": "shurillu@tiscalinet.it"

@@ -3,19 +3,23 @@
 #define CTBOT_REPLY_KEYBOARD
 
 // for using int_64 data
-#define ARDUINOJSON_USE_LONG_LONG  1
+#define ARDUINOJSON_USE_LONG_LONG 1 
 // for decoding UTF8/UNICODE
 #define ARDUINOJSON_DECODE_UNICODE 1 
+
+#if defined(ARDUINO_ARCH_ESP8266) // ESP8266
+// for strings stored in FLASH - only for ESP8266
+#define ARDUINOJSON_ENABLE_PROGMEM 1
+#endif
+
 #include <ArduinoJson.h>
 #include <Arduino.h>
-#include "CTBotDefines.h"
 
 enum CTBotReplyKeyboardButtonType {
 	CTBotKeyboardButtonSimple   = 1,
 	CTBotKeyboardButtonContact  = 2,
 	CTBotKeyboardButtonLocation = 3
 };
-
 
 class CTBotReplyKeyboard
 {
@@ -25,8 +29,7 @@ private:
 	JsonObject* m_root;
 	JsonArray* m_rows;
 	JsonArray* m_buttons;
-#endif
-#if ARDUINOJSON_VERSION_MAJOR == 6
+#elif ARDUINOJSON_VERSION_MAJOR == 6
 	DynamicJsonDocument* m_root;
 	JsonArray m_rows;
 	JsonArray m_buttons;
@@ -53,7 +56,7 @@ public:
 	//   buttonType: the type of the button (simple text, contact request, location request)
 	// return:
 	//    true if no error occurred
-	bool addButton(String text, CTBotReplyKeyboardButtonType buttonType = CTBotKeyboardButtonSimple);
+	bool addButton(const String& text, CTBotReplyKeyboardButtonType buttonType = CTBotKeyboardButtonSimple);
 
 	// enable reply keyboard autoresizing (default: the same size of the standard keyboard)
 	void enableResize(void);
@@ -70,7 +73,7 @@ public:
 	// Useful for CTBot::sendMessage()
 	// returns:
 	//   the JSON of the inline keyboard 
-	String getJSON(void) const;
+	String getJSON(void);
 };
 
 #endif

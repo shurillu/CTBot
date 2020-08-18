@@ -1,8 +1,8 @@
 #pragma once
 #ifndef UTILITIES
 #define UTILITIES
-#include "CTBotDefines.h"
 #include <Arduino.h>
+#include "CTBotDefines.h"
 
 // convert an UNICODE coded string to a UTF8 coded string
 // params
@@ -39,7 +39,6 @@ inline void serialLog(int32_t value, uint8_t debugLevel) {
 	if ((debugLevel & CTBOT_DEBUG_MODE) != 0)
 		Serial.print(value);
 }
-
 #else
 inline void serialLog(String, uint8_t) {}
 inline void serialLog(int64_t, uint8_t) {}

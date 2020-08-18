@@ -3,10 +3,7 @@
 #define CTBOTSECURECONNECTION
 
 #include <Arduino.h>
-<<<<<<< Updated upstream
-=======
 #include "CTBotStatusPin.h"
->>>>>>> Stashed changes
 #include "CTBotDefines.h"
 
 class CTBotSecureConnection
@@ -34,36 +31,20 @@ public:
 
 	// set the status pin used to connect a LED for visual notification
 	// CTBOT_DISABLE_STATUS_PIN will disable the notification
-<<<<<<< Updated upstream
-	// Default value is 2 (ESP8266 chip builtin LED)
-=======
 	// default value is CTBOT_DISABLE_STATUS_PIN (visual notification disabled)
 	// - ESP8266 onboard LED: 2
 	// - ESP32 onboard LED  : 4
->>>>>>> Stashed changes
 	// params
 	//   pin: the pin used for visual notification
 	void setStatusPin(int8_t pin);
 
-<<<<<<< Updated upstream
-	String send(const String& message) const;
-
-private:
-	bool    m_useDNS{ false }; // use static ip by default
-	int8_t  m_statusPin{ CTBOT_DISABLE_STATUS_PIN }; // status pin is disabled by default
-=======
 	String send(const String& message);
 
 private:
 	bool            m_useDNS;
 	CTBotStatusPin  m_statusPin;
->>>>>>> Stashed changes
 	// get fingerprints from https://www.grc.com/fingerprints.htm
 	uint8_t m_fingerprint[20]{ 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 }; // use this preconfigured fingerprrint by default
 };
 
-<<<<<<< Updated upstream
 #endif
-=======
-#endif
->>>>>>> Stashed changes

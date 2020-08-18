@@ -1,10 +1,6 @@
 # CTBot
 
-<<<<<<< Updated upstream
-Branch: Master - [![Build Status](https://travis-ci.org/shurillu/CTBot.svg?branch=master)](https://travis-ci.org/shurillu/CTBot)
-=======
 Branch: master - [![Build Status](https://travis-ci.org/shurillu/CTBot.svg?branch=master)](https://travis-ci.org/shurillu/CTBot)
->>>>>>> Stashed changes
 
 
 ___

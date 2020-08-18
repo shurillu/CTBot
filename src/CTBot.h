@@ -3,29 +3,22 @@
 #define CTBOT
 
 #include <Arduino.h>
-#include "CTBotSecureConnection.h"
 #include "CTBotDataStructures.h"
 #include "CTBotInlineKeyboard.h"
 #include "CTBotReplyKeyboard.h"
 #include "CTBotWiFiSetup.h"
 #include "CTBotSecureConnection.h"
 #include "CTBotDefines.h"
-#include "CTBotWifiSetup.h"
 
 class CTBot
 {
+
 public:
 	// default constructor
 	CTBot();
 	// default destructor
 	~CTBot();
 
-<<<<<<< Updated upstream
-	// set the telegram token
-	// params
-	//   token: the telegram token
-	void setTelegramToken(String token);
-=======
 	// set a static ip. If not set, use the DHCP. 
 	// params
 	//   ip        : the ip address
@@ -64,7 +57,6 @@ public:
 	//   value: true  -> use URL style address
 	//          false -> use fixed IP addres
 	bool useDNS(bool value);
->>>>>>> Stashed changes
 
 	// enable/disable the UTF8 encoding for the received message.
 	// Default value is false (disabled)
@@ -73,8 +65,6 @@ public:
 	//          false -> leave the received message as-is
 	void enableUTF8Encoding(bool value);
 
-<<<<<<< Updated upstream
-=======
 	// set the status pin used to connect a LED for visual notification
 	// CTBOT_DISABLE_STATUS_PIN will disable the notification
 	// default value is CTBOT_DISABLE_STATUS_PIN
@@ -82,7 +72,6 @@ public:
 	//   pin: the pin used for visual notification
 	void setStatusPin(int8_t pin);
 
->>>>>>> Stashed changes
 	// test the connection between ESP8266 and the telegram server
 	// returns
 	//    true if no error occurred
@@ -110,9 +99,9 @@ public:
 	//             (in json format or using the CTBotInlineKeyboard/CTBotReplyKeyboard class helper)
 	// returns
 	//   true if no error occurred
-	bool sendMessage(int64_t id, String message, String keyboard = "");
-	bool sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboard);
-	bool sendMessage(int64_t id, String message, CTBotReplyKeyboard  &keyboard);
+	bool sendMessage(int64_t id, const String& message, const String& keyboard = "");
+	bool sendMessage(int64_t id, const String& message, CTBotInlineKeyboard &keyboard);
+	bool sendMessage(int64_t id, const String& message, CTBotReplyKeyboard  &keyboard);
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard
@@ -123,7 +112,7 @@ public:
 	//   message  : an optional message
 	//   alertMode: false -> a simply popup message
 	//              true --> an alert message with ok button
-	bool endQuery(String queryID, String message = "", bool alertMode = false);
+	bool endQuery(const String& queryID, const String& message = "", bool alertMode = false);
 
 	// remove an active reply keyboard for a selected user, sending a message
 	// params:
@@ -134,9 +123,6 @@ public:
 	//                       2) if the bot's message is a reply (has reply_to_message_id), sender of the original message
 	// return:
 	//   true if no error occurred
-<<<<<<< Updated upstream
-	bool removeReplyKeyboard(int64_t id, String message, bool selective = false);
-=======
 	bool removeReplyKeyboard(int64_t id, const String& message, bool selective = false);
 
 	// set the new Telegram API server fingerprint overwriting the default one.
@@ -155,7 +141,6 @@ private:
 	bool                  m_useDNS;
 	bool                  m_UTF8Encoding;
 	uint32_t              m_lastUpdateTimeStamp;
->>>>>>> Stashed changes
 
 	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api
 	// params
@@ -164,22 +149,14 @@ private:
 	// returns
 	//   an empty string if error
 	//   a string containing the Telegram JSON response
-	String sendCommand(String command, String parameters = "");
-
-private:
-	CTBotSecureConnection m_connection;
-	String                m_token{};
-	int32_t               m_lastUpdate;
-	bool                  m_UTF8Encoding;
-	bool                  m_needInsecureFlag;
-	CTBotWifiSetup        m_wifi;
+	String sendCommand(const String& command, const String& parameters = "");
 
 	// convert an UNICODE string to UTF8 encoded string
 	// params
 	//   message: the UNICODE message
 	// returns
 	//   a string with the converted message in UTF8 
-	String toUTF8(String message) const;
+	String toUTF8(String message);
 
 	// get some information about the bot
 	// params
@@ -187,20 +164,6 @@ private:
 	// returns
 	//   true if no error occurred
 	bool getMe(TBUser &user);
-<<<<<<< Updated upstream
-
-
-
-// ----------------------------| STUBS - FOR BACKWARD VERSION COMPATIBILITY
-public:
-	bool setIP(String ip, String gateway, String subnetMask, String dns1 = "", String dns2 = "") const;
-	bool wifiConnect(String ssid, String password = "") const;
-	bool useDNS(bool value);
-	void setMaxConnectionRetries(uint8_t retries);
-	void setStatusPin(int8_t pin);
-	void setFingerprint(const uint8_t *newFingerprint);
-=======
->>>>>>> Stashed changes
 };
 
 #endif

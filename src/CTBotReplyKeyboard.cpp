@@ -1,21 +1,16 @@
 #include "CTBotReplyKeyboard.h"
 #include "Utilities.h"
 
-<<<<<<< Updated upstream
-void CTBotReplyKeyboard::initialize()
-=======
 void CTBotReplyKeyboard::initialize(void)
->>>>>>> Stashed changes
 {
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	JsonObject& root = m_jsonBuffer.createObject();
-	JsonArray&  rows = root.createNestedArray((String)"keyboard");
-	JsonArray&  buttons = rows.createNestedArray();
+	JsonArray& rows = root.createNestedArray((String)"keyboard");
+	JsonArray& buttons = rows.createNestedArray();
 	m_root = &root;
 	m_rows = &rows;
 	m_buttons = &buttons;
-#endif
-#if ARDUINOJSON_VERSION_MAJOR == 6
+#elif ARDUINOJSON_VERSION_MAJOR == 6
 	m_rows = m_root->createNestedArray("keyboard");
 	m_buttons = m_rows.createNestedArray();
 #endif
@@ -30,41 +25,29 @@ CTBotReplyKeyboard::CTBotReplyKeyboard()
 	if (!m_root)
 		serialLog("CTBotInlineKeyboard: Unable to allocate JsonDocument memory.\n", CTBOT_DEBUG_MEMORY);
 #endif
+	
 	initialize();
 }
 
-<<<<<<< Updated upstream
-CTBotReplyKeyboard::~CTBotReplyKeyboard() {
-=======
 CTBotReplyKeyboard::~CTBotReplyKeyboard()
 {
->>>>>>> Stashed changes
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	delete m_root;
 #endif
-};
+}
 
-<<<<<<< Updated upstream
-void CTBotReplyKeyboard::flushData()
-=======
 void CTBotReplyKeyboard::flushData(void)
->>>>>>> Stashed changes
 {
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	m_jsonBuffer.clear();
-#endif
-#if ARDUINOJSON_VERSION_MAJOR == 6
+#elif ARDUINOJSON_VERSION_MAJOR == 6
 	m_root->clear();
 #endif
 
 	initialize();
 }
 
-<<<<<<< Updated upstream
-bool CTBotReplyKeyboard::addRow()
-=======
 bool CTBotReplyKeyboard::addRow(void)
->>>>>>> Stashed changes
 {
 	if (m_isRowEmpty)
 		return false;
@@ -72,8 +55,7 @@ bool CTBotReplyKeyboard::addRow(void)
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	JsonArray& buttons = m_rows->createNestedArray();
 	m_buttons = &buttons;
-#endif
-#if ARDUINOJSON_VERSION_MAJOR == 6
+#elif ARDUINOJSON_VERSION_MAJOR == 6
 	m_buttons = m_rows.createNestedArray();
 #endif
 
@@ -81,14 +63,10 @@ bool CTBotReplyKeyboard::addRow(void)
 	return true;
 }
 
-<<<<<<< Updated upstream
-bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType buttonType)
-=======
 bool CTBotReplyKeyboard::addButton(const String& text, CTBotReplyKeyboardButtonType buttonType)
->>>>>>> Stashed changes
 {
-	if ((buttonType != CTBotKeyboardButtonSimple) && 
-		(buttonType != CTBotKeyboardButtonContact) && 
+	if ((buttonType != CTBotKeyboardButtonSimple) &&
+		(buttonType != CTBotKeyboardButtonContact) &&
 		(buttonType != CTBotKeyboardButtonLocation))
 		return false;
 
@@ -99,8 +77,7 @@ bool CTBotReplyKeyboard::addButton(const String& text, CTBotReplyKeyboardButtonT
 	JsonObject button = m_buttons.createNestedObject();
 #endif
 
-	text = URLEncodeMessage(text);
-	button["text"] = text;
+	button["text"] = URLEncodeMessage(text);
 
 	if (CTBotKeyboardButtonContact == buttonType)
 		button["request_contact"] = true;
@@ -112,21 +89,6 @@ bool CTBotReplyKeyboard::addButton(const String& text, CTBotReplyKeyboardButtonT
 	return true;
 }
 
-<<<<<<< Updated upstream
-void CTBotReplyKeyboard::enableResize() {
-	(*m_root)["resize_keyboard"] = true;
-}
-
-void CTBotReplyKeyboard::enableOneTime() {
-	(*m_root)["one_time_keyboard"] = true;
-}
-
-void CTBotReplyKeyboard::enableSelective() {
-	(*m_root)["selective"] = true;
-}
-
-String CTBotReplyKeyboard::getJSON() const
-=======
 void CTBotReplyKeyboard::enableResize(void) {
 	(*m_root)["resize_keyboard"] = true;
 }
@@ -140,14 +102,12 @@ void CTBotReplyKeyboard::enableSelective(void) {
 }
 
 String CTBotReplyKeyboard::getJSON(void)
->>>>>>> Stashed changes
 {
 	String serialized;
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	m_root->printTo(serialized);
-#endif
-#if ARDUINOJSON_VERSION_MAJOR == 6
+#elif ARDUINOJSON_VERSION_MAJOR == 6
 	serializeJson(*m_root, serialized);
 #endif
 

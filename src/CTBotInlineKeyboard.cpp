@@ -1,7 +1,11 @@
 #include "CTBotInlineKeyboard.h"
 #include "Utilities.h"
 
+<<<<<<< Updated upstream
 void CTBotInlineKeyboard::initialize()
+=======
+void CTBotInlineKeyboard::initialize(void)
+>>>>>>> Stashed changes
 {
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	JsonObject& root = m_jsonBuffer.createObject();
@@ -24,19 +28,28 @@ CTBotInlineKeyboard::CTBotInlineKeyboard()
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	m_root = new DynamicJsonDocument(CTBOT_JSON6_BUFFER_SIZE);
 	if (!m_root)
-		serialLog("CTBotInlineKeyboard: Unable to allocate JsonDocument memory.\n");
+		serialLog("CTBotInlineKeyboard: Unable to allocate JsonDocument memory.\n", CTBOT_DEBUG_MEMORY);
 #endif
 
 	initialize();
 }
 
+<<<<<<< Updated upstream
 CTBotInlineKeyboard::~CTBotInlineKeyboard() {
+=======
+CTBotInlineKeyboard::~CTBotInlineKeyboard()
+{
+>>>>>>> Stashed changes
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	delete m_root;
 #endif
 };
 
+<<<<<<< Updated upstream
 void CTBotInlineKeyboard::flushData()
+=======
+void CTBotInlineKeyboard::flushData(void)
+>>>>>>> Stashed changes
 {
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	m_jsonBuffer.clear();
@@ -48,7 +61,11 @@ void CTBotInlineKeyboard::flushData()
 	initialize();
 }
 
+<<<<<<< Updated upstream
 bool CTBotInlineKeyboard::addRow()
+=======
+bool CTBotInlineKeyboard::addRow(void)
+>>>>>>> Stashed changes
 {
 	if (m_isRowEmpty)
 		return false;
@@ -65,7 +82,11 @@ bool CTBotInlineKeyboard::addRow()
 	return true;
 }
 
+<<<<<<< Updated upstream
 bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyboardButtonType buttonType)
+=======
+bool CTBotInlineKeyboard::addButton(const String& text, const String& command, CTBotInlineKeyboardButtonType buttonType)
+>>>>>>> Stashed changes
 {
 	if ((buttonType != CTBotKeyboardButtonURL) && 
 		(buttonType != CTBotKeyboardButtonQuery))
@@ -89,7 +110,11 @@ bool CTBotInlineKeyboard::addButton(String text, String command, CTBotInlineKeyb
 	return true;
 }
 
+<<<<<<< Updated upstream
 String CTBotInlineKeyboard::getJSON() const
+=======
+String CTBotInlineKeyboard::getJSON(void)
+>>>>>>> Stashed changes
 {
 	String serialized;
 

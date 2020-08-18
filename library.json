@@ -7,7 +7,11 @@
     "type": "git",
     "url": "https://github.com/shurillu/CTBot.git"
   },
+<<<<<<< Updated upstream
   "version": "2.1.1",
+=======
+  "version": "2.1.2",
+>>>>>>> Stashed changes
   "authors": {
     "name": "Stefano Ledda",
     "email": "shurillu@tiscalinet.it"
@@ -16,6 +20,6 @@
   "platforms": "esp8266,esp32",
   "dependencies": {
     "name": "ArduinoJson",
-    "version": "6.15.2"
+    "version": "6.16.1"
   }
 }

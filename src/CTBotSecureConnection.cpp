@@ -2,6 +2,7 @@
 #include "CTBotSecureConnection.h"
 #include "Utilities.h"
 
+<<<<<<< Updated upstream
 constexpr const char* const TELEGRAM_URL = "api.telegram.org";
 constexpr const char* const TELEGRAM_IP = "149.154.167.220";
 constexpr uint32_t TELEGRAM_PORT = 443;
@@ -9,6 +10,14 @@ constexpr uint32_t TELEGRAM_PORT = 443;
 CTBotSecureConnection::CTBotSecureConnection() {
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		pinMode(m_statusPin, OUTPUT);
+=======
+#define TELEGRAM_URL  FSTR("api.telegram.org") 
+#define TELEGRAM_IP   FSTR("149.154.167.220") // "149.154.167.198" <-- Old IP
+#define TELEGRAM_PORT 443
+
+CTBotSecureConnection::CTBotSecureConnection() {
+	m_useDNS = false;
+>>>>>>> Stashed changes
 }
 
 bool CTBotSecureConnection::useDNS(bool value)
@@ -36,6 +45,7 @@ void CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint)
 
 void CTBotSecureConnection::setStatusPin(int8_t pin)
 {
+<<<<<<< Updated upstream
 	// check if a previous status pin was declared and put it in high impedance
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		pinMode(m_statusPin, INPUT);
@@ -45,10 +55,17 @@ void CTBotSecureConnection::setStatusPin(int8_t pin)
 }
 
 String CTBotSecureConnection::send(const String& message) const
+=======
+	m_statusPin.setPin(pin);
+}
+
+String CTBotSecureConnection::send(const String& message)
+>>>>>>> Stashed changes
 {
 #if defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 0 // ESP8266 no HTTPS verification
 	WiFiClientSecure telegramServer;
 	telegramServer.setInsecure();
+<<<<<<< Updated upstream
 	serialLog("ESP8266 no https verification");
 #elif defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 1 // ESP8266 with HTTPS verification
 	BearSSL::WiFiClientSecure telegramServer;
@@ -61,6 +78,20 @@ String CTBotSecureConnection::send(const String& message) const
 
 #if defined(ARDUINO_ARCH_ESP8266) // only for ESP8266 reduce drastically the heap usage
 	telegramServer.setBufferSizes(CTBOT_JSON5_TCP_BUFFER_SIZE, CTBOT_JSON5_TCP_BUFFER_SIZE);
+=======
+	serialLog(FSTR("ESP8266 no https verification"), CTBOT_DEBUG_CONNECTION);
+#elif defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 1 // ESP8266 with HTTPS verification
+	BearSSL::WiFiClientSecure telegramServer;
+	telegramServer.setFingerprint(m_fingerprint);
+	serialLog(FSTR("ESP8266 with https verification"), CTBOT_DEBUG_CONNECTION);
+#elif defined(ARDUINO_ARCH_ESP32) // ESP32
+	WiFiClientSecure telegramServer;
+	serialLog(FSTR("ESP32"), CTBOT_DEBUG_CONNECTION);
+#endif
+
+#if defined(ARDUINO_ARCH_ESP8266) // only for ESP8266 reduce drastically the heap usage (~15K more)
+	telegramServer.setBufferSizes(CTBOT_ESP8266_TCP_BUFFER_SIZE, CTBOT_ESP8266_TCP_BUFFER_SIZE);
+>>>>>>> Stashed changes
 #endif
 
 	// check for using symbolic URLs
@@ -71,6 +102,7 @@ String CTBotSecureConnection::send(const String& message) const
 			IPAddress telegramServerIP;
 			telegramServerIP.fromString(TELEGRAM_IP);
 			if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
+<<<<<<< Updated upstream
 				serialLog("\nUnable to connect to Telegram server! (use-DNS-mode)\n");
 				return {};
 			}
@@ -97,10 +129,44 @@ String CTBotSecureConnection::send(const String& message) const
 
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
+=======
+				serialLog(FSTR("\nUnable to connect to Telegram server\n"), CTBOT_DEBUG_CONNECTION);
+				return("");
+			}
+			else {
+				serialLog(FSTR("\nConnected using fixed IP\n"), CTBOT_DEBUG_CONNECTION);
+				useDNS(false);
+			}
+		}
+		else {
+			serialLog(FSTR("\nConnected using DNS\n"), CTBOT_DEBUG_CONNECTION);
+		}
+	}
+	else {
+		// try to connect with fixed IP
+		IPAddress telegramServerIP; // (149, 154, 167, 220);
+		telegramServerIP.fromString(TELEGRAM_IP);
+		if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
+			serialLog(FSTR("\nUnable to connect to Telegram server\n"), CTBOT_DEBUG_CONNECTION);
+			return("");
+		}
+		else
+			serialLog(FSTR("\nConnected using fixed IP\n"), CTBOT_DEBUG_CONNECTION);
+	}
+
+	m_statusPin.toggle();
+
+	// must filter command + parameters from escape sequences and spaces
+	//	String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
+//	String URL = (String)FSTR("GET /bot") + m_token + (String)"/" + command + parameters;
+
+	unsigned long elapsed = millis();
+>>>>>>> Stashed changes
 
 	// send the HTTP request
 	telegramServer.println(message);
 
+<<<<<<< Updated upstream
 	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
 		digitalWrite(m_statusPin, !digitalRead(m_statusPin));     // set pin to the opposite state
 
@@ -112,6 +178,24 @@ String CTBotSecureConnection::send(const String& message) const
 	int curlyCounter = -1; // count the open/closed curly bracket for identify the json
 	bool skipCounter = false; // for filtering curly bracket inside a text message
 	int c;
+=======
+	m_statusPin.toggle();
+
+	serialLog(FSTR("--->sendCommand  : Free heap memory: "), CTBOT_DEBUG_MEMORY);
+	serialLog(ESP.getFreeHeap(), CTBOT_DEBUG_MEMORY);
+
+#if CTBOT_CHECK_JSON == 0
+	serialLog("\n", CTBOT_DEBUG_MEMORY);
+	return(telegramServer.readString());
+#else
+
+	String response;
+	int curlyCounter; // count the open/closed curly bracket for identify the json
+	bool skipCounter = false; // for filtering curly bracket inside a text message
+	int c;
+	curlyCounter = -1;
+	response = "";
+>>>>>>> Stashed changes
 
 	while (telegramServer.connected()) {
 		while (telegramServer.available()) {
@@ -137,17 +221,41 @@ String CTBotSecureConnection::send(const String& message) const
 				if (curlyCounter == 0) {
 
 					// JSON ended, close connection and return JSON
+<<<<<<< Updated upstream
 					telegramServer.flush();
 					telegramServer.stop();
 					return response;
+=======
+
+					elapsed = millis() - elapsed;
+
+					serialLog(FSTR(" / "), CTBOT_DEBUG_MEMORY);
+					serialLog(ESP.getFreeHeap(), CTBOT_DEBUG_MEMORY);
+					serialLog(FSTR(" - "), CTBOT_DEBUG_MEMORY);
+					serialLog(elapsed, CTBOT_DEBUG_MEMORY);
+					serialLog(FSTR(" ms\n"), CTBOT_DEBUG_MEMORY);
+
+					telegramServer.flush();
+					telegramServer.stop();
+					return(response);
+>>>>>>> Stashed changes
 				}
 			}
 		}
 	}
 
+<<<<<<< Updated upstream
 	// timeout, no JSON to parse
 	telegramServer.flush();
 	telegramServer.stop();
 	return "";
+=======
+	serialLog("\n", CTBOT_DEBUG_MEMORY);
+
+	// timeout, no JSON to parse
+	telegramServer.flush();
+	telegramServer.stop();
+	return("");
+>>>>>>> Stashed changes
 #endif
 }

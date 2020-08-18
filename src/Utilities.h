@@ -28,18 +28,21 @@ String URLEncodeMessage(String message);
 
 // send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
 // params
-//    message: the message to send
+//    message   : the message to send
+//    debugLevel: debug level. Useful to filter debug messages wanted
 #if CTBOT_DEBUG_MODE > 0
-inline void serialLog(String message) {
-	Serial.print(message);
+inline void serialLog(String message, uint8_t debugLevel) {
+	if ((debugLevel & CTBOT_DEBUG_MODE) != 0)
+		Serial.print(message);
 }
-inline void serialLog(int32_t value) {
-	Serial.print(value);
+inline void serialLog(int32_t value, uint8_t debugLevel) {
+	if ((debugLevel & CTBOT_DEBUG_MODE) != 0)
+		Serial.print(value);
 }
 
 #else
-inline void serialLog(String) {}
-inline void serialLog(int32_t) {}
+inline void serialLog(String, uint8_t) {}
+inline void serialLog(int64_t, uint8_t) {}
 #endif
 
 #endif

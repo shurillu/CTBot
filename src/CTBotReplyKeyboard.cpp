@@ -1,7 +1,11 @@
 #include "CTBotReplyKeyboard.h"
 #include "Utilities.h"
 
+<<<<<<< Updated upstream
 void CTBotReplyKeyboard::initialize()
+=======
+void CTBotReplyKeyboard::initialize(void)
+>>>>>>> Stashed changes
 {
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	JsonObject& root = m_jsonBuffer.createObject();
@@ -24,18 +28,27 @@ CTBotReplyKeyboard::CTBotReplyKeyboard()
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	m_root = new DynamicJsonDocument(CTBOT_JSON6_BUFFER_SIZE);
 	if (!m_root)
-		serialLog("CTBotInlineKeyboard: Unable to allocate JsonDocument memory.\n");
+		serialLog("CTBotInlineKeyboard: Unable to allocate JsonDocument memory.\n", CTBOT_DEBUG_MEMORY);
 #endif
 	initialize();
 }
 
+<<<<<<< Updated upstream
 CTBotReplyKeyboard::~CTBotReplyKeyboard() {
+=======
+CTBotReplyKeyboard::~CTBotReplyKeyboard()
+{
+>>>>>>> Stashed changes
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	delete m_root;
 #endif
 };
 
+<<<<<<< Updated upstream
 void CTBotReplyKeyboard::flushData()
+=======
+void CTBotReplyKeyboard::flushData(void)
+>>>>>>> Stashed changes
 {
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	m_jsonBuffer.clear();
@@ -47,7 +60,11 @@ void CTBotReplyKeyboard::flushData()
 	initialize();
 }
 
+<<<<<<< Updated upstream
 bool CTBotReplyKeyboard::addRow()
+=======
+bool CTBotReplyKeyboard::addRow(void)
+>>>>>>> Stashed changes
 {
 	if (m_isRowEmpty)
 		return false;
@@ -64,7 +81,11 @@ bool CTBotReplyKeyboard::addRow()
 	return true;
 }
 
+<<<<<<< Updated upstream
 bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType buttonType)
+=======
+bool CTBotReplyKeyboard::addButton(const String& text, CTBotReplyKeyboardButtonType buttonType)
+>>>>>>> Stashed changes
 {
 	if ((buttonType != CTBotKeyboardButtonSimple) && 
 		(buttonType != CTBotKeyboardButtonContact) && 
@@ -91,6 +112,7 @@ bool CTBotReplyKeyboard::addButton(String text, CTBotReplyKeyboardButtonType but
 	return true;
 }
 
+<<<<<<< Updated upstream
 void CTBotReplyKeyboard::enableResize() {
 	(*m_root)["resize_keyboard"] = true;
 }
@@ -104,6 +126,21 @@ void CTBotReplyKeyboard::enableSelective() {
 }
 
 String CTBotReplyKeyboard::getJSON() const
+=======
+void CTBotReplyKeyboard::enableResize(void) {
+	(*m_root)["resize_keyboard"] = true;
+}
+
+void CTBotReplyKeyboard::enableOneTime(void) {
+	(*m_root)["one_time_keyboard"] = true;
+}
+
+void CTBotReplyKeyboard::enableSelective(void) {
+	(*m_root)["selective"] = true;
+}
+
+String CTBotReplyKeyboard::getJSON(void)
+>>>>>>> Stashed changes
 {
 	String serialized;
 

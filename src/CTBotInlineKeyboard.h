@@ -8,7 +8,10 @@
 #define ARDUINOJSON_DECODE_UNICODE 1 
 #include <ArduinoJson.h>
 #include <Arduino.h>
+<<<<<<< Updated upstream
 #include "CTBotDefines.h"
+=======
+>>>>>>> Stashed changes
 
 enum CTBotInlineKeyboardButtonType {
 	CTBotKeyboardButtonURL    = 1,

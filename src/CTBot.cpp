@@ -6,19 +6,35 @@
 #include "CTBot.h"
 #include "Utilities.h"
 
+<<<<<<< Updated upstream
 CTBot::CTBot() {
+=======
+
+CTBot::CTBot() {
+	m_wifiConnectionTries = 0;  // wait until connection to the AP is established (locking!)
+	m_token               = ""; // no token
+>>>>>>> Stashed changes
 	m_lastUpdate          = 0;  // not updated yet
 	m_UTF8Encoding        = false; // no UTF8 encoded string conversion
+<<<<<<< Updated upstream
+=======
+	m_lastUpdateTimeStamp = millis();
+>>>>>>> Stashed changes
 }
 
 CTBot::~CTBot() = default;
 
+<<<<<<< Updated upstream
 void CTBot::setTelegramToken(String token)
 {	m_token = token;}
 
 String CTBot::sendCommand(String command, String parameters)
 {
 
+=======
+String CTBot::sendCommand(const String& command, const String& parameters)
+{
+>>>>>>> Stashed changes
 	// must filter command + parameters from escape sequences and spaces
 	const String URL = (String)"GET /bot" + m_token + (String)"/" + command + parameters;
 
@@ -26,7 +42,11 @@ String CTBot::sendCommand(String command, String parameters)
 	return(m_connection.send(URL));
 }
 
+<<<<<<< Updated upstream
 String CTBot::toUTF8(String message) const
+=======
+String CTBot::toUTF8(String message)
+>>>>>>> Stashed changes
 {
 	String converted("");
 	uint16_t i = 0;
@@ -75,7 +95,28 @@ String CTBot::toUTF8(String message) const
 void CTBot::enableUTF8Encoding(bool value) 
 {	m_UTF8Encoding = value;}
 
+<<<<<<< Updated upstream
 bool CTBot::testConnection(){
+=======
+void CTBot::setStatusPin(int8_t pin)
+{	
+/*
+	// if there is a valid status pin -> put it in high impedance
+	if (m_statusPin != CTBOT_DISABLE_STATUS_PIN)
+		pinMode(m_statusPin, INPUT);
+	m_statusPin = pin;
+	pinMode(m_statusPin, OUTPUT);
+*/
+	m_wifi.setStatusPin(pin);
+	m_connection.setStatusPin(pin);
+
+}
+
+void CTBot::setTelegramToken(const String& token)
+{	m_token = token;}
+
+bool CTBot::testConnection(void){
+>>>>>>> Stashed changes
 	TBUser user;
 	return getMe(user);
 }
@@ -99,35 +140,47 @@ bool CTBot::getMe(TBUser &user) {
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	DeserializationError error = deserializeJson(root, sendCommand("getMe"));
 	if (error) {
+<<<<<<< Updated upstream
 		serialLog("getNewMessage error: ArduinoJson deserialization error code: ");
 		serialLog(error.c_str());
 		serialLog("\n");
+=======
+		serialLog(FSTR("getNewMessage error: ArduinoJson deserialization error code: "), CTBOT_DEBUG_JSON);
+		serialLog(error.c_str(), CTBOT_DEBUG_JSON);
+		serialLog("\n", CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 		return CTBotMessageNoData;
 	}
 #endif
 
+<<<<<<< Updated upstream
 	if (!root["ok"]) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("getMe error:\n");
+=======
+	if (!root[FSTR("ok")]) {
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
+		serialLog(FSTR("getMe error:\n"), CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 #if ARDUINOJSON_VERSION_MAJOR == 5
 		root.prettyPrintTo(Serial);
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
 		serializeJsonPretty(root, Serial);
 #endif
-		serialLog("\n");
+		serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
 		return false;
 	}
 
-#if CTBOT_DEBUG_MODE > 0
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	root.prettyPrintTo(Serial);
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	serializeJsonPretty(root, Serial);
 #endif
-	serialLog("\n");
+	serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
 	user.id           = root["result"]["id"];
 	user.isBot        = root["result"]["is_bot"];
@@ -138,7 +191,28 @@ bool CTBot::getMe(TBUser &user) {
 	return true;
 }
 
+<<<<<<< Updated upstream
 CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
+=======
+CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
+
+	if (!blocking) {
+		// check if is passed CTBOT_GET_UPDATE_TIMEOUT ms from the last update
+		uint32_t currentTime = millis();
+		if (m_lastUpdateTimeStamp > currentTime) {
+			// millis has done an overflow and start over
+			if (((UINT32_MAX - m_lastUpdateTimeStamp) + currentTime) < CTBOT_GET_UPDATE_TIMEOUT)
+				return CTBotMessageNoData;
+		}
+		else {
+			if ((currentTime - m_lastUpdateTimeStamp) < CTBOT_GET_UPDATE_TIMEOUT)
+				return CTBotMessageNoData;
+		}
+	}
+	m_lastUpdateTimeStamp = millis();
+
+	String parameters;
+>>>>>>> Stashed changes
 	char buf[21];
 
 	message.messageType = CTBotMessageNoData;
@@ -146,10 +220,16 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
 	ltoa(m_lastUpdate, buf, 10);
 	// polling timeout: add &timeout=<seconds>
 	// default is zero (short polling).
+<<<<<<< Updated upstream
 	String parameters = "?limit=1&allowed_updates=message,callback_query";
 
 	if (m_lastUpdate != 0)
 		parameters += (String)"&offset=" + (String)buf;
+=======
+	parameters = FSTR("?limit=1&allowed_updates=message,callback_query");
+	if (m_lastUpdate != 0)
+		parameters += (String)FSTR("&offset=") + (String)buf;
+>>>>>>> Stashed changes
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
 #if CTBOT_BUFFER_SIZE > 0
@@ -173,36 +253,53 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
 		sendCommand("getUpdates", parameters));
 
 	if (error) {
+<<<<<<< Updated upstream
 		serialLog("getNewMessage error: ArduinoJson deserialization error code: ");
 		serialLog(error.c_str());
 		serialLog("\n");
+=======
+		serialLog(FSTR("getNewMessage error: ArduinoJson deserialization error code: "), CTBOT_DEBUG_JSON);
+		serialLog(error.c_str(), CTBOT_DEBUG_JSON);
+		serialLog("\n", CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 		return CTBotMessageNoData;
     }
 #endif
 
+<<<<<<< Updated upstream
 	if (!root["ok"]) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("getNewMessage error: ");
+=======
+	if (!root[FSTR("ok")]) {
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
+		serialLog(FSTR("getNewMessage error: "), CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 #if ARDUINOJSON_VERSION_MAJOR == 5
 		root.prettyPrintTo(Serial);
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
 		serializeJsonPretty(root, Serial);
 #endif
-		serialLog("\n");
+		serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
 		return CTBotMessageNoData;
 	}
 
+<<<<<<< Updated upstream
 #if CTBOT_DEBUG_MODE > 0
 	serialLog("getNewMessage JSON: ");
+=======
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
+	serialLog(FSTR("getNewMessage JSON: "), CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	root.prettyPrintTo(Serial);
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	serializeJsonPretty(root, Serial);
 #endif
-	serialLog("\n");
+	serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
 
 	uint32_t updateID = root["result"][0]["update_id"].as<int32_t>();
@@ -223,6 +320,14 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
 		message.callbackQueryData = root["result"][0]["callback_query"]["data"].as<String>();
 		message.chatInstance      = root["result"][0]["callback_query"]["chat_instance"].as<String>();
 		message.messageType       = CTBotMessageQuery;
+<<<<<<< Updated upstream
+=======
+
+		serialLog(FSTR("--->getNewMessage: Free heap memory : "), CTBOT_DEBUG_MEMORY);
+		serialLog(ESP.getFreeHeap(), CTBOT_DEBUG_MEMORY);
+		serialLog("\n", CTBOT_DEBUG_MEMORY);
+
+>>>>>>> Stashed changes
 		return CTBotMessageQuery;
 	}
 	else if (root["result"][0]["message"]["message_id"]) {
@@ -245,6 +350,14 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
 			// this is a text message
 		    message.text        = root["result"][0]["message"]["text"].as<String>();		    
 			message.messageType = CTBotMessageText;
+<<<<<<< Updated upstream
+=======
+
+			serialLog(FSTR("--->getNewMessage: Free heap memory : "), CTBOT_DEBUG_MEMORY);
+			serialLog(ESP.getFreeHeap(), CTBOT_DEBUG_MEMORY);
+			serialLog("\n", CTBOT_DEBUG_MEMORY);
+
+>>>>>>> Stashed changes
 			return CTBotMessageText;
 		}
 		else if (root["result"][0]["message"]["location"]) {
@@ -252,6 +365,14 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
 			message.location.longitude = root["result"][0]["message"]["location"]["longitude"].as<float>();
 			message.location.latitude  = root["result"][0]["message"]["location"]["latitude"].as<float>();
 			message.messageType = CTBotMessageLocation;
+<<<<<<< Updated upstream
+=======
+
+			serialLog(FSTR("--->getNewMessage: Free heap memory : "), CTBOT_DEBUG_MEMORY);
+			serialLog(ESP.getFreeHeap(), CTBOT_DEBUG_MEMORY);
+			serialLog("\n", CTBOT_DEBUG_MEMORY);
+
+>>>>>>> Stashed changes
 			return CTBotMessageLocation;
 		}
 		else if (root["result"][0]["message"]["contact"]) {
@@ -262,6 +383,14 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
 			message.contact.phoneNumber = root["result"][0]["message"]["contact"]["phone_number"].as<String>();
 			message.contact.vCard       = root["result"][0]["message"]["contact"]["vcard"].as<String>();
 			message.messageType = CTBotMessageContact;
+<<<<<<< Updated upstream
+=======
+
+			serialLog(FSTR("--->getNewMessage: Free heap memory : "), CTBOT_DEBUG_MEMORY);
+			serialLog(ESP.getFreeHeap(), CTBOT_DEBUG_MEMORY);
+			serialLog("\n", CTBOT_DEBUG_MEMORY);
+
+>>>>>>> Stashed changes
 			return CTBotMessageContact;
 		}
 	}
@@ -269,7 +398,11 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
 	return CTBotMessageNoData;
 }
 
+<<<<<<< Updated upstream
 bool CTBot::sendMessage(int64_t id, String message, String keyboard)
+=======
+bool CTBot::sendMessage(int64_t id, const String& message, const String& keyboard)
+>>>>>>> Stashed changes
 {
 	if (0 == message.length())
 		return false;
@@ -300,41 +433,59 @@ bool CTBot::sendMessage(int64_t id, String message, String keyboard)
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	DeserializationError error = deserializeJson(root, sendCommand("sendMessage", parameters));
 	if (error) {
+<<<<<<< Updated upstream
 		serialLog("getNewMessage error: ArduinoJson deserialization error code: ");
 		serialLog(error.c_str());
 		serialLog("\n");
+=======
+		serialLog(FSTR("getNewMessage error: ArduinoJson deserialization error code: "), CTBOT_DEBUG_JSON);
+		serialLog(error.c_str(), CTBOT_DEBUG_JSON);
+		serialLog("\n", CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 		return CTBotMessageNoData;
 	}
 #endif
 
+<<<<<<< Updated upstream
 	if (!root["ok"]) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("SendMessage error: ");
+=======
+	if (!root[FSTR("ok")]) {
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
+		serialLog(FSTR("SendMessage error: "), CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 #if ARDUINOJSON_VERSION_MAJOR == 5
 		root.prettyPrintTo(Serial);
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
 		serializeJsonPretty(root, Serial);
 #endif
-		serialLog("\n");
+		serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
 		return false;
 	}
 
+<<<<<<< Updated upstream
 #if CTBOT_DEBUG_MODE > 0
 	serialLog("SendMessage JSON: ");
+=======
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
+	serialLog(FSTR("SendMessage JSON: "), CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	root.prettyPrintTo(Serial);
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	serializeJsonPretty(root, Serial);
 #endif
-	serialLog("\n");
+	serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
 
 	return true;
 }
 
+<<<<<<< Updated upstream
 bool CTBot::sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboard) {
 	return sendMessage(id, message, keyboard.getJSON());
 }
@@ -344,6 +495,17 @@ bool CTBot::sendMessage(int64_t id, String message, CTBotReplyKeyboard &keyboard
 }
 
 bool CTBot::endQuery(String queryID, String message, bool alertMode)
+=======
+bool CTBot::sendMessage(int64_t id, const String& message, CTBotInlineKeyboard &keyboard) {
+	return(sendMessage(id, message, keyboard.getJSON()));
+}
+
+bool CTBot::sendMessage(int64_t id, const String& message, CTBotReplyKeyboard &keyboard) {
+	return(sendMessage(id, message, keyboard.getJSON()));
+}
+
+bool CTBot::endQuery(const String& queryID, const String& message, bool alertMode)
+>>>>>>> Stashed changes
 {
 	if (0 == queryID.length())
 		return false;
@@ -374,41 +536,57 @@ bool CTBot::endQuery(String queryID, String message, bool alertMode)
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	DeserializationError error = deserializeJson(root, sendCommand("answerCallbackQuery", parameters));
 	if (error) {
+<<<<<<< Updated upstream
 		serialLog("getNewMessage error: ArduinoJson deserialization error code: ");
 		serialLog(error.c_str());
 		serialLog("\n");
+=======
+		serialLog(FSTR("getNewMessage error: ArduinoJson deserialization error code: "), CTBOT_DEBUG_JSON);
+		serialLog(error.c_str(), CTBOT_DEBUG_JSON);
+		serialLog("\n", CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 		return CTBotMessageNoData;
 	}
 #endif
 
+<<<<<<< Updated upstream
 	if (!root["ok"]) {
 #if CTBOT_DEBUG_MODE > 0
 		serialLog("answerCallbackQuery error: ");
+=======
+	if (!root[FSTR("ok")]) {
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
+		serialLog(FSTR("answerCallbackQuery error: "), CTBOT_DEBUG_JSON);
+>>>>>>> Stashed changes
 #if ARDUINOJSON_VERSION_MAJOR == 5
 		root.prettyPrintTo(Serial);
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
 		serializeJsonPretty(root, Serial);
 #endif
-		serialLog("\n");
+		serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
 		return false;
 	}
 
-#if CTBOT_DEBUG_MODE > 0
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	root.prettyPrintTo(Serial);
 #endif
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	serializeJsonPretty(root, Serial);
 #endif
-	serialLog("\n");
+	serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
 
 	return true;
 }
 
+<<<<<<< Updated upstream
 bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
+=======
+bool CTBot::removeReplyKeyboard(int64_t id, const String& message, bool selective)
+>>>>>>> Stashed changes
 {
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	DynamicJsonBuffer jsonBuffer;
@@ -435,6 +613,7 @@ bool CTBot::removeReplyKeyboard(int64_t id, String message, bool selective)
 	return sendMessage(id, message, command);
 }
 
+<<<<<<< Updated upstream
 
 
 
@@ -469,5 +648,32 @@ bool CTBot::setIP(String ip, String gateway, String subnetMask, String dns1, Str
 bool CTBot::wifiConnect(String ssid, String password) const
 {
 	return(m_wifi.wifiConnect(ssid, password));
+=======
+// ----------------------------| STUBS - FOR BACKWARD VERSION COMPATIBILITY
+
+void CTBot::setMaxConnectionRetries(uint8_t retries)
+{
+	m_wifi.setMaxConnectionRetries(retries);
+}
+
+bool CTBot::setIP(const String& ip, const String& gateway, const String& subnetMask, const String& dns1, const String& dns2)
+{
+	return(m_wifi.setIP(ip, gateway, subnetMask, dns1, dns2));
+}
+
+bool CTBot::wifiConnect(const String& ssid, const String& password)
+{
+	return(m_wifi.wifiConnect(ssid, password));
+}
+
+bool CTBot::useDNS(bool value)
+{
+	return(m_connection.useDNS(value));
+}
+
+void CTBot::setFingerprint(const uint8_t* newFingerprint)
+{
+	m_connection.setFingerprint(newFingerprint);
+>>>>>>> Stashed changes
 }
 

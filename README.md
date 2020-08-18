@@ -1,6 +1,10 @@
 # CTBot
 
+<<<<<<< Updated upstream
 Branch: Master - [![Build Status](https://travis-ci.org/shurillu/CTBot.svg?branch=master)](https://travis-ci.org/shurillu/CTBot)
+=======
+Branch: master - [![Build Status](https://travis-ci.org/shurillu/CTBot.svg?branch=master)](https://travis-ci.org/shurillu/CTBot)
+>>>>>>> Stashed changes
 
 
 ___
@@ -11,6 +15,7 @@ You also need to install the [ESP8266 Arduino Core and Library](https://github.c
 Don't you know Telegram bots and how to setup one? Check [this](https://core.telegram.org/bots#6-botfather).
 
 + **_Now ArduinoJson version 5 and 6 are supported!_**
++ **_getNewMessage method now is more responsive!!_**
 
 ### News
 + ESP32 supported
@@ -48,6 +53,7 @@ A special thanks go to these people who helped me making this library
 + [x] ArduinoJSON 6 support
 
 ### Changelog
++ 2.1.2 getNewMessage is no more blocking as before; moved all static strings to FLASH (only for ESP8266 - +1 KB heap free)
 + 2.1.1 Memory optimization
 + 2.1.0 ArduinoJSON 5 and 6 support
 + 2.0.0 ESP32 support

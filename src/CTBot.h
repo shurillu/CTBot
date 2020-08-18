@@ -7,6 +7,8 @@
 #include "CTBotDataStructures.h"
 #include "CTBotInlineKeyboard.h"
 #include "CTBotReplyKeyboard.h"
+#include "CTBotWiFiSetup.h"
+#include "CTBotSecureConnection.h"
 #include "CTBotDefines.h"
 #include "CTBotWifiSetup.h"
 
@@ -18,10 +20,51 @@ public:
 	// default destructor
 	~CTBot();
 
+<<<<<<< Updated upstream
 	// set the telegram token
 	// params
 	//   token: the telegram token
 	void setTelegramToken(String token);
+=======
+	// set a static ip. If not set, use the DHCP. 
+	// params
+	//   ip        : the ip address
+	//   gateway   : the gateway address
+	//   subnetMask: the subnet mask
+	//   dns1      : the optional first DNS
+	//   dns2      : the optional second DNS
+	// returns
+	//   true if no error occurred
+	bool setIP(const String& ip, const String& gateway, const String& subnetMask, const String& dns1 = "", const String& dns2 = "");
+
+	// connect to a wifi network
+	// params
+	//   ssid    : the SSID network identifier
+	//   password: the optional password
+	// returns
+	//   true if no error occurred
+	bool wifiConnect(const String& ssid, const String& password = "");
+
+	// set how many times the wifiConnect method have to try to connect to the specified SSID.
+	// A value of zero mean infinite retries.
+	// Default value is zero (infinite retries)
+	// params
+	//   retries: how many times wifiConnect have to try to connect
+	void setMaxConnectionRetries(uint8_t retries);
+
+	// set the telegram token
+	// params
+	//   token: the telegram token
+	void setTelegramToken(const String& token);
+
+	// use the URL style address "api.telegram.org" or the fixed IP address "149.154.167.198"
+	// for all communication with the telegram server
+	// Default value is true
+	// params
+	//   value: true  -> use URL style address
+	//          false -> use fixed IP addres
+	bool useDNS(bool value);
+>>>>>>> Stashed changes
 
 	// enable/disable the UTF8 encoding for the received message.
 	// Default value is false (disabled)
@@ -30,6 +73,16 @@ public:
 	//          false -> leave the received message as-is
 	void enableUTF8Encoding(bool value);
 
+<<<<<<< Updated upstream
+=======
+	// set the status pin used to connect a LED for visual notification
+	// CTBOT_DISABLE_STATUS_PIN will disable the notification
+	// default value is CTBOT_DISABLE_STATUS_PIN
+	// params
+	//   pin: the pin used for visual notification
+	void setStatusPin(int8_t pin);
+
+>>>>>>> Stashed changes
 	// test the connection between ESP8266 and the telegram server
 	// returns
 	//    true if no error occurred
@@ -39,12 +92,15 @@ public:
 	// This is a destructive operation: once read, the message will be marked as read
 	// so a new getMessage will read the next message (if any).
 	// params
-	//   message: the data structure that will contains the data retrieved
+	//   message : the data structure that will contains the data retrieved
+	//   blocking: false -> execute the member function only every CTBOT_GET_UPDATE_TIMEOUT milliseconds
+	//                      with this trick the Telegram Server responds very quickly
+	//             true  -> the old method, blocking the execution for aroun 3-4 second
 	// returns
 	//   CTBotMessageNoData: an error has occurred
 	//   CTBotMessageText  : the received message is a text
 	//   CTBotMessageQuery : the received message is a query (from inline keyboards)
-	CTBotMessageType getNewMessage(TBMessage &message);
+	CTBotMessageType getNewMessage(TBMessage &message, bool blocking = false);
 
 	// send a message to the specified telegram user ID
 	// params
@@ -78,7 +134,28 @@ public:
 	//                       2) if the bot's message is a reply (has reply_to_message_id), sender of the original message
 	// return:
 	//   true if no error occurred
+<<<<<<< Updated upstream
 	bool removeReplyKeyboard(int64_t id, String message, bool selective = false);
+=======
+	bool removeReplyKeyboard(int64_t id, const String& message, bool selective = false);
+
+	// set the new Telegram API server fingerprint overwriting the default one.
+	// It can be obtained by this service: https://www.grc.com/fingerprints.htm
+	// quering api.telegram.org
+	// params:
+	//    newFingerprint: the array of 20 bytes that contains the new fingerprint
+	void setFingerprint(const uint8_t *newFingerprint);
+
+private:
+	CTBotSecureConnection m_connection;
+	CTBotWifiSetup        m_wifi;
+	uint8_t               m_wifiConnectionTries;
+	String                m_token;
+	int32_t               m_lastUpdate;
+	bool                  m_useDNS;
+	bool                  m_UTF8Encoding;
+	uint32_t              m_lastUpdateTimeStamp;
+>>>>>>> Stashed changes
 
 	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api
 	// params
@@ -110,6 +187,7 @@ private:
 	// returns
 	//   true if no error occurred
 	bool getMe(TBUser &user);
+<<<<<<< Updated upstream
 
 
 
@@ -121,6 +199,8 @@ public:
 	void setMaxConnectionRetries(uint8_t retries);
 	void setStatusPin(int8_t pin);
 	void setFingerprint(const uint8_t *newFingerprint);
+=======
+>>>>>>> Stashed changes
 };
 
 #endif

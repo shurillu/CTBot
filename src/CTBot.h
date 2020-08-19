@@ -6,7 +6,7 @@
 #include "CTBotDataStructures.h"
 #include "CTBotInlineKeyboard.h"
 #include "CTBotReplyKeyboard.h"
-#include "CTBotWiFiSetup.h"
+#include "CTBotWifiSetup.h"
 #include "CTBotSecureConnection.h"
 #include "CTBotDefines.h"
 

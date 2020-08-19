@@ -58,7 +58,7 @@ void loop() {
 			// check if the message comes from a chat group (the group.id is negative)
 			if (msg.group.id < 0) {
 				// echo the message to the chat group
-				Serial.printf("Chat ID: %d\n", msg.group.id);
+				Serial.printf("Chat ID: %" PRId64 "\n", msg.group.id);
 				myBot.sendMessage(msg.group.id, msg.text);
 			}
 		}

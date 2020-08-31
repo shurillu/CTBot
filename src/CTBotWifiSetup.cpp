@@ -43,7 +43,7 @@ void CTBotWifiSetup::setStatusPin(int8_t pin) {
 bool CTBotWifiSetup::setIP(const String& ip, const String& gateway, const String& subnetMask, const String& dns1, const String& dns2) {
 	IPAddress IP, SN, GW, DNS1, DNS2;
 
-	if (!IP.fromString(ip)) {
+	if (!IP.fromString(ip)) {   
 		serialLog(FSTR("--- setIP: error on IP address\n"), CTBOT_DEBUG_WIFI);
 		return false;
 	}

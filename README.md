@@ -49,6 +49,7 @@ A special thanks go to these people who helped me making this library
 + [x] ArduinoJSON 6 support
 
 ### Changelog
++ 2.1.3 correct a platformIO library issue that doesn't download the CTBotWifiSetup.* files
 + 2.1.2 getNewMessage is no more blocking as before; moved all static strings to FLASH (only for ESP8266 - +1 KB heap free)
 + 2.1.1 Memory optimization
 + 2.1.0 ArduinoJSON 5 and 6 support

@@ -23,7 +23,7 @@ public:
     //   pin: the pin used for visual notification
 	void setStatusPin(int8_t pin);
 
-	// set a static ip. If not set, use the DHCP. 
+	// set a static ip. If not set, use the DHCP.    
 	// params
 	//   ip        : the ip address
 	//   gateway   : the gateway address

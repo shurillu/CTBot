@@ -380,6 +380,69 @@ bool CTBot::sendMessage(int64_t id, const String& message, CTBotReplyKeyboard &k
 	return(sendMessage(id, message, keyboard.getJSON()));
 }
 
+bool CTBot::editMessageText(int64_t id, int32_t messageID, const String& message, const String& keyboard)
+{
+	String parameters;
+	String strID;
+
+	if (0 == message.length())
+		return false;
+
+	strID = int64ToAscii(id);
+
+	parameters = (String)FSTR("?chat_id=") + strID + (String)FSTR("&message_id=") + (String)messageID + (String)FSTR("&text=") + URLEncodeMessage(message);
+
+	if (keyboard.length() != 0)
+		parameters += (String)FSTR("&reply_markup=") + keyboard;
+
+#if ARDUINOJSON_VERSION_MAJOR == 5
+#if CTBOT_BUFFER_SIZE > 0
+	StaticJsonBuffer<CTBOT_JSON5_BUFFER_SIZE> jsonBuffer;
+#else
+	DynamicJsonBuffer jsonBuffer;
+#endif
+	JsonObject& root = jsonBuffer.parse(sendCommand(FSTR("editMessageText"), parameters));
+#elif ARDUINOJSON_VERSION_MAJOR == 6
+	DynamicJsonDocument root(CTBOT_JSON6_BUFFER_SIZE);
+	DeserializationError error = deserializeJson(root, sendCommand(FSTR("editMessageText"), parameters));
+	if (error) {
+		serialLog(FSTR("getNewMessage error: ArduinoJson deserialization error code: "), CTBOT_DEBUG_JSON);
+		serialLog(error.c_str(), CTBOT_DEBUG_JSON);
+		serialLog("\n", CTBOT_DEBUG_JSON);
+		return CTBotMessageNoData;
+	}
+#endif
+
+	if (!root[FSTR("ok")]) {
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
+		serialLog(FSTR("SendMessage error: "), CTBOT_DEBUG_JSON);
+#if ARDUINOJSON_VERSION_MAJOR == 5
+		root.prettyPrintTo(Serial);
+#elif ARDUINOJSON_VERSION_MAJOR == 6
+		serializeJsonPretty(root, Serial);
+#endif
+		serialLog("\n", CTBOT_DEBUG_JSON);
+#endif
+		return false;
+	}
+
+#if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
+	serialLog(FSTR("SendMessage JSON: "), CTBOT_DEBUG_JSON);
+#if ARDUINOJSON_VERSION_MAJOR == 5
+	root.prettyPrintTo(Serial);
+#elif ARDUINOJSON_VERSION_MAJOR == 6
+	serializeJsonPretty(root, Serial);
+#endif
+	serialLog("\n", CTBOT_DEBUG_JSON);
+#endif
+
+	return true;
+}
+
+bool CTBot::editMessageText(int64_t id, int32_t messageID, const String& message, CTBotInlineKeyboard &keyboard) {
+	return(editMessageText(id, messageID, message, keyboard.getJSON()));
+}
+
 bool CTBot::endQuery(const String& queryID, const String& message, bool alertMode)
 {
 	String parameters;

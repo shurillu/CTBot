@@ -57,6 +57,8 @@ String CTBotSecureConnection::send(const String& message)
 	telegramServer.setBufferSizes(CTBOT_ESP8266_TCP_BUFFER_SIZE, CTBOT_ESP8266_TCP_BUFFER_SIZE);
 #endif
 
+	telegramServer.setTimeout(CTBOT_CONNECTION_TIMEOUT);
+
 	// check for using symbolic URLs
 	if (m_useDNS) {
 		// try to connect with URL

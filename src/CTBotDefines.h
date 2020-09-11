@@ -36,6 +36,9 @@
 #define CTBOT_ESP8266_TCP_BUFFER_SIZE  512 // tx/rx wifiClientSecure buffer size for Telegram server connections
 										   // only for ESP8266
 
+// timeout used when try to connect to the telegram server
+#define CTBOT_CONNECTION_TIMEOUT      2000 // ms
+
 // strings on FLASH macro
 #if defined(ARDUINO_ARCH_ESP8266) // ESP8266 
 #define FSTR(x) F(x)

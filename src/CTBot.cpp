@@ -170,7 +170,6 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
 				return CTBotMessageNoData;
 		}
 	}
-	m_lastUpdateTimeStamp = millis();
 
 	String parameters;
 	char buf[21];
@@ -203,9 +202,12 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
 		serialLog(FSTR("getNewMessage error: ArduinoJson deserialization error code: "), CTBOT_DEBUG_JSON);
 		serialLog(error.c_str(), CTBOT_DEBUG_JSON);
 		serialLog("\n", CTBOT_DEBUG_JSON);
+		m_lastUpdateTimeStamp = millis();
 		return CTBotMessageNoData;
 	}
 #endif
+
+	m_lastUpdateTimeStamp = millis();
 
 	if (!root[FSTR("ok")]) {
 #if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0

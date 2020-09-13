@@ -98,10 +98,10 @@ public:
 	//   keyboard: the inline/reply keyboard (optional)
 	//             (in json format or using the CTBotInlineKeyboard/CTBotReplyKeyboard class helper)
 	// returns
-	//   true if no error occurred
-	bool sendMessage(int64_t id, const String& message, const String& keyboard = "");
-	bool sendMessage(int64_t id, const String& message, CTBotInlineKeyboard &keyboard);
-	bool sendMessage(int64_t id, const String& message, CTBotReplyKeyboard  &keyboard);
+	//   the messageID if no errors occurred, otherwise 0
+	int32_t sendMessage(int64_t id, const String& message, const String& keyboard = "");
+	int32_t sendMessage(int64_t id, const String& message, CTBotInlineKeyboard &keyboard);
+	int32_t sendMessage(int64_t id, const String& message, CTBotReplyKeyboard  &keyboard);
 
 	// edits text or inline keyboard of a previous message for the specified telegram user ID
 	// params
@@ -114,6 +114,7 @@ public:
 	//   true if no error occurred
 	bool editMessageText(int64_t id, int32_t messageID, const String& message, const String& keyboard = "");
 	bool editMessageText(int64_t id, int32_t messageID, const String& message, CTBotInlineKeyboard &keyboard);
+
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard
 	// 2) wait for a <message> (getNewMessage) of type CTBotMessageQuery

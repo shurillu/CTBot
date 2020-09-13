@@ -315,13 +315,13 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
 	return CTBotMessageNoData;
 }
 
-bool CTBot::sendMessage(int64_t id, const String& message, const String& keyboard)
+int32_t CTBot::sendMessage(int64_t id, const String& message, const String& keyboard)
 {
 	String parameters;
 	String strID;
 
 	if (0 == message.length())
-		return false;
+		return 0;
 
 	strID = int64ToAscii(id);
 
@@ -344,7 +344,7 @@ bool CTBot::sendMessage(int64_t id, const String& message, const String& keyboar
 		serialLog(FSTR("getNewMessage error: ArduinoJson deserialization error code: "), CTBOT_DEBUG_JSON);
 		serialLog(error.c_str(), CTBOT_DEBUG_JSON);
 		serialLog("\n", CTBOT_DEBUG_JSON);
-		return CTBotMessageNoData;
+		return 0;
 	}
 #endif
 
@@ -358,7 +358,7 @@ bool CTBot::sendMessage(int64_t id, const String& message, const String& keyboar
 #endif
 		serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
-		return false;
+		return 0;
 	}
 
 #if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
@@ -371,14 +371,15 @@ bool CTBot::sendMessage(int64_t id, const String& message, const String& keyboar
 	serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
 
-	return true;
+	return root[FSTR("result")][FSTR("message_id")].as<int32_t>();
+	;
 }
 
-bool CTBot::sendMessage(int64_t id, const String& message, CTBotInlineKeyboard &keyboard) {
+int32_t CTBot::sendMessage(int64_t id, const String& message, CTBotInlineKeyboard &keyboard) {
 	return(sendMessage(id, message, keyboard.getJSON()));
 }
 
-bool CTBot::sendMessage(int64_t id, const String& message, CTBotReplyKeyboard &keyboard) {
+int32_t CTBot::sendMessage(int64_t id, const String& message, CTBotReplyKeyboard &keyboard) {
 	return(sendMessage(id, message, keyboard.getJSON()));
 }
 

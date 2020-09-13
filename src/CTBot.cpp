@@ -45,7 +45,7 @@ bool CTBot::setTelegramToken(const String& token) {
 	setTelegramToken(token.c_str());
 }
 bool CTBot::setTelegramToken(const char* token) {
-	int tokenSize, result;
+	int tokenSize;
 	if (m_token != NULL)
 		free(m_token);
 	m_token = NULL;
@@ -916,7 +916,8 @@ int32_t CTBot::sendMessage(int64_t id, const String& message, CTBotReplyKeyboard
 }
 
 CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
-	delay(CTBOT_GET_UPDATE_TIMEOUT);
+	if (blocking)
+		delay(CTBOT_GET_UPDATE_TIMEOUT);
 	return getNewMessage(message);
 }
 
@@ -924,7 +925,9 @@ bool CTBot::removeReplyKeyboard(int64_t id, const String& message, bool selectiv
 	return removeReplyKeyboard(id, message.c_str(), selective);
 }
 
-void CTBot::enableUTF8Encoding(bool value) {}
+void CTBot::enableUTF8Encoding(bool value) {
+	value = value;
+}
 
 bool CTBot::endQuery(const String& queryID, const String& message, bool alertMode) {
 	return endQuery(queryID.c_str(), message.c_str(), alertMode);

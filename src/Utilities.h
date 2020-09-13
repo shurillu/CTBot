@@ -57,7 +57,7 @@ void inline serialLog(uint8_t debugLevel, const char* format, ...) {
 }
 #else
 void inline serialLog(uint8_t debugLevel, const char* format, ...) {}
-#endif;
+#endif
 
 
 #endif

@@ -230,11 +230,11 @@ private:
 
 // -----------------------STUBS - for backward compatibility --------------------------------------------------------------------
 public:
-	CTBotMessageType getNewMessage(TBMessage& message, bool blocking); // STUB
+	CTBotMessageType getNewMessage(TBMessage& message, bool blocking);
 	
-	int32_t sendMessage(int64_t id, const String& message, const String& keyboard = "");   // STUB
-	int32_t sendMessage(int64_t id, const String& message, CTBotInlineKeyboard& keyboard); // STUB
-	int32_t sendMessage(int64_t id, const String& message, CTBotReplyKeyboard& keyboard);  // STUB
+	int32_t sendMessage(int64_t id, const String& message, const String& keyboard = ""); 
+	int32_t sendMessage(int64_t id, const String& message, CTBotInlineKeyboard& keyboard);
+	int32_t sendMessage(int64_t id, const String& message, CTBotReplyKeyboard& keyboard);
 
 	bool setTelegramToken(const String& token); // STUB
 

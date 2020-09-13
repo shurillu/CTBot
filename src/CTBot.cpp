@@ -42,7 +42,7 @@ CTBot::~CTBot() {
 }
 
 bool CTBot::setTelegramToken(const String& token) {
-	setTelegramToken(token.c_str());
+	return setTelegramToken(token.c_str());
 }
 bool CTBot::setTelegramToken(const char* token) {
 	int tokenSize;

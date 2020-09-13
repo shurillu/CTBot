@@ -162,7 +162,7 @@ const char* CTBotSecureConnection::receive() {
 
 	char buffer[32];
 	char singleChar;
-	int result, payloadSize, size, found;
+	int result, size, found, payloadSize;
 
 	flush();
 
@@ -220,6 +220,8 @@ const char* CTBotSecureConnection::receive() {
 	// find the Content-Length
 	found = -1;
 	size = strlen_P((const char*)HTTP_CONTENT_LENGTH);
+	payloadSize = 0;
+
 	while ((found != 0) && m_telegramServer.available()) {
 		result = m_telegramServer.readBytes((uint8_t*)buffer, size);
 		buffer[result] = 0x00;

@@ -2,7 +2,7 @@
 
 CTBotStatusPin::CTBotStatusPin() {
 	m_pin = CTBOT_DISABLE_STATUS_PIN;
-	m_pinValue = 0;
+	m_pinValue = LOW;
 }
 
 CTBotStatusPin::~CTBotStatusPin() {
@@ -10,18 +10,17 @@ CTBotStatusPin::~CTBotStatusPin() {
 //		pinMode(m_pin, INPUT);
 }
 
-void CTBotStatusPin::setPin(int8_t newPin)
+void CTBotStatusPin::setPin(int8_t newPin, uint8_t value)
 {
 	if (m_pin != CTBOT_DISABLE_STATUS_PIN) {
 		// disable the previous pin
 		pinMode(m_pin, INPUT);
 	}
 	m_pin = newPin;
-	if (m_pin != CTBOT_DISABLE_STATUS_PIN) {
+	m_pinValue = value;
+	if (m_pin != CTBOT_DISABLE_STATUS_PIN)
 		pinMode(m_pin, OUTPUT);
-		digitalWrite(m_pin, LOW);
-	}
-	m_pinValue = 0;
+	setValue(m_pinValue);
 }
 
 void CTBotStatusPin::toggle()
@@ -30,14 +29,14 @@ void CTBotStatusPin::toggle()
 		return;
 
 	if (m_pinValue > 0)
-		m_pinValue = 0;
+		m_pinValue = LOW;
 	else
-		m_pinValue = 1;
+		m_pinValue = HIGH;
 	digitalWrite(m_pin, m_pinValue);
 
 }
 
-void CTBotStatusPin::setValue(bool newValue)
+void CTBotStatusPin::setValue(uint8_t newValue)
 {
 	if (CTBOT_DISABLE_STATUS_PIN == m_pin)
 		return;
@@ -46,12 +45,12 @@ void CTBotStatusPin::setValue(bool newValue)
 	digitalWrite(m_pin, m_pinValue);
 }
 
-uint8_t CTBotStatusPin::getValue()
+uint8_t CTBotStatusPin::getValue() const
 {
 	return m_pinValue;
 }
 
-int8_t CTBotStatusPin::getPin()
+int8_t CTBotStatusPin::getPin() const
 {
 	return m_pin;
 }

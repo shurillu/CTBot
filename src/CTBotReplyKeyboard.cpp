@@ -11,29 +11,32 @@ void CTBotReplyKeyboard::initialize(void)
 	m_rows = &rows;
 	m_buttons = &buttons;
 #elif ARDUINOJSON_VERSION_MAJOR == 6
-	m_rows = m_root->createNestedArray("keyboard");
-	m_buttons = m_rows.createNestedArray();
+	if (m_root != NULL) {
+		m_rows = m_root->createNestedArray("keyboard");
+		m_buttons = m_rows.createNestedArray();
+	}
 #endif
-
 	m_isRowEmpty = true;
+	m_pkeyboard = NULL;
 }
 
 CTBotReplyKeyboard::CTBotReplyKeyboard()
 {
 #if ARDUINOJSON_VERSION_MAJOR == 6
 	m_root = new DynamicJsonDocument(CTBOT_JSON6_BUFFER_SIZE);
-	if (!m_root)
-		serialLog("CTBotInlineKeyboard: Unable to allocate JsonDocument memory.\n", CTBOT_DEBUG_MEMORY);
+	if (NULL == m_root)
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("CTBotInlineKeyboard: Unable to allocate JsonDocument memory.\n"));
 #endif
-	
 	initialize();
 }
 
 CTBotReplyKeyboard::~CTBotReplyKeyboard()
 {
 #if ARDUINOJSON_VERSION_MAJOR == 6
-	delete m_root;
+	if (m_root != NULL) delete m_root;
 #endif
+	if (m_pkeyboard != NULL)
+		free(m_pkeyboard);
 }
 
 void CTBotReplyKeyboard::flushData(void)
@@ -41,8 +44,10 @@ void CTBotReplyKeyboard::flushData(void)
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	m_jsonBuffer.clear();
 #elif ARDUINOJSON_VERSION_MAJOR == 6
-	m_root->clear();
+	if (m_root != NULL) m_root->clear();
 #endif
+	if (m_pkeyboard != NULL)
+		free(m_pkeyboard);
 
 	initialize();
 }
@@ -56,15 +61,17 @@ bool CTBotReplyKeyboard::addRow(void)
 	JsonArray& buttons = m_rows->createNestedArray();
 	m_buttons = &buttons;
 #elif ARDUINOJSON_VERSION_MAJOR == 6
-	m_buttons = m_rows.createNestedArray();
+	if (m_root != NULL) m_buttons = m_rows.createNestedArray();
 #endif
 
 	m_isRowEmpty = true;
 	return true;
 }
 
-bool CTBotReplyKeyboard::addButton(const String& text, CTBotReplyKeyboardButtonType buttonType)
-{
+bool CTBotReplyKeyboard::addButton(const String& text, CTBotReplyKeyboardButtonType buttonType) {
+	return addButton(text.c_str(), buttonType);
+}
+bool CTBotReplyKeyboard::addButton(const char* text, CTBotReplyKeyboardButtonType buttonType) {
 	if ((buttonType != CTBotKeyboardButtonSimple) &&
 		(buttonType != CTBotKeyboardButtonContact) &&
 		(buttonType != CTBotKeyboardButtonLocation))
@@ -77,12 +84,12 @@ bool CTBotReplyKeyboard::addButton(const String& text, CTBotReplyKeyboardButtonT
 	JsonObject button = m_buttons.createNestedObject();
 #endif
 
-	button["text"] = URLEncodeMessage(text);
+	button[FSTR("text")] = text;
 
 	if (CTBotKeyboardButtonContact == buttonType)
-		button["request_contact"] = true;
+		button[FSTR("request_contact")] = true;
 	else if (CTBotKeyboardButtonLocation == buttonType)
-		button["request_location"] = true;
+		button[FSTR("request_location")] = true;
 
 	if (m_isRowEmpty)
 		m_isRowEmpty = false;
@@ -90,27 +97,42 @@ bool CTBotReplyKeyboard::addButton(const String& text, CTBotReplyKeyboardButtonT
 }
 
 void CTBotReplyKeyboard::enableResize(void) {
-	(*m_root)["resize_keyboard"] = true;
+	(*m_root)[FSTR("resize_keyboard")] = true;
 }
 
 void CTBotReplyKeyboard::enableOneTime(void) {
-	(*m_root)["one_time_keyboard"] = true;
+	(*m_root)[FSTR("one_time_keyboard")] = true;
 }
 
 void CTBotReplyKeyboard::enableSelective(void) {
-	(*m_root)["selective"] = true;
+	(*m_root)[FSTR("selective")] = true;
 }
 
-String CTBotReplyKeyboard::getJSON(void)
+const char* CTBotReplyKeyboard::getJSON(void)
 {
-	String serialized;
+	uint16_t keyboardSize;
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
-	m_root->printTo(serialized);
+	keyboardSize = m_root->measureLength() + 1;
 #elif ARDUINOJSON_VERSION_MAJOR == 6
-	serializeJson(*m_root, serialized);
+	keyboardSize = measureJson(*m_root) + 1;
 #endif
 
-	return serialized;
+	if (m_pkeyboard != NULL)
+		free(m_pkeyboard);
+
+	m_pkeyboard = (char*)malloc(keyboardSize);
+	if (NULL == m_pkeyboard) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->getJSON: unable to allocate memory\n"));
+		return "";
+	}
+
+#if ARDUINOJSON_VERSION_MAJOR == 5
+	m_root->printTo(m_pkeyboard, keyboardSize);
+#elif ARDUINOJSON_VERSION_MAJOR == 6
+	serializeJson(*m_root, m_pkeyboard, keyboardSize);
+#endif
+	m_pkeyboard[keyboardSize - 1] = 0x00;
+	return m_pkeyboard;
 }
 

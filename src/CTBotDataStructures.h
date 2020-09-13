@@ -9,7 +9,8 @@ enum CTBotMessageType {
 	CTBotMessageText     = 1,
 	CTBotMessageQuery    = 2,
 	CTBotMessageLocation = 3,
-	CTBotMessageContact  = 4
+	CTBotMessageContact  = 4, 
+	CTBotMessageACK      = 5
 };
 
 struct TBUser {

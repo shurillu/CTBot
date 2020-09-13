@@ -34,7 +34,7 @@ private:
 	JsonArray m_buttons;
 #endif
 	bool m_isRowEmpty;
-
+	char* m_pkeyboard;
 	void initialize(void);
 
 public:
@@ -57,14 +57,14 @@ public:
 	// return:
 	//    true if no error occurred
 	bool addButton(const String& text, const String& command, CTBotInlineKeyboardButtonType buttonType);
+	bool addButton(const char* text, const char* command, CTBotInlineKeyboardButtonType buttonType);
 
 	// generate a string that contains the inline keyboard formatted in a JSON structure. 
 	// Useful for CTBot::sendMessage()
 	// returns:
 	//   the JSON of the inline keyboard 
-	String getJSON(void);
+//	String getJSON(void);
+	const char* getJSON(void);
 };
-
-
 
 #endif

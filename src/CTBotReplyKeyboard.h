@@ -34,8 +34,8 @@ private:
 	JsonArray m_rows;
 	JsonArray m_buttons;
 #endif
-
 	bool m_isRowEmpty;
+	char* m_pkeyboard;
 	void initialize(void);
 
 public:
@@ -57,6 +57,7 @@ public:
 	// return:
 	//    true if no error occurred
 	bool addButton(const String& text, CTBotReplyKeyboardButtonType buttonType = CTBotKeyboardButtonSimple);
+	bool addButton(const char* text, CTBotReplyKeyboardButtonType buttonType = CTBotKeyboardButtonSimple);
 
 	// enable reply keyboard autoresizing (default: the same size of the standard keyboard)
 	void enableResize(void);
@@ -73,7 +74,7 @@ public:
 	// Useful for CTBot::sendMessage()
 	// returns:
 	//   the JSON of the inline keyboard 
-	String getJSON(void);
+	const char* getJSON(void);
 };
 
 #endif

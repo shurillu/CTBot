@@ -11,6 +11,7 @@
 #define CTBOT_DEBUG_ALL CTBOT_DEBUG_WIFI | CTBOT_DEBUG_JSON | CTBOT_DEBUG_MEMORY | CTBOT_DEBUG_CONNECTION
 
 // enable debugmode -> print debug data on the Serial; Zero -> debug disabled
+//#define CTBOT_DEBUG_MODE                 CTBOT_DEBUG_ALL 
 #define CTBOT_DEBUG_MODE                 CTBOT_DEBUG_DISABLED 
 
 #define CTBOT_STATION_MODE               1 // Station mode -> Set the mode to WIFI_STA (no access point)
@@ -26,6 +27,10 @@
 // value for disabling the status pin. It is utilized for led notification on the board
 #define CTBOT_DISABLE_STATUS_PIN        -1
 
+// timeout used when try to connect to the telegram server
+#define CTBOT_CONNECTION_TIMEOUT      2000 // ms
+
+
 // Library specific defines: ArduinoJson5 ------------------------------------------------------------------------
 #define CTBOT_JSON5_BUFFER_SIZE          0 // json parser buffer size (only for ArduinoJson 5)
 										   // Zero -> dynamic allocation 
@@ -36,15 +41,14 @@
 #define CTBOT_ESP8266_TCP_BUFFER_SIZE  512 // tx/rx wifiClientSecure buffer size for Telegram server connections
 										   // only for ESP8266
 
-// timeout used when try to connect to the telegram server
-#define CTBOT_CONNECTION_TIMEOUT      2000 // ms
-
 // strings on FLASH macro
 #if defined(ARDUINO_ARCH_ESP8266) // ESP8266 
-#define FSTR(x) F(x)
+#define FSTR(x)  F(x)
+#define CFSTR(x) (char*)FSTR(x)
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
 // ESP32 does not support strings on FLASH
-#define FSTR(x) (x)
+#define FSTR(x)  (x)
+#define CFSTR(x) (x)
 #endif
 
 

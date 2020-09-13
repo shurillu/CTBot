@@ -15,15 +15,15 @@ public:
 	~CTBotWifiSetup();
 
 	// set the status pin used to connect a LED for visual notification
-    // CTBOT_DISABLE_STATUS_PIN will disable the notification
+	// CTBOT_DISABLE_STATUS_PIN will disable the notification
 	// default value is CTBOT_DISABLE_STATUS_PIN (visual notification disabled)
-    // - ESP8266 onboard LED: 2
-	// - ESP32 onboard LED  : 4
-    // params
-    //   pin: the pin used for visual notification
-	void setStatusPin(int8_t pin);
+	// - NodeMCU/ESP32S onboard LED: 2
+	// params
+	//   pin  : the pin used for visual notification
+	//   value: the output value. Default is LOW
+	void setStatusPin(int8_t pin, uint8_t value = LOW);
 
-	// set a static ip. If not set, use the DHCP.    
+	// set a static ip. If not set, use the DHCP. 
 	// params
 	//   ip        : the ip address
 	//   gateway   : the gateway address
@@ -32,7 +32,8 @@ public:
 	//   dns2      : the optional second DNS
 	// returns
 	//   true if no error occurred
-	bool setIP(const String& ip, const String& gateway, const String& subnetMask, const String& dns1 = "", const String& dns2 = "");
+	bool setIP(const char* ip, const char* gateway, const char* subnetMask, const char* dns1 = "", const char* dns2 = "") const;
+	bool setIP(const String& ip, const String& gateway, const String& subnetMask, const String& dns1 = "", const String& dns2 = "") const;
 
 	// connect to a wifi network
 	// params
@@ -40,7 +41,8 @@ public:
 	//   password: the optional password
 	// returns
 	//   true if no error occurred
-	bool wifiConnect(const String& ssid, const String& password = "");
+	bool connect(const char* ssid, const char* password = "");
+	bool connect(const String& ssid, const String& password = "");
 
 	// set how many times the wifiConnect method have to try to connect to the specified SSID.
 	// A value of zero means infinite retries.
@@ -62,8 +64,8 @@ public:
 private:
 	uint8_t         m_wifiConnectionTries;
 	CTBotStatusPin  m_statusPin;
-	String          m_SSID;
-	String          m_password;
+	char*           m_SSID;
+	char*           m_password;
 };
 
 #endif

@@ -1,170 +1,328 @@
-#include <WiFiClientSecure.h>
+#include <pgmspace.h>
 #include "CTBotSecureConnection.h"
 #include "Utilities.h"
+
 
 #define TELEGRAM_URL  FSTR("api.telegram.org") 
 #define TELEGRAM_IP   FSTR("149.154.167.220") // "149.154.167.198" <-- Old IP
 #define TELEGRAM_PORT 443
 
+
+#define HTTP_RESPONSE_OK    FSTR("HTTP/1.1 200 OK")
+#define HTTP_CONTENT_LENGTH FSTR("Content-Length: ")
+
+
+
+
+// --------------------------------------------------------------------------------------------------
+
 CTBotSecureConnection::CTBotSecureConnection() {
-	m_useDNS = false;
-}
-
-bool CTBotSecureConnection::useDNS(bool value)
-{
-	m_useDNS = value;
-
-	// seems that it doesn't work with ESP32 - comment out for now
-	// the check is present (and work) on send() member function
-	//if (m_useDNS) {
-	//	WiFiClientSecure telegramServer;
-	//	if (!telegramServer.connect(TELEGRAM_URL, TELEGRAM_PORT)) {
-	//		telegramServer.stop();
-	//		m_useDNS = false;
-	//		return false;
-	//	}
-	//}
-	return true;
-}
-
-void CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint)
-{
-	for (int i = 0; i < 20; i++)
-		m_fingerprint[i] = newFingerprint[i];
-}
-
-void CTBotSecureConnection::setStatusPin(int8_t pin)
-{
-	m_statusPin.setPin(pin);
-}
-
-String CTBotSecureConnection::send(const String& message)
-{
-#if defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 0 // ESP8266 no HTTPS verification
-	WiFiClientSecure telegramServer;
-	telegramServer.setInsecure();
-	serialLog(FSTR("ESP8266 no https verification"), CTBOT_DEBUG_CONNECTION);
-#elif defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 1 // ESP8266 with HTTPS verification
-	BearSSL::WiFiClientSecure telegramServer;
-	telegramServer.setFingerprint(m_fingerprint);
-	serialLog(FSTR("ESP8266 with https verification"), CTBOT_DEBUG_CONNECTION);
+#if defined(ARDUINO_ARCH_ESP8266) 
+#if	 CTBOT_USE_FINGERPRINT == 0 // ESP8266 no HTTPS verification
+	m_telegramServer.setInsecure();
+	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP8266 no https verification\n"));
+#else// ESP8266 with HTTPS verification
+	m_telegramServer.setFingerprint(m_fingerprint);
+	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP8266 with https verification\n"));
+#endif
+	m_telegramServer.setBufferSizes(CTBOT_ESP8266_TCP_BUFFER_SIZE, CTBOT_ESP8266_TCP_BUFFER_SIZE);
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
-	WiFiClientSecure telegramServer;
-	serialLog(FSTR("ESP32"), CTBOT_DEBUG_CONNECTION);
+	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP32\n"));
 #endif
 
-#if defined(ARDUINO_ARCH_ESP8266) // only for ESP8266 reduce drastically the heap usage (~15K more)
-	telegramServer.setBufferSizes(CTBOT_ESP8266_TCP_BUFFER_SIZE, CTBOT_ESP8266_TCP_BUFFER_SIZE);
-#endif
+	m_telegramServer.setTimeout(CTBOT_CONNECTION_TIMEOUT);
 
-	telegramServer.setTimeout(CTBOT_CONNECTION_TIMEOUT);
+	m_useDNS = false;
+	m_receivedData = NULL;
+}
+
+CTBotSecureConnection::~CTBotSecureConnection() {
+	flush();
+}
+
+bool CTBotSecureConnection::connect()
+{
+	if (isConnected())
+		return true;
+	flush();
 
 	// check for using symbolic URLs
 	if (m_useDNS) {
 		// try to connect with URL
-		if (!telegramServer.connect(TELEGRAM_URL, TELEGRAM_PORT)) {
+		if (!m_telegramServer.connect(TELEGRAM_URL, TELEGRAM_PORT)) {
 			// no way, try to connect with fixed IP
 			IPAddress telegramServerIP;
 			telegramServerIP.fromString(TELEGRAM_IP);
-			if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-				serialLog(FSTR("\nUnable to connect to Telegram server\n"), CTBOT_DEBUG_CONNECTION);
-				return("");
+			if (!m_telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
+				serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->connect: Unable to connect to Telegram server\n"));
+				m_statusPin.setValue(LOW);
+				return false;
 			}
 			else {
-				serialLog(FSTR("\nConnected using fixed IP\n"), CTBOT_DEBUG_CONNECTION);
+				serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->connect: Connected using fixed IP\n"));
+				m_statusPin.setValue(HIGH);
 				useDNS(false);
+				return true;
 			}
 		}
 		else {
-			serialLog(FSTR("\nConnected using DNS\n"), CTBOT_DEBUG_CONNECTION);
+			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->connect: Connected using DNS\n"));
+			m_statusPin.setValue(HIGH);
+			return true;
 		}
 	}
 	else {
 		// try to connect with fixed IP
 		IPAddress telegramServerIP; // (149, 154, 167, 220);
 		telegramServerIP.fromString(TELEGRAM_IP);
-		if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-			serialLog(FSTR("\nUnable to connect to Telegram server\n"), CTBOT_DEBUG_CONNECTION);
-			return("");
+		if (!m_telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
+			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->connect: Unable to connect to Telegram server\n"));
+			m_statusPin.setValue(LOW);
+			return false;
 		}
-		else
-			serialLog(FSTR("\nConnected using fixed IP\n"), CTBOT_DEBUG_CONNECTION);
-	}
-
-	m_statusPin.toggle();
-
-	// must filter command + parameters from escape sequences and spaces
-	//	String URL = "GET /bot" + m_token + (String)"/" + toURL(command + parameters);
-//	String URL = (String)FSTR("GET /bot") + m_token + (String)"/" + command + parameters;
-
-	unsigned long elapsed = millis();
-
-	// send the HTTP request
-	telegramServer.println(message);
-
-	m_statusPin.toggle();
-
-	serialLog(FSTR("--->sendCommand  : Free heap memory: "), CTBOT_DEBUG_MEMORY);
-	serialLog(ESP.getFreeHeap(), CTBOT_DEBUG_MEMORY);
-
-#if CTBOT_CHECK_JSON == 0
-	serialLog("\n", CTBOT_DEBUG_MEMORY);
-	return(telegramServer.readString());
-#else
-
-	String response;
-	int curlyCounter; // count the open/closed curly bracket for identify the json
-	bool skipCounter = false; // for filtering curly bracket inside a text message
-	int c;
-	curlyCounter = -1;
-	response = "";
-
-	while (telegramServer.connected()) {
-		while (telegramServer.available()) {
-			c = telegramServer.read();
-			response += (char)c;
-			if (c == '\\') {
-				// escape character -> read next and skip
-				c = telegramServer.read();
-				response += (char)c;
-				continue;
-			}
-			if (c == '"')
-				skipCounter = !skipCounter;
-			if (!skipCounter) {
-				if (c == '{') {
-					if (curlyCounter == -1)
-						curlyCounter = 1;
-					else
-						curlyCounter++;
-				}
-				else if (c == '}')
-					curlyCounter--;
-				if (curlyCounter == 0) {
-
-					// JSON ended, close connection and return JSON
-
-					elapsed = millis() - elapsed;
-
-					serialLog(FSTR(" / "), CTBOT_DEBUG_MEMORY);
-					serialLog(ESP.getFreeHeap(), CTBOT_DEBUG_MEMORY);
-					serialLog(FSTR(" - "), CTBOT_DEBUG_MEMORY);
-					serialLog(elapsed, CTBOT_DEBUG_MEMORY);
-					serialLog(FSTR(" ms\n"), CTBOT_DEBUG_MEMORY);
-
-					telegramServer.flush();
-					telegramServer.stop();
-					return(response);
-				}
-			}
+		else {
+			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->connect: Connected using fixed IP\n"));
+			m_statusPin.setValue(HIGH);
+			return true;
 		}
 	}
 
-	serialLog("\n", CTBOT_DEBUG_MEMORY);
+	return false;
+}
 
-	// timeout, no JSON to parse
-	telegramServer.flush();
-	telegramServer.stop();
-	return("");
+bool CTBotSecureConnection::isConnected() {
+	return m_telegramServer.connected();
+}
+
+void CTBotSecureConnection::disconnect(){
+	if (!isConnected())
+		return;
+
+	flush();
+	while (m_telegramServer.available())
+		m_telegramServer.read();
+	m_telegramServer.stop();
+}
+
+bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uint16_t payloadSize) {
+
+	uint16_t dataSent;
+
+	flush();
+
+	if (!isConnected()) {
+		if (!connect())
+			return false;
+	}
+
+	if ((NULL == header) || (NULL == payload)) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: parameters can't be NULL\n"));
+		return false;
+	}
+
+	if (0 == strlen(header)) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: header can't be an empty string\n"));
+		return false;
+	}
+
+	if (0 == payloadSize) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: payload can't be empty\n"));
+		return false;
+	}
+
+	m_statusPin.toggle();
+	dataSent = m_telegramServer.print(header);
+	if (dataSent != strlen(header)) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: error sending HTTP header (%u/%u)\n"), dataSent, strlen(header));
+		disconnect();
+		m_statusPin.toggle();
+		return false;
+	}
+
+	dataSent = m_telegramServer.write(payload, payloadSize);
+	if (dataSent != (payloadSize)) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: error sending HTTP payload (%u/%u)\n"), dataSent, payloadSize);
+		disconnect();
+		m_statusPin.toggle();
+		return false;
+	}
+
+	dataSent = m_telegramServer.print("\r\n");
+	if (dataSent != 2) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: error sending CR/LF (%u/2)\n"), dataSent);
+		disconnect();
+		m_statusPin.toggle();
+		return false;
+	}
+	m_statusPin.toggle();
+	return true;
+}
+
+const char* CTBotSecureConnection::receive() {
+
+	char buffer[32];
+	char singleChar;
+	int result, payloadSize, size, found;
+
+	flush();
+
+	if (!isConnected()) {
+		if (!connect())
+			return NULL;
+	}
+
+	if (!m_telegramServer.available())
+		return NULL;
+
+	// check for HTTP response status
+	size = strlen_P((const char*)HTTP_RESPONSE_OK);
+	m_statusPin.toggle();
+	result = m_telegramServer.readBytes((uint8_t*)buffer, size);
+	buffer[result] = 0x00;
+
+	result = memcmp_P(buffer, HTTP_RESPONSE_OK, size);
+	if (result != 0) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->receive: HTTPS response error:\n"));
+
+/*
+#if CTBOT_DEBUG_MODE == CTBOT_DEBUG_CONNECTION
+		// drop the header and print the payload
+		found = -1;
+		while ((-1 == found) && m_telegramServer.available()) {
+			while (m_telegramServer.read() != '\n');
+			singleChar = m_telegramServer.read();
+			if ('\r' == singleChar) {
+				singleChar = m_telegramServer.read();
+				if ('\n' == singleChar)
+					found = 0;
+			}
+		}
+		if (found != 0) {
+			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->receive: end of header not found\n"));
+			disconnect();
+			return NULL;
+		}
+		while (m_telegramServer.available())
+			Serial.write(m_telegramServer.read());
+		Serial.println();
 #endif
+		disconnect();
+		return NULL;
+*/
+
+	}
+	else
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->receive: HTTP Response OK: %s\n"), buffer);
+
+	// go to the next line
+	while (m_telegramServer.read() != '\n');
+
+	// find the Content-Length
+	found = -1;
+	size = strlen_P((const char*)HTTP_CONTENT_LENGTH);
+	while ((found != 0) && m_telegramServer.available()) {
+		result = m_telegramServer.readBytes((uint8_t*)buffer, size);
+		buffer[result] = 0x00;
+		found = memcmp_P(buffer, HTTP_CONTENT_LENGTH, size);
+		if (found != 0) {
+			// not Content-Length field -> drop the entire line
+			while (m_telegramServer.read() != '\n');
+		}
+		else {
+			// ok: Content-Length found -> read payload size
+			int byteRead;
+			byteRead = m_telegramServer.readBytesUntil(0x0D, buffer, 19);
+			buffer[byteRead] = 0x00;
+			payloadSize = atoi(buffer);
+			while (m_telegramServer.read() != '\n');
+
+			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->receive: Content-Length size: %d\n"), payloadSize);
+		}
+	}
+
+	if (found != 0) {
+		// Content-length not found;
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->receive: Content-Length not found\n"));
+//		disconnect();
+		while (m_telegramServer.available())
+			m_telegramServer.read();
+		m_statusPin.toggle();
+		return NULL;
+	}
+
+	// we have the payload -> drop all other header fields
+	found = -1;
+	while ((-1 == found) && m_telegramServer.available()) {
+		while (m_telegramServer.read() != '\n');
+		singleChar = m_telegramServer.read();
+		if ('\r' == singleChar) {
+			singleChar = m_telegramServer.read();
+			if ('\n' == singleChar)
+				found = 0;
+		}
+	}
+	if (found != 0) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->receive: end of header not found\n"));
+//		disconnect();
+		while (m_telegramServer.available())
+			m_telegramServer.read();
+		m_statusPin.toggle();
+		return NULL;
+	}
+
+	m_receivedData = (char*)malloc(payloadSize + 1);
+	if (NULL == m_receivedData) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->receive: unable to allocate memory\n"));
+//		disconnect();
+		while (m_telegramServer.available())
+			m_telegramServer.read();
+		m_statusPin.toggle();
+		return NULL;
+	}
+
+	result = m_telegramServer.readBytes(m_receivedData, payloadSize);
+	if (result != payloadSize) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->receive: unable read the payload. Byte read: %u/%u\n"), result, payloadSize);
+//		disconnect();
+		flush();
+		while (m_telegramServer.available())
+			m_telegramServer.read();
+		m_statusPin.toggle();
+		return NULL;
+
+	}
+	m_receivedData[payloadSize] = 0x00;
+	// drop the CR/LF characters
+	m_telegramServer.readBytesUntil('\n', buffer, 0);
+	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->receive: start payload:\n%s\n--->receive: end payload\n"), m_receivedData);
+	m_statusPin.toggle();
+	return m_receivedData;
+}
+
+void CTBotSecureConnection::flush() {
+	if (m_receivedData != NULL) {
+		free(m_receivedData);
+		m_receivedData = NULL;
+	}
+}
+
+bool CTBotSecureConnection::useDNS(bool value)
+{
+	m_useDNS = value;
+	disconnect();
+	return connect();
+}
+
+bool CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint)
+{
+	if (NULL == newFingerprint) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: fingerprint can't be NULL\n"));
+		return false;
+	}
+	for (int i = 0; i < 20; i++)
+		m_fingerprint[i] = newFingerprint[i];
+}
+
+void CTBotSecureConnection::setStatusPin(int8_t pin, uint8_t value) {
+	m_statusPin.setPin(pin, value);
 }

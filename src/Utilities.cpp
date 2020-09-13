@@ -1,6 +1,6 @@
 #include "Utilities.h"
 
-bool unicodeToUTF8(String unicode, String &utf8) {
+bool unicodeToUTF8(String unicode, String& utf8) {
 	uint32_t value = 0;
 	unicode.toUpperCase();
 
@@ -96,6 +96,5 @@ String URLEncodeMessage(String message) {
 			encodedMessage += (String)buffer;
 		}
 	}
-	return encodedMessage ;
+	return encodedMessage;
 }
-

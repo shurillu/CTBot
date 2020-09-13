@@ -316,11 +316,12 @@ bool CTBotSecureConnection::useDNS(bool value)
 bool CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint)
 {
 	if (NULL == newFingerprint) {
-		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: fingerprint can't be NULL\n"));
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->setFingerprint: fingerprint can't be NULL\n"));
 		return false;
 	}
 	for (int i = 0; i < 20; i++)
 		m_fingerprint[i] = newFingerprint[i];
+	return true;
 }
 
 void CTBotSecureConnection::setStatusPin(int8_t pin, uint8_t value) {

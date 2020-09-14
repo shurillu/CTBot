@@ -91,7 +91,7 @@ bool CTBot::sendCommand(const char* command, const DynamicJsonDocument& jsonData
 		if (m_connection.isConnected()) {
 			// ...and the connection is active -> wait for response
 			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->sendCommand: there is another request awaiting response\n"));
-			return false;
+//			return false;
 		}
 		else {
 			// ...and connection lost -> go on!
@@ -146,6 +146,8 @@ bool CTBot::sendCommand(const char* command, const DynamicJsonDocument& jsonData
 }
 
 bool CTBot::sendMessageEx(int64_t id, const char* message, const char* keyboard) {
+	return editMessageTextEx(id, 0, message, keyboard);
+/*
 	bool response;
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
@@ -184,19 +186,20 @@ bool CTBot::sendMessageEx(int64_t id, const char* message, const char* keyboard)
 	response = sendCommand(CTBOT_COMMAND_SENDMESSAGE, root);
 
 	return response;
+*/
 }
 bool CTBot::sendMessageEx(int64_t id, const char* message, CTBotInlineKeyboard& keyboard) {
-	return sendMessageEx(id, message, keyboard.getJSON());
+	return editMessageTextEx(id, 0, message, keyboard.getJSON());
 }
 bool CTBot::sendMessageEx(int64_t id, const char* message, CTBotReplyKeyboard& keyboard) {
-	return sendMessageEx(id, message, keyboard.getJSON());
+	return editMessageTextEx(id, 0, message, keyboard.getJSON());
 }
 
 int32_t CTBot::sendMessage(int64_t id, const char* message, const char* keyboard) {
 		CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
 
-	if (!sendMessageEx(id, message, keyboard))
+	if (!editMessageTextEx(id, 0, message, keyboard))
 //		return false;
 		return 0;
 	while (m_isWaitingResponse)
@@ -354,14 +357,14 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 
 	if (error) {
 		serialLog(CTBOT_DEBUG_JSON, CFSTR("--->parseResponse: ArduinoJson deserialization error code: %s\n"), error.c_str());
-		m_connection.flush();
+		m_connection.freeMemory();
 		message.messageType = CTBotMessageNoData;
 		return CTBotMessageNoData;
 	}
 #endif
 
 	// free memory - all the data is now stored in the ArduinoJSON object
-	m_connection.flush();
+	m_connection.freeMemory();
 
 	if (!root[FSTR("ok")]) {
 #if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
@@ -509,13 +512,13 @@ CTBotMessageType CTBot::parseResponse(TBUser& user) {
 
 	if (error) {
 		serialLog(CTBOT_DEBUG_JSON, CFSTR("--->parseResponse: ArduinoJson deserialization error code: %s\n"), error.c_str());
-		m_connection.flush();
+		m_connection.freeMemory();
 		return CTBotMessageNoData;
 	}
 #endif
 
 	// free memory - all the data is now stored in the ArduinoJSON object
-	m_connection.flush();
+	m_connection.freeMemory();
 
 	if (!root[FSTR("ok")]) {
 #if (CTBOT_DEBUG_MODE & CTBOT_DEBUG_JSON) > 0
@@ -776,7 +779,8 @@ bool CTBot::editMessageTextEx(int64_t id, int32_t messageID, const char* message
 	// payload
 	root[FSTR("chat_id")]     = id;
 	root[FSTR("text")]        = message;
-	root[FSTR("message_id")] = messageID;
+	if (messageID != 0)
+		root[FSTR("message_id")] = messageID;
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
 #if CTBOT_BUFFER_SIZE > 0
@@ -796,7 +800,11 @@ bool CTBot::editMessageTextEx(int64_t id, int32_t messageID, const char* message
 		if (strlen(keyboard) != 0)
 			root[FSTR("reply_markup")] = myKbd;
 
-	response = sendCommand(CTBOT_COMMAND_EDITMESSAGETEXT, root);
+	if (messageID != 0)
+		response = sendCommand(CTBOT_COMMAND_EDITMESSAGETEXT, root);
+	else
+		response = sendCommand(CTBOT_COMMAND_SENDMESSAGE, root);
+
 
 	return response;
 }
@@ -875,6 +883,10 @@ bool CTBot::deleteMessage(int64_t id, int32_t messageID)
 	return true;
 }
 
+void CTBot::flushTelegramResponses() {
+	m_connection.flush();
+}
+
 
 
 // -----------------------STUBS - for backward compatibility
@@ -925,9 +937,7 @@ bool CTBot::removeReplyKeyboard(int64_t id, const String& message, bool selectiv
 	return removeReplyKeyboard(id, message.c_str(), selective);
 }
 
-void CTBot::enableUTF8Encoding(bool value) {
-	value = value;
-}
+void CTBot::enableUTF8Encoding(bool) {}
 
 bool CTBot::endQuery(const String& queryID, const String& message, bool alertMode) {
 	return endQuery(queryID.c_str(), message.c_str(), alertMode);

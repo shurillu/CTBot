@@ -27,7 +27,8 @@
 // value for disabling the status pin. It is utilized for led notification on the board
 #define CTBOT_DISABLE_STATUS_PIN        -1
 
-// timeout used when try to connect to the telegram server
+// timeout used when try to connect to the telegram server.
+// set to 0 to disabling it
 #define CTBOT_CONNECTION_TIMEOUT      2000 // ms
 
 

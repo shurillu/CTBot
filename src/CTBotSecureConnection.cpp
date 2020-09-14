@@ -30,21 +30,22 @@ CTBotSecureConnection::CTBotSecureConnection() {
 	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP32\n"));
 #endif
 
-	m_telegramServer.setTimeout(CTBOT_CONNECTION_TIMEOUT);
+	if (CTBOT_CONNECTION_TIMEOUT > 0)
+		m_telegramServer.setTimeout(CTBOT_CONNECTION_TIMEOUT);
 
 	m_useDNS = false;
 	m_receivedData = NULL;
 }
 
 CTBotSecureConnection::~CTBotSecureConnection() {
-	flush();
+	freeMemory();
 }
 
 bool CTBotSecureConnection::connect()
 {
 	if (isConnected())
 		return true;
-	flush();
+	freeMemory();
 
 	// check for using symbolic URLs
 	if (m_useDNS) {
@@ -98,7 +99,7 @@ void CTBotSecureConnection::disconnect(){
 	if (!isConnected())
 		return;
 
-	flush();
+	freeMemory();
 	while (m_telegramServer.available())
 		m_telegramServer.read();
 	m_telegramServer.stop();
@@ -108,7 +109,7 @@ bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uin
 
 	uint16_t dataSent;
 
-	flush();
+	freeMemory();
 
 	if (!isConnected()) {
 		if (!connect())
@@ -164,7 +165,7 @@ const char* CTBotSecureConnection::receive() {
 	char singleChar;
 	int result, size, found, payloadSize;
 
-	flush();
+	freeMemory();
 
 	if (!isConnected()) {
 		if (!connect())
@@ -286,7 +287,7 @@ const char* CTBotSecureConnection::receive() {
 	if (result != payloadSize) {
 		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->receive: unable read the payload. Byte read: %u/%u\n"), result, payloadSize);
 //		disconnect();
-		flush();
+		freeMemory();
 		while (m_telegramServer.available())
 			m_telegramServer.read();
 		m_statusPin.toggle();
@@ -301,11 +302,17 @@ const char* CTBotSecureConnection::receive() {
 	return m_receivedData;
 }
 
-void CTBotSecureConnection::flush() {
+void CTBotSecureConnection::freeMemory() {
 	if (m_receivedData != NULL) {
 		free(m_receivedData);
 		m_receivedData = NULL;
 	}
+}
+
+void CTBotSecureConnection::flush(void) {
+	if (isConnected())
+		while(m_telegramServer.available())
+			m_telegramServer.read();
 }
 
 bool CTBotSecureConnection::useDNS(bool value)

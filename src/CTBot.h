@@ -188,7 +188,7 @@ public:
 	//   keyboard  : the inline/reply keyboard (optional)
 	//               (in json format or using the CTBotInlineKeyboard/CTBotReplyKeyboard class helper)
 	// returns
-	//   true if no error occurred
+	//   true if no errors occurred
 	bool editMessageTextEx(int64_t id, int32_t messageID, const char* message, const char* keyboard = "");
 	bool editMessageTextEx(int64_t id, int32_t messageID, const char* message, CTBotInlineKeyboard& keyboard);
 	bool editMessageTextEx(int64_t id, int32_t messageID, const char* message, CTBotReplyKeyboard& keyboard);
@@ -201,10 +201,19 @@ public:
 	bool editMessageText(int64_t id, int32_t messageID, const String& message, CTBotInlineKeyboard& keyboard);
 	bool editMessageText(int64_t id, int32_t messageID, const String& message, CTBotReplyKeyboard& keyboard);
 
+	// delete a previously sent message
+	// params
+	//   id        : the telegram recipient/chat ID
+	//   messageID : the message ID to be deleted
+	// returns
+	//   true if no errors occurred
 	bool deleteMessageEx(int64_t id, int32_t messageID);
 	bool deleteMessage(int64_t id, int32_t messageID);
 
-
+	// drop (flush) all Telegram responses from the receive buffer
+	// usefull in conjunction with all "*Ex" member functions when the 
+	// Telegram response is not important (so it can be dropped/flushed)
+	void flushTelegramResponses();
 
 
 private:

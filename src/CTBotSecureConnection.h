@@ -84,6 +84,8 @@ public:
 	const char* receive();
 
 	// free memory allocated by receive
+	void freeMemory();
+
 	void flush();
 
 private:

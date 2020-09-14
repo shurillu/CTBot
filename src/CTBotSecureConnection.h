@@ -86,6 +86,7 @@ public:
 	// free memory allocated by receive
 	void freeMemory();
 
+	// flush (drop) all data not already read and stored in the receive buffer
 	void flush();
 
 private:

@@ -23,7 +23,7 @@
 */
 
 #include <Arduino.h>
-#include <LittleFS>
+#include <LittleFS.h>
 #include "AsyncTelegram.h"
 
 AsyncTelegram myBot;

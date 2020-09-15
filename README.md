@@ -41,6 +41,7 @@ Take a look at the examples provided in the [examples folder](https://github.com
 ### Reference
 [Here how to use the library](https://github.com/cotestatnt/AsyncTelegram/blob/master/REFERENCE.md). 
 
++ 1.0.7   Added example for take picture with ESP32-CAM board
 + 1.0.6   AsyncTelegram now can send also pictures
 + 1.0.5   Added possibility to forward a messege to a puclic channel (bot must be one of admins) or to a specific user
 + 1.0.4	  Fixed ArduinoJson ARDUINOJSON_DECODE_UNICODE define

@@ -1,4 +1,5 @@
 #include <pgmspace.h>
+#include <ESP8266WiFi.h>
 #include "CTBotSecureConnection.h"
 #include "Utilities.h"
 
@@ -43,8 +44,12 @@ CTBotSecureConnection::~CTBotSecureConnection() {
 
 bool CTBotSecureConnection::connect()
 {
+	if (!WiFi.isConnected())
+		return false;
+
 	if (isConnected())
 		return true;
+
 	freeMemory();
 
 	// check for using symbolic URLs
@@ -92,14 +97,17 @@ bool CTBotSecureConnection::connect()
 }
 
 bool CTBotSecureConnection::isConnected() {
+	if (!WiFi.isConnected())
+		return false;
 	return m_telegramServer.connected();
 }
 
 void CTBotSecureConnection::disconnect(){
+	freeMemory();
+
 	if (!isConnected())
 		return;
 
-	freeMemory();
 	while (m_telegramServer.available())
 		m_telegramServer.read();
 	m_telegramServer.stop();
@@ -318,8 +326,13 @@ void CTBotSecureConnection::flush(void) {
 bool CTBotSecureConnection::useDNS(bool value)
 {
 	m_useDNS = value;
-	disconnect();
-	return connect();
+	// check if there is an established connection..
+	if (isConnected()) {
+		// ..yes -> reconnect with the new settings
+		disconnect();
+		return connect();
+	}
+	return false;
 }
 
 bool CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint)

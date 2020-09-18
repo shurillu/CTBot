@@ -34,6 +34,7 @@ CTBot::CTBot() {
 	m_lastUpdate = 0;  // not updated yet
 	m_isWaitingResponse = false;
 	m_lastUpdateTimeStamp = millis();
+	m_keepAlive = true;
 }
 
 CTBot::~CTBot() {
@@ -199,17 +200,21 @@ int32_t CTBot::sendMessage(int64_t id, const char* message, const char* keyboard
 		CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
 
-	if (!editMessageTextEx(id, 0, message, keyboard))
-//		return false;
+	if (!editMessageTextEx(id, 0, message, keyboard)) {
+		flushTelegramResponses();
+		if (!m_keepAlive)
+			m_connection.disconnect();
 		return 0;
+	}
 	while (m_isWaitingResponse)
 		result = parseResponse(msg);
 
+	if (!m_keepAlive)
+		m_connection.disconnect();
+
 	if (result != CTBotMessageACK)
-//		return false;
 		return 0;
 	return msg.messageID;
-//	return true;
 }
 int32_t CTBot::sendMessage(int64_t id, const char* message, CTBotInlineKeyboard & keyboard) {
 	return sendMessage(id, message, keyboard.getJSON());
@@ -415,6 +420,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 		message.messageID         = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("message_id")].as<int32_t>();
 		message.text              = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("text")].as<String>();
 		message.date              = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("date")].as<int32_t>();
+		message.group.id          = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("chat")][FSTR("id")].as<int64_t>();
 		message.sender.id         = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("id")].as<int32_t>();
 		message.sender.username   = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("username")].as<String>();
 		message.sender.firstName  = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("first_name")].as<String>();
@@ -551,13 +557,21 @@ CTBotMessageType CTBot::parseResponse(TBUser& user) {
 	return CTBotMessageContact;
 }
 
-CTBotMessageType CTBot::getNewMessage(TBMessage& message) {
+CTBotMessageType CTBot::getNewMessage(TBMessage & message) {
 	CTBotMessageType result = CTBotMessageNoData;
 
-	if (!getUpdates())
+	if (!getUpdates()) {
+		flushTelegramResponses();
+		if (!m_keepAlive)
+			m_connection.disconnect();
 		return CTBotMessageNoData;
+	}
+
 	while (m_isWaitingResponse)
 		result = parseResponse(message);
+
+	if (!m_keepAlive)
+		m_connection.disconnect();
 	return result;
 }
 
@@ -659,10 +673,17 @@ bool CTBot::endQuery(const char* queryID, const char* message, bool alertMode) {
 	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
 
-	if (!endQueryEx(queryID, message, alertMode))
+	if (!endQueryEx(queryID, message, alertMode)) {
+		flushTelegramResponses();
+		if (!m_keepAlive)
+			m_connection.disconnect();
 		return false;
+	}
 	while (m_isWaitingResponse)
 		result = parseResponse(msg);
+
+	if (!m_keepAlive)
+		m_connection.disconnect();
 
 	if (result != CTBotMessageACK)
 		return false;
@@ -712,10 +733,17 @@ bool CTBot::removeReplyKeyboard(int64_t id, const char* message, bool selective)
 	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
 
-	if (!removeReplyKeyboardEx(id, message, selective))
+	if (!removeReplyKeyboardEx(id, message, selective)) {
+		flushTelegramResponses();
+		if (!m_keepAlive)
+			m_connection.disconnect();
 		return false;
+	}
 	while (m_isWaitingResponse)
 		result = parseResponse(msg);
+
+	if (!m_keepAlive)
+		m_connection.disconnect();
 
 	if (result != CTBotMessageACK)
 		return false;
@@ -745,10 +773,17 @@ bool CTBot::getMe(TBUser& user)
 {
 	CTBotMessageType result = CTBotMessageNoData;
 
-	if (!getMeEx())
+	if (!getMeEx()) {
+		flushTelegramResponses();
+		if (!m_keepAlive)
+			m_connection.disconnect();
 		return false;
+	}
 	while (m_isWaitingResponse)
 		result = parseResponse(user);
+
+	if (!m_keepAlive)
+		m_connection.disconnect();
 
 	if (CTBotMessageContact == result)
 		return true;
@@ -756,8 +791,7 @@ bool CTBot::getMe(TBUser& user)
 	return false;
 }
 
-bool CTBot::testConnection(void)
-{
+bool CTBot::testConnection(void) {
 	TBUser user;
 	return getMe(user);
 }
@@ -819,10 +853,17 @@ bool CTBot::editMessageText(int64_t id, int32_t messageID, const char* message, 
 	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
 
-	if (!editMessageTextEx(id, messageID, message, keyboard))
+	if (!editMessageTextEx(id, messageID, message, keyboard)) {
+		flushTelegramResponses();
+		if (!m_keepAlive)
+			m_connection.disconnect();
 		return false;
+	}
 	while (m_isWaitingResponse)
 		result = parseResponse(msg);
+
+	if (!m_keepAlive)
+		m_connection.disconnect();
 
 	if (result != CTBotMessageACK)
 		return false;
@@ -873,10 +914,17 @@ bool CTBot::deleteMessage(int64_t id, int32_t messageID)
 	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
 
-	if (!deleteMessageEx(id, messageID))
+	if (!deleteMessageEx(id, messageID)) {
+		flushTelegramResponses();
+		if (!m_keepAlive)
+			m_connection.disconnect();
 		return false;
+	}
 	while (m_isWaitingResponse)
 		result = parseResponse(msg);
+
+	if (!m_keepAlive)
+		m_connection.disconnect();
 
 	if (result != CTBotMessageACK)
 		return false;
@@ -885,6 +933,10 @@ bool CTBot::deleteMessage(int64_t id, int32_t messageID)
 
 void CTBot::flushTelegramResponses() {
 	m_connection.flush();
+}
+
+void CTBot::keepAlive(bool value) {
+	m_keepAlive = value;
 }
 
 
@@ -915,6 +967,11 @@ bool CTBot::useDNS(bool value) {
 
 void CTBot::setFingerprint(const uint8_t* newFingerprint) {
 	m_connection.setFingerprint(newFingerprint);
+}
+
+void CTBot::disconnect() {
+	if (m_connection.isConnected())
+		m_connection.disconnect();
 }
 
 int32_t CTBot::sendMessage(int64_t id, const String& message, const String& keyboard) {

@@ -62,6 +62,9 @@ public:
 	//    newFingerprint: the array of 20 bytes that contains the new fingerprint
 	void setFingerprint(const uint8_t* newFingerprint);
 
+	// close the connection to the Telegram server
+	void disconnect();
+
 
 // Telegram stuff ---------------------------------------------------------------------------------------------------------------
 	// set the telegram token
@@ -85,10 +88,7 @@ public:
 	//   keyboard: the inline/reply keyboard (optional)
 	//             (in json format or using the CTBotInlineKeyboard/CTBotReplyKeyboard class helper)
 	// returns
-	//   the messageID of the sent message if no errors occurred. 0 otherwise
-//	bool sendMessage(int64_t id, const char* message, const char* keyboard = "");
-//	bool sendMessage(int64_t id, const char* message, CTBotInlineKeyboard& keyboard);
-//	bool sendMessage(int64_t id, const char* message, CTBotReplyKeyboard& keyboard);
+	//   the messageID of the sent message if no errors occurred. Zero otherwise
 	int32_t sendMessage(int64_t id, const char* message, const char* keyboard = "");
 	int32_t sendMessage(int64_t id, const char* message, CTBotInlineKeyboard& keyboard);
 	int32_t sendMessage(int64_t id, const char* message, CTBotReplyKeyboard& keyboard);
@@ -177,9 +177,6 @@ public:
 	//    true if no error occurred
 	bool testConnection(void);
 
-
-
-
 	// edits text or inline keyboard of a previous message for the specified telegram user ID
 	// params
 	//   id        : the telegram recipient user ID 
@@ -211,10 +208,16 @@ public:
 	bool deleteMessage(int64_t id, int32_t messageID);
 
 	// drop (flush) all Telegram responses from the receive buffer
-	// usefull in conjunction with all "*Ex" member functions when the 
+	// useful in conjunction with all "*Ex" member functions when the 
 	// Telegram response is not important (so it can be dropped/flushed)
 	void flushTelegramResponses();
 
+	// keep the connection alive after calling a non "*Ex" member (like getNewMesage, editMessageText etc)
+	// it is useful when the program needs to connect to other services after a member function calls
+	// param
+	//   value: true  -> keep the connection alive
+	//          false -> close connection after a member function call
+	void keepAlive(bool value);
 
 private:
 	CTBotSecureConnection m_connection;
@@ -223,6 +226,7 @@ private:
 	int32_t               m_lastUpdate;
 	uint32_t              m_lastUpdateTimeStamp;
 	bool                  m_isWaitingResponse;
+	bool                  m_keepAlive;
 
 	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api
 	// params

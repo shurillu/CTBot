@@ -160,7 +160,7 @@ bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, ui
 	bool response;
 	uint16_t headerSize, payloadHeaderSize, payloadFooterSize, contentTypeSize, payloadSize;
 	char* pheader, * ppayloadHeader, * ppayloadFooter, * pcontentType;
-	char* telegramDataType, * command, *dataContentType;
+	const char* telegramDataType, * command, *dataContentType;
 
 	if (NULL == m_token) {
 		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->sendBinaryData: no Telegram token defined\n"));
@@ -169,19 +169,19 @@ bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, ui
 
 	switch (dataType) {
 	case CTBotDataTypeJPEG:
-		command = CTBOT_COMMAND_SENDPHOTO;
+		command          = CTBOT_COMMAND_SENDPHOTO;
 		telegramDataType = CFSTR("photo");
-		dataContentType = CTBOT_CONTENT_TYPE_JPEG;
+		dataContentType  = CTBOT_CONTENT_TYPE_JPEG;
 		break;
 	case CTBotDataTypeText:
-		command = CTBOT_COMMAND_SENDDOCUMENT;
+		command          = CTBOT_COMMAND_SENDDOCUMENT;
 		telegramDataType = CFSTR("document");
-		dataContentType = CTBOT_CONTENT_TYPE_TEXT;
+		dataContentType  = CTBOT_CONTENT_TYPE_TEXT;
 		break;
 	case CTBotDataTypeRAW:
-		command = CTBOT_COMMAND_SENDDOCUMENT;
+		command          = CTBOT_COMMAND_SENDDOCUMENT;
 		telegramDataType = CFSTR("document");
-		dataContentType = CTBOT_CONTENT_TYPE_RAW;
+		dataContentType  = CTBOT_CONTENT_TYPE_RAW;
 		break;
 	default:
 		return false;

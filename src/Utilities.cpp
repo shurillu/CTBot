@@ -155,7 +155,6 @@ void toUTF8(char* message) {
 	uint16_t i = 0;       // 
 	uint16_t encoded = 0;
 	uint16_t messageLength = strlen(message);
-	uint32_t value;
 
 	while (message[i] != 0x00) {
 		if (message[i] != '\\') {

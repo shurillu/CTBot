@@ -27,7 +27,11 @@ String int64ToAscii(int64_t value);
 //   the encoded string
 String URLEncodeMessage(String message);
 
+// convert the message string from unicode to UTF8
+void toUTF8(char* message);
 
+// convert a unicode charachter into the UTF8 equivalent
+bool unicodeToUTF8(char* str);
 
 // send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
 // params

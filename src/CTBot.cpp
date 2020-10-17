@@ -1,7 +1,7 @@
 // for using int_64 data
 #define ARDUINOJSON_USE_LONG_LONG 1 
 // for decoding UTF8/UNICODE
-#define ARDUINOJSON_DECODE_UNICODE 1 
+#define ARDUINOJSON_DECODE_UNICODE 1
 
 #if defined(ARDUINO_ARCH_ESP8266) // ESP8266
 // for strings stored in FLASH - only for ESP8266
@@ -11,15 +11,38 @@
 #include "CTBot.h"
 #include "Utilities.h"
 
+// header string for standard (no binary) messages
 // parameters:
 // 1) token
 // 2) Telegram API command 
 // 3) payload length/size
 // 4) content type
-#define CTBOT_HEADER_STRING FSTR("POST /bot%s/%s HTTP/1.1\r\nHost: api.telegram.org\r\nContent-Length: %d\r\nContent-Type: %s\r\n\r\n")
+#define CTBOT_HEADER_STRING CFSTR("POST /bot%s/%s HTTP/1.1\r\nHost: api.telegram.org\r\nContent-Length: %d\r\nContent-Type: %s\r\n\r\n")
+
+// payload header for binary messages
+// parameters:
+// 1) form boundary
+// 2) chat ID
+// 3) form boundary
+// 4) Telegram type data (photo - audio - document)
+// 5) Filename
+// 6) Content type
+#define CTBOT_PAYLOAD_HEADER_STRING CFSTR("--%s\r\nContent-Disposition: form-data; name=\"chat_id\"\r\n\r\n%" PRId64 "\r\n--%s\r\nContent-Disposition: form-data; name=\"%s\"; filename=\"%s\"\r\nContent-Type: %s\r\n\r\n")
+// payload footer for binary messages
+// parameters:
+// 1) form boundary
+//#define CTBOT_PAYLOAD_FOOTER_STRING CFSTR("\r\n--%s--\r\n\r\n")
+#define CTBOT_PAYLOAD_FOOTER_STRING CFSTR("\r\n--%s--\r\n")
 
 // content types
-#define CTBOT_CONTENT_TYPE_JSON FSTR("application/json")
+#define CTBOT_CONTENT_TYPE_JSON      CFSTR("application/json")
+#define CTBOT_CONTENT_TYPE_JPEG      CFSTR("image/jpeg")
+#define CTBOT_CONTENT_TYPE_TEXT      CFSTR("text/plain")
+#define CTBOT_CONTENT_TYPE_RAW       CFSTR("application/octet-stream")
+#define CTBOT_CONTENT_TYPE_MULTIPART CFSTR("multipart/form-data; boundary=%s")
+
+// form boundary
+#define CTBOT_FORM_BOUNDARY FSTR("----CTBotFormBoundary1357924680")
 
 // telegram commands
 #define CTBOT_COMMAND_GETUPDATES      CFSTR("getUpdates")
@@ -28,11 +51,12 @@
 #define CTBOT_COMMAND_GETME           CFSTR("getMe")
 #define CTBOT_COMMAND_EDITMESSAGETEXT CFSTR("editMessageText")
 #define CTBOT_COMMAND_DELETEMESSAGE   CFSTR("deleteMessage")
+#define CTBOT_COMMAND_SENDPHOTO       CFSTR("sendPhoto")
+#define CTBOT_COMMAND_SENDDOCUMENT    CFSTR("sendDocument")
 
 CTBot::CTBot() {
 	m_token = NULL; // no token
 	m_lastUpdate = 0;  // not updated yet
-	m_isWaitingResponse = false;
 	m_lastUpdateTimeStamp = millis();
 	m_keepAlive = true;
 }
@@ -87,19 +111,6 @@ bool CTBot::sendCommand(const char* command, const DynamicJsonDocument& jsonData
 	uint16_t headerSize, payloadSize;
 	char* pheader, * ppayload;
 
-	if (m_isWaitingResponse) {
-		// awaiting a response...
-		if (m_connection.isConnected()) {
-			// ...and the connection is active -> wait for response
-			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->sendCommand: there is another request awaiting response\n"));
-//			return false;
-		}
-		else {
-			// ...and connection lost -> go on!
-			m_isWaitingResponse = false;
-		}
-	}
-
 	if (NULL == m_token) {
 		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->sendCommand: no Telegram token defined\n"));
 		return false;
@@ -124,13 +135,14 @@ bool CTBot::sendCommand(const char* command, const DynamicJsonDocument& jsonData
 #endif
 
 	// header
-	headerSize = snprintf_P(NULL, 0, (char*)CTBOT_HEADER_STRING, m_token, command, payloadSize, CTBOT_CONTENT_TYPE_JSON) + 1;
+	headerSize = snprintf_P(NULL, 0, CTBOT_HEADER_STRING, m_token, command, payloadSize, CTBOT_CONTENT_TYPE_JSON) + 1;
 	pheader = (char*)malloc(headerSize);
 	if (NULL == pheader) {
 		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendCommand: unable to allocate memory\n"));
+		free(ppayload);
 		return false;
 	}
-	snprintf_P(pheader, headerSize, (char*)CTBOT_HEADER_STRING, m_token, command, payloadSize, CTBOT_CONTENT_TYPE_JSON);
+	snprintf_P(pheader, headerSize, CTBOT_HEADER_STRING, m_token, command, payloadSize, CTBOT_CONTENT_TYPE_JSON);
 
 	response = m_connection.POST(pheader, (uint8_t*)ppayload, payloadSize);
 
@@ -140,11 +152,115 @@ bool CTBot::sendCommand(const char* command, const DynamicJsonDocument& jsonData
 	free(ppayload);
 	free(pheader);
 
-	if (response)
-		m_isWaitingResponse = true;
-
 	return response;
 }
+
+bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, char* filename)
+{
+	bool response;
+	uint16_t headerSize, payloadHeaderSize, payloadFooterSize, contentTypeSize, payloadSize;
+	char* pheader, * ppayloadHeader, * ppayloadFooter, * pcontentType;
+	char* telegramDataType, * command, *dataContentType;
+
+	if (NULL == m_token) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->sendBinaryData: no Telegram token defined\n"));
+		return false;
+	}
+
+	switch (dataType) {
+	case CTBotDataTypeJPEG:
+		command = CTBOT_COMMAND_SENDPHOTO;
+		telegramDataType = CFSTR("photo");
+		dataContentType = CTBOT_CONTENT_TYPE_JPEG;
+		break;
+	case CTBotDataTypeText:
+		command = CTBOT_COMMAND_SENDDOCUMENT;
+		telegramDataType = CFSTR("document");
+		dataContentType = CTBOT_CONTENT_TYPE_TEXT;
+		break;
+	case CTBotDataTypeRAW:
+		command = CTBOT_COMMAND_SENDDOCUMENT;
+		telegramDataType = CFSTR("document");
+		dataContentType = CTBOT_CONTENT_TYPE_RAW;
+		break;
+	default:
+		return false;
+	}
+
+	// payload header
+	payloadHeaderSize = snprintf_P(NULL, 0, CTBOT_PAYLOAD_HEADER_STRING, CTBOT_FORM_BOUNDARY, id, CTBOT_FORM_BOUNDARY, 
+		telegramDataType, filename, dataContentType) + 1;
+	ppayloadHeader = (char*)malloc(payloadHeaderSize);
+	if (NULL == ppayloadHeader) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
+		return false;
+	}
+	snprintf_P(ppayloadHeader, payloadHeaderSize, (char*)CTBOT_PAYLOAD_HEADER_STRING, CTBOT_FORM_BOUNDARY, id, CTBOT_FORM_BOUNDARY,
+		telegramDataType, filename, dataContentType);
+
+	//payload footer
+	payloadFooterSize = snprintf_P(NULL, 0, CTBOT_PAYLOAD_FOOTER_STRING, CTBOT_FORM_BOUNDARY) + 1;
+	ppayloadFooter = (char*)malloc(payloadFooterSize);
+	if (NULL == ppayloadFooter) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
+		free(ppayloadHeader);
+		return false;
+	}
+	snprintf_P(ppayloadFooter, payloadFooterSize, CTBOT_PAYLOAD_FOOTER_STRING, CTBOT_FORM_BOUNDARY);
+
+	payloadSize = payloadHeaderSize + dataSize + payloadFooterSize;
+
+	// content type 
+	contentTypeSize = snprintf_P(NULL, 0, CTBOT_CONTENT_TYPE_MULTIPART, CTBOT_FORM_BOUNDARY) + 1;
+	pcontentType = (char*)malloc(contentTypeSize);
+	if (NULL == pcontentType) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
+		free(ppayloadHeader);
+		free(ppayloadFooter);
+		return false;
+	}
+	snprintf_P(pcontentType, contentTypeSize, CTBOT_CONTENT_TYPE_MULTIPART, CTBOT_FORM_BOUNDARY);
+
+	// header
+	headerSize = snprintf_P(NULL, 0, CTBOT_HEADER_STRING, m_token, command, payloadSize, pcontentType) + 1;
+	pheader = (char*)malloc(headerSize);
+	if (NULL == pheader) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
+		free(ppayloadHeader);
+		free(ppayloadFooter);
+		free(pcontentType);
+		return false;
+	}
+	snprintf_P(pheader, headerSize, CTBOT_HEADER_STRING, m_token, command, payloadSize, pcontentType);
+
+	response = m_connection.POST(pheader, data, dataSize, ppayloadHeader, ppayloadFooter);
+
+	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Header\n%s\n", pheader);
+	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Payload header\n%s\n", ppayloadHeader);
+	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Payload footer\n%s\n", ppayloadFooter);
+
+	free(ppayloadHeader);
+	free(ppayloadFooter);
+	free(pcontentType);
+	free(pheader);
+
+
+
+
+
+
+
+
+	TBMessage msg;
+	parseResponse(msg);
+	return response;
+}
+
+
+
+
+
+
 
 bool CTBot::sendMessageEx(int64_t id, const char* message, const char* keyboard) {
 	return editMessageTextEx(id, 0, message, keyboard);
@@ -197,8 +313,9 @@ bool CTBot::sendMessageEx(int64_t id, const char* message, CTBotReplyKeyboard& k
 }
 
 int32_t CTBot::sendMessage(int64_t id, const char* message, const char* keyboard) {
-		CTBotMessageType result = CTBotMessageNoData;
+	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
+	uint8_t i = 0;
 
 	if (!editMessageTextEx(id, 0, message, keyboard)) {
 		flushTelegramResponses();
@@ -206,9 +323,13 @@ int32_t CTBot::sendMessage(int64_t id, const char* message, const char* keyboard
 			m_connection.disconnect();
 		return 0;
 	}
-	while (m_isWaitingResponse)
-		result = parseResponse(msg);
 
+	while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
+		result = parseResponse(msg);
+		if (CTBotMessageNoData == result)
+			delay(CTBOT_DELAY_PARSERESPONSE);
+		i++;
+	}
 	if (!m_keepAlive)
 		m_connection.disconnect();
 
@@ -226,10 +347,6 @@ int32_t CTBot::sendMessage(int64_t id, const char* message, CTBotReplyKeyboard &
 bool CTBot::getUpdates() {
 	bool response;
 
-	/*
-    uint16_t headerSize, payloadSize;
-	char *pheader, *ppayload;
-*/
 	// check if is passed CTBOT_GET_UPDATE_TIMEOUT ms from the last update
 	// Telegram server accept updates only every 3 seconds
 	uint32_t currentTime = millis();
@@ -246,27 +363,6 @@ bool CTBot::getUpdates() {
 			return false;
 		}
 	}
-
-
-/*
-	if (m_isWaitingResponse) {
-		// awaiting a response...
-		if (m_connection.isConnected()) {
-			// ...and the connection is active -> wait for response
-			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->getUpdates: there is another request awaiting response\n"));
-			return false;
-		}
-		else {
-			// ...and connection lost -> go on!
-			m_isWaitingResponse = false;
-		}
-	}
-
-	if (NULL == m_token) {
-		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->getUpdates: no Telegram token defined\n"));
-		return false;
-	}
-*/
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
 #if CTBOT_BUFFER_SIZE > 0
@@ -285,58 +381,14 @@ bool CTBot::getUpdates() {
 	root[FSTR("offset")]          = m_lastUpdate;
 
 	response = sendCommand(CTBOT_COMMAND_GETUPDATES, root);
-
 	m_lastUpdateTimeStamp = millis();
-
-/*
-#if ARDUINOJSON_VERSION_MAJOR == 5
-	payloadSize = root.measureLength() + 1;
-#elif ARDUINOJSON_VERSION_MAJOR == 6
-	payloadSize = measureJson(root) + 1;
-#endif
-
-	ppayload = (char*)malloc(payloadSize);
-	if (NULL == ppayload) {
-		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->getUpdates: unable to allocate memory\n"));
-		return false;
-	}
-
-#if ARDUINOJSON_VERSION_MAJOR == 5
-	root.printTo(ppayload, payloadSize);
-#elif ARDUINOJSON_VERSION_MAJOR == 6
-	serializeJson(root, ppayload, payloadSize);
-#endif
-
-	// header
-	headerSize = snprintf_P(NULL, 0, (char*)CTBOT_HEADER_STRING, m_token, CTBOT_COMMAND_GETUPDATES, payloadSize, CTBOT_CONTENT_TYPE_JSON) + 1;
-	pheader = (char*)malloc(headerSize);
-	if (NULL == pheader) {
-		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->getUpdates: unable to allocate memory\n"));
-		return false;
-	}
-	snprintf_P(pheader, headerSize, (char*)CTBOT_HEADER_STRING, m_token, CTBOT_COMMAND_GETUPDATES, payloadSize, CTBOT_CONTENT_TYPE_JSON);
-
-	response = m_connection.POST(pheader, (uint8_t*)ppayload, payloadSize);
-
-	if (response) {
-		serialLog(CTBOT_DEBUG_CONNECTION, "--->getUpdates: Header\n%s\n", pheader);
-		serialLog(CTBOT_DEBUG_CONNECTION, "--->getUpdates: Payload\n%s\n", ppayload);
-		m_isWaitingResponse = true;
-	}
-
-	free(ppayload);
-	free(pheader);
-*/
 	return response;
 }
 
 CTBotMessageType CTBot::parseResponse(TBMessage& message) {
-	if (!m_connection.isConnected()) {
-		// no active connection -> reset the waiting response variable;
-		m_isWaitingResponse = false;
+	if (!m_connection.isConnected()) 
 		return CTBotMessageNoData;
-	}
-
+	
 	const char* response = m_connection.receive();
 
 	if (NULL == response) {
@@ -345,9 +397,6 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 	}
 
 	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->parseResponse: response received\n"));
-
-	// a response is received
-	m_isWaitingResponse = false;
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
 #if CTBOT_BUFFER_SIZE > 0
@@ -398,7 +447,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 	uint32_t updateID = root[FSTR("result")][0][FSTR("update_id")].as<int32_t>();
 	if (0 == updateID) {
 		if (root[FSTR("result")].size() > 0) {
-			// no updateID but result not empty -> sendMessage ack
+			// no updateID but result not empty -> ack (sendMessage/editMessage, endQuery, deleteMessage, etc)
 			message.messageID        = root[FSTR("result")][FSTR("message_id")].as<int32_t>();
 			message.sender.id        = root[FSTR("result")][FSTR("from")][FSTR("id")].as<int32_t>();
 			message.sender.username  = root[FSTR("result")][FSTR("from")][FSTR("username")].as<String>();
@@ -409,9 +458,9 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 			message.messageType      = CTBotMessageACK;
 			return CTBotMessageACK;
 		}
-		// the field is not present -> it's a sendMessage response
-		message.messageType = CTBotMessageNoData;
-		return CTBotMessageNoData;
+		// the field is not present -> an empty getUpdates (no new messages)
+		message.messageType = CTBotMessageOK;
+		return CTBotMessageOK;
 	}
 	m_lastUpdate = updateID + 1;
 
@@ -429,9 +478,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 		message.callbackQueryData = root[FSTR("result")][0][FSTR("callback_query")][FSTR("data")].as<String>();
 		message.chatInstance      = root[FSTR("result")][0][FSTR("callback_query")][FSTR("chat_instance")].as<String>();
 		message.messageType = CTBotMessageQuery;
-
-		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->parseResponse: Free heap memory : %u\n"), ESP.getFreeHeap());
-
+//		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->parseResponse: Free heap memory : %u\n"), ESP.getFreeHeap());
 		return CTBotMessageQuery;
 	}
 	else if (root[FSTR("result")][0][FSTR("message")][FSTR("message_id")]) {
@@ -453,9 +500,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 			// this is a text message
 			message.text        = root[FSTR("result")][0][FSTR("message")][FSTR("text")].as<String>();
 			message.messageType = CTBotMessageText;
-
-			serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->parseResponse: Free heap memory : %u\n"), ESP.getFreeHeap());
-
+//			serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->parseResponse: Free heap memory : %u\n"), ESP.getFreeHeap());
 			return CTBotMessageText;
 		}
 		else if (root[FSTR("result")][0][FSTR("message")][FSTR("location")]) {
@@ -463,9 +508,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 			message.location.longitude = root[FSTR("result")][0][FSTR("message")][FSTR("location")][FSTR("longitude")].as<float>();
 			message.location.latitude  = root[FSTR("result")][0][FSTR("message")][FSTR("location")][FSTR("latitude")].as<float>();
 			message.messageType        = CTBotMessageLocation;
-
-			serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->parseResponse: Free heap memory : %u\n"), ESP.getFreeHeap());
-
+//			serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->parseResponse: Free heap memory : %u\n"), ESP.getFreeHeap());
 			return CTBotMessageLocation;
 		}
 		else if (root[FSTR("result")][0][FSTR("message")][FSTR("contact")]) {
@@ -476,9 +519,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 			message.contact.phoneNumber = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("phone_number")].as<String>();
 			message.contact.vCard       = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("vcard")].as<String>();
 			message.messageType         = CTBotMessageContact;
-
-			serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->parseResponse: Free heap memory : %u\n"), ESP.getFreeHeap());
-
+//			serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->parseResponse: Free heap memory : %u\n"), ESP.getFreeHeap());
 			return CTBotMessageContact;
 		}
 	}
@@ -490,7 +531,6 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 CTBotMessageType CTBot::parseResponse(TBUser& user) {
 	if (!m_connection.isConnected()) {
 		// no active connection -> reset the waiting response variable;
-		m_isWaitingResponse = false;
 		return CTBotMessageNoData;
 	}
 
@@ -501,9 +541,6 @@ CTBotMessageType CTBot::parseResponse(TBUser& user) {
 	}
 
 	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->parseResponse: response received\n"));
-
-	// a response is received
-	m_isWaitingResponse = false;
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
 #if CTBOT_BUFFER_SIZE > 0
@@ -559,6 +596,7 @@ CTBotMessageType CTBot::parseResponse(TBUser& user) {
 
 CTBotMessageType CTBot::getNewMessage(TBMessage & message) {
 	CTBotMessageType result = CTBotMessageNoData;
+	uint8_t i = 0;
 
 	if (!getUpdates()) {
 		flushTelegramResponses();
@@ -566,10 +604,13 @@ CTBotMessageType CTBot::getNewMessage(TBMessage & message) {
 			m_connection.disconnect();
 		return CTBotMessageNoData;
 	}
-
-	while (m_isWaitingResponse)
+	
+	while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
 		result = parseResponse(message);
-
+		if (CTBotMessageNoData == result)
+			delay(CTBOT_DELAY_PARSERESPONSE);
+		i++;
+	}
 	if (!m_keepAlive)
 		m_connection.disconnect();
 	return result;
@@ -578,32 +619,10 @@ CTBotMessageType CTBot::getNewMessage(TBMessage & message) {
 bool CTBot::endQueryEx(const char* queryID, const char* message, bool alertMode) {
 	bool response;
 
-//	uint16_t headerSize, payloadSize;
-//	char* pheader, * ppayload;
-
 	if (NULL == queryID)
 		return false;
 	if (0 == strlen(queryID))
 		return false;
-/*
-	if (m_isWaitingResponse) {
-		// awaiting a response...
-		if (m_connection.isConnected()) {
-			// ...and the connection is active -> wait for response
-			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->endQuery: there is another request awaiting response\n"));
-			return false;
-		}
-		else {
-			// ...and connection lost -> go on!
-			m_isWaitingResponse = false;
-		}
-	}
-
-	if (NULL == m_token) {
-		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->endQuery: no Telegram token defined\n"));
-		return false;
-	}
-*/
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
 #if CTBOT_BUFFER_SIZE > 0
@@ -625,53 +644,13 @@ bool CTBot::endQueryEx(const char* queryID, const char* message, bool alertMode)
 			root[FSTR("show_alert")] = alertMode;
 		}
 	}
-
 	response = sendCommand(CTBOT_COMMAND_ENDQUERY, root);
-
-/*
-#if ARDUINOJSON_VERSION_MAJOR == 5
-	payloadSize = root.measureLength() + 1;
-#elif ARDUINOJSON_VERSION_MAJOR == 6
-	payloadSize = measureJson(root) + 1;
-#endif
-
-	ppayload = (char*)malloc(payloadSize);
-	if (NULL == ppayload) {
-		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->endQuery: unable to allocate memory\n"));
-		return false;
-	}
-
-#if ARDUINOJSON_VERSION_MAJOR == 5
-	root.printTo(ppayload, payloadSize);
-#elif ARDUINOJSON_VERSION_MAJOR == 6
-	serializeJson(root, ppayload, payloadSize);
-#endif
-
-	// header
-	headerSize = snprintf_P(NULL, 0, (char*)CTBOT_HEADER_STRING, m_token, CTBOT_COMMAND_ENDQUERY, payloadSize, CTBOT_CONTENT_TYPE_JSON) + 1;
-	pheader = (char*)malloc(headerSize);
-	if (NULL == pheader) {
-		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->endQuery: unable to allocate memory\n"));
-		return false;
-	}
-	snprintf_P(pheader, headerSize, (char*)CTBOT_HEADER_STRING, m_token, CTBOT_COMMAND_ENDQUERY, payloadSize, CTBOT_CONTENT_TYPE_JSON);
-
-	response = m_connection.POST(pheader, (uint8_t*)ppayload, payloadSize);
-
-	serialLog(CTBOT_DEBUG_CONNECTION, "--->endQuery: Header\n%s\n", pheader);
-	serialLog(CTBOT_DEBUG_CONNECTION, "--->endQuery: Payload\n%s\n", ppayload);
-
-	free(ppayload);
-	free(pheader);
-
-	if (response)
-		m_isWaitingResponse = true;
-*/
 	return response;
 }
 bool CTBot::endQuery(const char* queryID, const char* message, bool alertMode) {
 	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
+	uint8_t i = 0;
 
 	if (!endQueryEx(queryID, message, alertMode)) {
 		flushTelegramResponses();
@@ -679,9 +658,12 @@ bool CTBot::endQuery(const char* queryID, const char* message, bool alertMode) {
 			m_connection.disconnect();
 		return false;
 	}
-	while (m_isWaitingResponse)
+	while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
 		result = parseResponse(msg);
-
+		if (CTBotMessageNoData == result)
+			delay(CTBOT_DELAY_PARSERESPONSE);
+		i++;
+	}
 	if (!m_keepAlive)
 		m_connection.disconnect();
 
@@ -690,8 +672,7 @@ bool CTBot::endQuery(const char* queryID, const char* message, bool alertMode) {
 	return true;
 }
 
-bool CTBot::removeReplyKeyboardEx(int64_t id, const char* message, bool selective)
-{
+bool CTBot::removeReplyKeyboardEx(int64_t id, const char* message, bool selective) {
 	uint16_t kbdSize;
 	char* pkbd;
 	bool result;
@@ -728,10 +709,10 @@ bool CTBot::removeReplyKeyboardEx(int64_t id, const char* message, bool selectiv
 	free(pkbd);
 	return result;
 }
-bool CTBot::removeReplyKeyboard(int64_t id, const char* message, bool selective)
-{
+bool CTBot::removeReplyKeyboard(int64_t id, const char* message, bool selective) {
 	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
+	uint8_t i = 0;
 
 	if (!removeReplyKeyboardEx(id, message, selective)) {
 		flushTelegramResponses();
@@ -739,9 +720,13 @@ bool CTBot::removeReplyKeyboard(int64_t id, const char* message, bool selective)
 			m_connection.disconnect();
 		return false;
 	}
-	while (m_isWaitingResponse)
-		result = parseResponse(msg);
 
+	while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
+		result = parseResponse(msg);
+		if (CTBotMessageNoData == result)
+			delay(CTBOT_DELAY_PARSERESPONSE);
+		i++;
+	}
 	if (!m_keepAlive)
 		m_connection.disconnect();
 
@@ -750,8 +735,7 @@ bool CTBot::removeReplyKeyboard(int64_t id, const char* message, bool selective)
 	return true;
 }
 
-bool CTBot::getMeEx()
-{
+bool CTBot::getMeEx() {
 	bool response;
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
@@ -769,9 +753,9 @@ bool CTBot::getMeEx()
 
 	return response;
 }
-bool CTBot::getMe(TBUser& user)
-{
+bool CTBot::getMe(TBUser& user) {
 	CTBotMessageType result = CTBotMessageNoData;
+	uint8_t i = 0;
 
 	if (!getMeEx()) {
 		flushTelegramResponses();
@@ -779,9 +763,13 @@ bool CTBot::getMe(TBUser& user)
 			m_connection.disconnect();
 		return false;
 	}
-	while (m_isWaitingResponse)
-		result = parseResponse(user);
 
+	while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
+		result = parseResponse(user);
+		if (CTBotMessageNoData == result)
+			delay(CTBOT_DELAY_PARSERESPONSE);
+		i++;
+	}
 	if (!m_keepAlive)
 		m_connection.disconnect();
 
@@ -852,6 +840,7 @@ bool CTBot::editMessageTextEx(int64_t id, int32_t messageID, const char* message
 bool CTBot::editMessageText(int64_t id, int32_t messageID, const char* message, const char* keyboard) {
 	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
+	uint8_t i = 0;
 
 	if (!editMessageTextEx(id, messageID, message, keyboard)) {
 		flushTelegramResponses();
@@ -859,9 +848,13 @@ bool CTBot::editMessageText(int64_t id, int32_t messageID, const char* message, 
 			m_connection.disconnect();
 		return false;
 	}
-	while (m_isWaitingResponse)
-		result = parseResponse(msg);
 
+	while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
+		result = parseResponse(msg);
+		if (CTBotMessageNoData == result)
+			delay(CTBOT_DELAY_PARSERESPONSE);
+		i++;
+	}
 	if (!m_keepAlive)
 		m_connection.disconnect();
 
@@ -886,8 +879,7 @@ bool CTBot::editMessageText(int64_t id, int32_t messageID, const String& message
 	return editMessageText(id, messageID, message.c_str(), keyboard.getJSON());
 }
 
-bool CTBot::deleteMessageEx(int64_t id, int32_t messageID)
-{
+bool CTBot::deleteMessageEx(int64_t id, int32_t messageID) {
 	bool response;
 
 #if ARDUINOJSON_VERSION_MAJOR == 5
@@ -909,10 +901,10 @@ bool CTBot::deleteMessageEx(int64_t id, int32_t messageID)
 
 	return response;
 }
-bool CTBot::deleteMessage(int64_t id, int32_t messageID)
-{
+bool CTBot::deleteMessage(int64_t id, int32_t messageID) {
 	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
+	uint8_t i = 0;
 
 	if (!deleteMessageEx(id, messageID)) {
 		flushTelegramResponses();
@@ -920,9 +912,13 @@ bool CTBot::deleteMessage(int64_t id, int32_t messageID)
 			m_connection.disconnect();
 		return false;
 	}
-	while (m_isWaitingResponse)
-		result = parseResponse(msg);
 
+	while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
+		result = parseResponse(msg);
+		if (CTBotMessageNoData == result)
+			delay(CTBOT_DELAY_PARSERESPONSE);
+		i++;
+	}
 	if (!m_keepAlive)
 		m_connection.disconnect();
 
@@ -985,9 +981,14 @@ int32_t CTBot::sendMessage(int64_t id, const String& message, CTBotReplyKeyboard
 }
 
 CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
-	if (blocking)
-		delay(CTBOT_GET_UPDATE_TIMEOUT);
-	return getNewMessage(message);
+	CTBotMessageType result = CTBotMessageNoData;
+	if (blocking) {
+//		delay(CTBOT_GET_UPDATE_TIMEOUT);
+		do {
+			result = getNewMessage(message);
+		} while (CTBotMessageNoData == result);
+	}
+	return result;
 }
 
 bool CTBot::removeReplyKeyboard(int64_t id, const String& message, bool selective) {

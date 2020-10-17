@@ -136,7 +136,8 @@ public:
 	//   CTBotMessageQuery   : the received message is a query (from inline/reply keyboards)
 	//   CTBotMessageLocation: the received message is a location
 	//   CTBotMessageContact : the received message is a contact
-	//   CTBotMessageACK     : the received message is an acknowledge (sendMessageEx)
+	//   CTBotMessageACK     : the received message is an acknowledge (send/edit/delete message, qndQuery, etc)
+	//   CTBotMessageOK      : the received message is an acknowledge (getUpdates/getNewMessage with no new message)
 	CTBotMessageType parseResponse(TBMessage& message);
 	CTBotMessageType parseResponse(TBUser& user);
 
@@ -219,13 +220,20 @@ public:
 	//          false -> close connection after a member function call
 	void keepAlive(bool value);
 
+
+
+	bool sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, char* filename);
+
+
+
+
 private:
 	CTBotSecureConnection m_connection;
 	CTBotWifiSetup        m_wifi;
 	char*                 m_token;
 	int32_t               m_lastUpdate;
 	uint32_t              m_lastUpdateTimeStamp;
-	bool                  m_isWaitingResponse;
+//	bool                  m_isWaitingResponse;
 	bool                  m_keepAlive;
 
 	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api

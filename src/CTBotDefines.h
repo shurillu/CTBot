@@ -31,6 +31,15 @@
 // set to 0 to disabling it
 #define CTBOT_CONNECTION_TIMEOUT      2000 // ms
 
+// size of the packet of binary data sent to the telegram server
+#define CTBOT_PACKET_SIZE              500 //bytes
+
+// for non "Ex" functions (the ones that inside calls an "Ex" member function and the parseResponse member function), 
+// it define how many times it need to call "parseResponse" and wait  CTBOT_DELAY_PARSERESPONSE ms waiting a Telegram response
+// set it to 0 to execute once
+// set it to 256 (or more) to wait until a Telegram response is sent (LOCKING!!!!)
+#define CTBOT_MAX_PARSERESPONSE        100
+#define CTBOT_DELAY_PARSERESPONSE       10 // ms
 
 // Library specific defines: ArduinoJson5 ------------------------------------------------------------------------
 #define CTBOT_JSON5_BUFFER_SIZE          0 // json parser buffer size (only for ArduinoJson 5)

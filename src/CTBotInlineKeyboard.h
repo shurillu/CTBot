@@ -5,7 +5,7 @@
 // for using int_64 data
 #define ARDUINOJSON_USE_LONG_LONG 1 
 // for decoding UTF8/UNICODE
-#define ARDUINOJSON_DECODE_UNICODE 1 
+#define ARDUINOJSON_DECODE_UNICODE 1
 
 #if defined(ARDUINO_ARCH_ESP8266) // ESP8266
 // for strings stored in FLASH - only for ESP8266

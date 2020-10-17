@@ -4,13 +4,20 @@
 
 #include <Arduino.h>
 
+enum CTBotDataType {
+	CTBotDataTypeJPEG  = 0,
+	CTBotDataTypeText  = 1,
+	CTBotDataTypeRAW   = 2
+};
+
 enum CTBotMessageType {
-	CTBotMessageNoData   = 0,
-	CTBotMessageText     = 1,
-	CTBotMessageQuery    = 2,
-	CTBotMessageLocation = 3,
-	CTBotMessageContact  = 4, 
-	CTBotMessageACK      = 5
+	CTBotMessageNoData    = 0,
+	CTBotMessageText      = 1,
+	CTBotMessageQuery     = 2,
+	CTBotMessageLocation  = 3,
+	CTBotMessageContact   = 4, 
+	CTBotMessageACK       = 5, // for all methods like send/edit/deleteMessage, endQuery, etc)
+	CTBotMessageOK        = 6  // for getUpdates with no new message
 };
 
 struct TBUser {

@@ -5,7 +5,7 @@
 // for using int_64 data
 #define ARDUINOJSON_USE_LONG_LONG 1 
 // for decoding UTF8/UNICODE
-#define ARDUINOJSON_DECODE_UNICODE 1 
+#define ARDUINOJSON_DECODE_UNICODE 1
 
 #if defined(ARDUINO_ARCH_ESP8266) // ESP8266
 // for strings stored in FLASH - only for ESP8266
@@ -73,7 +73,9 @@ public:
 	//   payloadSize: the size of the payload (in bytes)
 	// returns
 	//	 true if no errors occurred
-	bool POST(const char* header, const uint8_t* payload, uint16_t payloadSize);
+//	bool POST(const char* header, const uint8_t* payload, uint16_t payloadSize);
+	bool POST(const char* header, const uint8_t* payload, uint16_t payloadSize, const char* payloadHeader = NULL, const char* payloadFooter = NULL);
+
 
 	// receive Telegram server POST response
 	// returns

@@ -963,6 +963,8 @@ bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, 
 		response = m_connection.POST(pheader, fhandle, dataSize, ppayloadHeader, ppayloadFooter);
 	else if (data != NULL)
 		response = m_connection.POST(pheader, data, dataSize, ppayloadHeader, ppayloadFooter);
+	else
+		response = false;
 
 	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Header\n%s\n", pheader);
 	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Payload header\n%s\n", ppayloadHeader);

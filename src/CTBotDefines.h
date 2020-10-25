@@ -32,7 +32,7 @@
 #define CTBOT_CONNECTION_TIMEOUT      2000 // ms
 
 // size of the packet of binary data sent to the telegram server
-#define CTBOT_PACKET_SIZE              500 //bytes
+#define CTBOT_PACKET_SIZE              500 // bytes
 
 // for non "Ex" functions (the ones that inside calls an "Ex" member function and the parseResponse member function), 
 // it define how many times it need to call "parseResponse" and wait  CTBOT_DELAY_PARSERESPONSE ms waiting a Telegram response

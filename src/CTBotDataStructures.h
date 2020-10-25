@@ -4,6 +4,12 @@
 
 #include <Arduino.h>
 
+enum CTBotParseModeType {
+	CTBotParseModeDisabled = 0,
+	CTBotParseModeMarkdown = 1,
+	CTBotParseModeHTML     = 2
+};
+
 enum CTBotDataType {
 	CTBotDataTypeJPEG  = 0,
 	CTBotDataTypeText  = 1,

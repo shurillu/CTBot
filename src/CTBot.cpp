@@ -59,6 +59,7 @@ CTBot::CTBot() {
 	m_lastUpdate = 0;  // not updated yet
 	m_lastUpdateTimeStamp = millis();
 	m_keepAlive = true;
+	m_parseMode = CTBotParseModeDisabled;
 }
 
 CTBot::~CTBot() {
@@ -155,106 +156,11 @@ bool CTBot::sendCommand(const char* command, const DynamicJsonDocument& jsonData
 	return response;
 }
 
-bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, char* filename)
-{
-	bool response;
-	uint16_t headerSize, payloadHeaderSize, payloadFooterSize, contentTypeSize, payloadSize;
-	char* pheader, * ppayloadHeader, * ppayloadFooter, * pcontentType;
-	const char* telegramDataType, * command, *dataContentType;
-
-	if (NULL == m_token) {
-		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->sendBinaryData: no Telegram token defined\n"));
-		return false;
-	}
-
-	switch (dataType) {
-	case CTBotDataTypeJPEG:
-		command          = CTBOT_COMMAND_SENDPHOTO;
-		telegramDataType = CFSTR("photo");
-		dataContentType  = CTBOT_CONTENT_TYPE_JPEG;
-		break;
-	case CTBotDataTypeText:
-		command          = CTBOT_COMMAND_SENDDOCUMENT;
-		telegramDataType = CFSTR("document");
-		dataContentType  = CTBOT_CONTENT_TYPE_TEXT;
-		break;
-	case CTBotDataTypeRAW:
-		command          = CTBOT_COMMAND_SENDDOCUMENT;
-		telegramDataType = CFSTR("document");
-		dataContentType  = CTBOT_CONTENT_TYPE_RAW;
-		break;
-	default:
-		return false;
-	}
-
-	// payload header
-	payloadHeaderSize = snprintf_P(NULL, 0, CTBOT_PAYLOAD_HEADER_STRING, CTBOT_FORM_BOUNDARY, id, CTBOT_FORM_BOUNDARY, 
-		telegramDataType, filename, dataContentType) + 1;
-	ppayloadHeader = (char*)malloc(payloadHeaderSize);
-	if (NULL == ppayloadHeader) {
-		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
-		return false;
-	}
-	snprintf_P(ppayloadHeader, payloadHeaderSize, (char*)CTBOT_PAYLOAD_HEADER_STRING, CTBOT_FORM_BOUNDARY, id, CTBOT_FORM_BOUNDARY,
-		telegramDataType, filename, dataContentType);
-
-	//payload footer
-	payloadFooterSize = snprintf_P(NULL, 0, CTBOT_PAYLOAD_FOOTER_STRING, CTBOT_FORM_BOUNDARY) + 1;
-	ppayloadFooter = (char*)malloc(payloadFooterSize);
-	if (NULL == ppayloadFooter) {
-		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
-		free(ppayloadHeader);
-		return false;
-	}
-	snprintf_P(ppayloadFooter, payloadFooterSize, CTBOT_PAYLOAD_FOOTER_STRING, CTBOT_FORM_BOUNDARY);
-
-	payloadSize = payloadHeaderSize + dataSize + payloadFooterSize;
-
-	// content type 
-	contentTypeSize = snprintf_P(NULL, 0, CTBOT_CONTENT_TYPE_MULTIPART, CTBOT_FORM_BOUNDARY) + 1;
-	pcontentType = (char*)malloc(contentTypeSize);
-	if (NULL == pcontentType) {
-		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
-		free(ppayloadHeader);
-		free(ppayloadFooter);
-		return false;
-	}
-	snprintf_P(pcontentType, contentTypeSize, CTBOT_CONTENT_TYPE_MULTIPART, CTBOT_FORM_BOUNDARY);
-
-	// header
-	headerSize = snprintf_P(NULL, 0, CTBOT_HEADER_STRING, m_token, command, payloadSize, pcontentType) + 1;
-	pheader = (char*)malloc(headerSize);
-	if (NULL == pheader) {
-		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
-		free(ppayloadHeader);
-		free(ppayloadFooter);
-		free(pcontentType);
-		return false;
-	}
-	snprintf_P(pheader, headerSize, CTBOT_HEADER_STRING, m_token, command, payloadSize, pcontentType);
-
-	response = m_connection.POST(pheader, data, dataSize, ppayloadHeader, ppayloadFooter);
-
-	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Header\n%s\n", pheader);
-	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Payload header\n%s\n", ppayloadHeader);
-	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Payload footer\n%s\n", ppayloadFooter);
-
-	free(ppayloadHeader);
-	free(ppayloadFooter);
-	free(pcontentType);
-	free(pheader);
 
 
 
 
 
-
-
-
-	TBMessage msg;
-	parseResponse(msg);
-	return response;
-}
 
 
 
@@ -801,6 +707,12 @@ bool CTBot::editMessageTextEx(int64_t id, int32_t messageID, const char* message
 	// payload
 	root[FSTR("chat_id")]     = id;
 	root[FSTR("text")]        = message;
+	if (CTBotParseModeHTML == m_parseMode) {
+		root[FSTR("parse_mode")] = FSTR("HTML");
+	}
+	else if (CTBotParseModeMarkdown == m_parseMode) {
+		root[FSTR("parse_mode")] = FSTR("MarkdownV2");
+	}
 	if (messageID != 0)
 		root[FSTR("message_id")] = messageID;
 
@@ -934,6 +846,184 @@ void CTBot::flushTelegramResponses() {
 void CTBot::keepAlive(bool value) {
 	m_keepAlive = value;
 }
+
+void CTBot::setParseMode(CTBotParseModeType parseMode) {
+	m_parseMode = parseMode;
+}
+
+CTBotParseModeType CTBot::getParseMode(void) {
+	return m_parseMode;
+}
+
+bool CTBot::sendImageEx(int64_t id, uint8_t* data, uint16_t dataSize) {
+	return sendBinaryDataEx(id, CTBotDataTypeJPEG, data, dataSize, CFSTR("pic.jpg"));
+}
+bool CTBot::sendImageEx(int64_t id, File fhandle, uint16_t dataSize) {
+	return sendBinaryDataEx(id, CTBotDataTypeJPEG, fhandle, dataSize, CFSTR("pic.jpg"));
+}
+bool CTBot::sendImage(int64_t id, uint8_t* data, uint16_t dataSize) {
+	return sendBinaryData(id, CTBotDataTypeJPEG, data, dataSize, CFSTR("pic.jpg"));
+}
+bool CTBot::sendImage(int64_t id, File fhandle, uint16_t dataSize) {
+	return sendBinaryData(id, CTBotDataTypeJPEG, fhandle, dataSize, CFSTR("pic.jpg"));
+}
+
+bool CTBot::sendRawDataEx(int64_t id, uint8_t* data, uint16_t dataSize, const char* filename) {
+	return sendBinaryDataEx(id, CTBotDataTypeRAW, data, dataSize, filename);
+}
+bool CTBot::sendRawDataEx(int64_t id, File Fhandle, uint16_t dataSize, const char* filename) {
+	return sendBinaryDataEx(id, CTBotDataTypeRAW, Fhandle, dataSize, filename);
+}
+bool CTBot::sendRawData(int64_t id, uint8_t* data, uint16_t dataSize, const char* filename) {
+	return sendBinaryData(id, CTBotDataTypeRAW, data, dataSize, filename);
+}
+bool CTBot::sendRawData(int64_t id, File Fhandle, uint16_t dataSize, const char* filename) {
+	return sendBinaryData(id, CTBotDataTypeRAW, Fhandle, dataSize, filename);
+}
+
+bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint16_t dataSize, const char* filename)
+{
+	bool response;
+	uint16_t headerSize, payloadHeaderSize, payloadFooterSize, contentTypeSize, payloadSize;
+	char* pheader, * ppayloadHeader, * ppayloadFooter, * pcontentType;
+	const char* telegramDataType, * command, * dataContentType;
+
+	if (NULL == m_token) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->sendBinaryData: no Telegram token defined\n"));
+		return false;
+	}
+
+	switch (dataType) {
+	case CTBotDataTypeJPEG:
+		command = CTBOT_COMMAND_SENDPHOTO;
+		telegramDataType = CFSTR("photo");
+		dataContentType = CTBOT_CONTENT_TYPE_JPEG;
+		break;
+	case CTBotDataTypeText:
+		command = CTBOT_COMMAND_SENDDOCUMENT;
+		telegramDataType = CFSTR("document");
+		dataContentType = CTBOT_CONTENT_TYPE_TEXT;
+		break;
+	case CTBotDataTypeRAW:
+		command = CTBOT_COMMAND_SENDDOCUMENT;
+		telegramDataType = CFSTR("document");
+		dataContentType = CTBOT_CONTENT_TYPE_RAW;
+		break;
+	default:
+		return false;
+	}
+
+	// payload header
+	payloadHeaderSize = snprintf_P(NULL, 0, CTBOT_PAYLOAD_HEADER_STRING, CTBOT_FORM_BOUNDARY, id, CTBOT_FORM_BOUNDARY,
+		telegramDataType, filename, dataContentType) + 1;
+	ppayloadHeader = (char*)malloc(payloadHeaderSize);
+	if (NULL == ppayloadHeader) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
+		return false;
+	}
+	snprintf_P(ppayloadHeader, payloadHeaderSize, (char*)CTBOT_PAYLOAD_HEADER_STRING, CTBOT_FORM_BOUNDARY, id, CTBOT_FORM_BOUNDARY,
+		telegramDataType, filename, dataContentType);
+
+	//payload footer
+	payloadFooterSize = snprintf_P(NULL, 0, CTBOT_PAYLOAD_FOOTER_STRING, CTBOT_FORM_BOUNDARY) + 1;
+	ppayloadFooter = (char*)malloc(payloadFooterSize);
+	if (NULL == ppayloadFooter) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
+		free(ppayloadHeader);
+		return false;
+	}
+	snprintf_P(ppayloadFooter, payloadFooterSize, CTBOT_PAYLOAD_FOOTER_STRING, CTBOT_FORM_BOUNDARY);
+
+	payloadSize = payloadHeaderSize + dataSize + payloadFooterSize;
+
+	// content type 
+	contentTypeSize = snprintf_P(NULL, 0, CTBOT_CONTENT_TYPE_MULTIPART, CTBOT_FORM_BOUNDARY) + 1;
+	pcontentType = (char*)malloc(contentTypeSize);
+	if (NULL == pcontentType) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
+		free(ppayloadHeader);
+		free(ppayloadFooter);
+		return false;
+	}
+	snprintf_P(pcontentType, contentTypeSize, CTBOT_CONTENT_TYPE_MULTIPART, CTBOT_FORM_BOUNDARY);
+
+	// header
+	headerSize = snprintf_P(NULL, 0, CTBOT_HEADER_STRING, m_token, command, payloadSize, pcontentType) + 1;
+	pheader = (char*)malloc(headerSize);
+	if (NULL == pheader) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
+		free(ppayloadHeader);
+		free(ppayloadFooter);
+		free(pcontentType);
+		return false;
+	}
+	snprintf_P(pheader, headerSize, CTBOT_HEADER_STRING, m_token, command, payloadSize, pcontentType);
+
+	if (fhandle)
+		response = m_connection.POST(pheader, fhandle, dataSize, ppayloadHeader, ppayloadFooter);
+	else if (data != NULL)
+		response = m_connection.POST(pheader, data, dataSize, ppayloadHeader, ppayloadFooter);
+
+	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Header\n%s\n", pheader);
+	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Payload header\n%s\n", ppayloadHeader);
+	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendBinaryData: Payload footer\n%s\n", ppayloadFooter);
+
+	free(ppayloadHeader);
+	free(ppayloadFooter);
+	free(pcontentType);
+	free(pheader);
+
+	return response;
+}
+bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, const char* filename) {
+	return sendBinaryDataEx(id, dataType, data, File(), dataSize, filename);
+}
+bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, File fhandle, uint16_t dataSize, const char* filename) {
+	return sendBinaryDataEx(id, dataType, NULL, fhandle, dataSize, filename);
+}
+
+bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint16_t dataSize, const char* filename) {
+	CTBotMessageType result = CTBotMessageNoData;
+	TBMessage msg;
+	uint8_t i = 0;
+
+	if (!sendBinaryDataEx(id, dataType, data, fhandle, dataSize, filename)) {
+		flushTelegramResponses();
+		if (!m_keepAlive)
+			m_connection.disconnect();
+		return false;
+	}
+
+	while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
+		result = parseResponse(msg);
+		if (CTBotMessageNoData == result)
+			delay(CTBOT_DELAY_PARSERESPONSE);
+		i++;
+	}
+	if (!m_keepAlive)
+		m_connection.disconnect();
+
+	if (result != CTBotMessageACK)
+		return false;
+	return true;
+}
+bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, const char* filename) {
+	return sendBinaryData(id, dataType, data, File(), dataSize, filename);
+}
+bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, File fhandle, uint16_t dataSize, const char* filename) {
+	return sendBinaryData(id, dataType, NULL, fhandle, dataSize, filename);
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 

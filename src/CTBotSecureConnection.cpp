@@ -15,9 +15,6 @@
 #define HTTP_RESPONSE_OK    CFSTR("HTTP/1.1 200 OK")
 #define HTTP_CONTENT_LENGTH CFSTR("Content-Length: ")
 
-
-
-
 // --------------------------------------------------------------------------------------------------
 
 CTBotSecureConnection::CTBotSecureConnection() {
@@ -114,8 +111,17 @@ void CTBotSecureConnection::disconnect(){
 	m_telegramServer.stop();
 }
 
-bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uint16_t payloadSize, const char* payloadHeader, const char* payloadFooter) {
+bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uint16_t payloadSize, const char* payloadHeader, const char* payloadFooter) { 
+	return POST(header, payload, File(), payloadSize, payloadHeader, payloadFooter);
+}
+
+bool CTBotSecureConnection::POST(const char* header, File fhandle, uint16_t payloadSize, const char* payloadHeader, const char* payloadFooter) {
+	return POST(header, NULL, fhandle, payloadSize, payloadHeader, payloadFooter);
+}
+
+bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, File fhandle, uint16_t payloadSize, const char* payloadHeader, const char* payloadFooter) {
 	uint16_t dataSent;
+	char* buffer = NULL;
 
 	freeMemory();
 
@@ -126,19 +132,33 @@ bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uin
 
 	flush();
 
-	if ((NULL == header) || (NULL == payload)) {
-		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: parameters can't be NULL\n"));
+	if (NULL == header) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->POST: header can't be NULL\n"));
 		return false;
 	}
 
 	if (0 == strlen(header)) {
-		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: header can't be an empty string\n"));
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->POST: header can't be an empty string\n"));
 		return false;
 	}
 
 	if (0 == payloadSize) {
-		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: payload can't be empty\n"));
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->POST: payload can't zero size\n"));
 		return false;
+	}
+
+	if ((NULL == payload) && (!fhandle)) {
+		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->POST: NULL payload or invalid file handle\n"));
+		return false;
+	}
+
+	// allocate memory buffer for file reading
+	if (fhandle) {
+		buffer = (char*)malloc(CTBOT_PACKET_SIZE);
+		if (NULL == buffer) {
+			serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->POST: unable to allocate memory buffer for file reading\n"));
+			return false;
+		}
 	}
 
 	m_statusPin.toggle();
@@ -146,6 +166,8 @@ bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uin
 	if (dataSent != strlen(header)) {
 		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: error sending HTTP header (%u/%u)\n"), dataSent, strlen(header));
 		disconnect();
+		if (buffer != NULL)
+			free(buffer);
 		m_statusPin.toggle();
 		return false;
 	}
@@ -155,6 +177,8 @@ bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uin
 		if (dataSent != strlen(payloadHeader)) {
 			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: error sending payload header (%u/%u)\n"), dataSent, strlen(payloadHeader));
 			disconnect();
+			if (buffer != NULL)
+				free(buffer);
 			m_statusPin.toggle();
 			return false;
 		}
@@ -168,16 +192,28 @@ bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uin
 		else
 			packetSize = payloadSize;
 
-		dataSent = m_telegramServer.write(payload, packetSize);
+		if (fhandle) {
+			fhandle.readBytes(buffer, packetSize);
+			dataSent = m_telegramServer.write((uint8_t*)buffer, packetSize);
+		}
+		else if (payload != NULL) {
+			dataSent = m_telegramServer.write(payload, packetSize);
+		}
+		
 		if (dataSent != packetSize) {
 			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: error sending HTTP payload (%u/%u)\n"), dataSent, packetSize);
 			disconnect();
+			if (buffer != NULL)
+				free(buffer);
 			m_statusPin.toggle();
 			return false;
 		}
 		payloadSize -= packetSize;
-		payload     += packetSize;
+		payload += packetSize;
 	}
+
+	if (buffer != NULL)
+		free(buffer);
 
 	if ((payloadHeader != NULL) && (payloadFooter != NULL)) {
 		dataSent = m_telegramServer.print(payloadFooter);
@@ -288,7 +324,8 @@ const char* CTBotSecureConnection::receive() {
 		// Content-length not found;
 		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->receive: Content-Length not found\n"));
 //		disconnect();
-		m_telegramServer.flush();
+//		m_telegramServer.flush();
+		flush();
 		m_statusPin.toggle();
 		return NULL;
 	}
@@ -307,7 +344,8 @@ const char* CTBotSecureConnection::receive() {
 	if (found != 0) {
 		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->receive: end of header not found\n"));
 //		disconnect();
-		m_telegramServer.flush();
+//		m_telegramServer.flush();
+		flush();
 		m_statusPin.toggle();
 		return NULL;
 	}
@@ -316,7 +354,8 @@ const char* CTBotSecureConnection::receive() {
 	if (NULL == m_receivedData) {
 		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->receive: unable to allocate memory\n"));
 //		disconnect();
-		m_telegramServer.flush();
+//		m_telegramServer.flush();
+		flush();
 		m_statusPin.toggle();
 		return NULL;
 	}
@@ -325,8 +364,9 @@ const char* CTBotSecureConnection::receive() {
 	if (result != payloadSize) {
 		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->receive: unable read the payload. Byte read: %u/%u\n"), result, payloadSize);
 //		disconnect();
+//		m_telegramServer.flush();
 		freeMemory();
-		m_telegramServer.flush();
+		flush();
 		m_statusPin.toggle();
 		return NULL;
 	}

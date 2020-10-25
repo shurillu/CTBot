@@ -14,6 +14,7 @@
 #include <ArduinoJson.h>
 
 #include <Arduino.h>
+#include <SD.h>
 #include <WiFiClientSecure.h>
 #include "CTBotStatusPin.h"
 #include "CTBotDefines.h"
@@ -68,14 +69,14 @@ public:
 	// execute an HTTP POST on the Telegram server
 	// params
 	//   header     : the header of the POST, including the URI. The caller must
-	//              : compute/calculate it
+	//                compute/calculate it
 	//   payload    : the payload 
+	//   fhandle    : handle to a file 
 	//   payloadSize: the size of the payload (in bytes)
 	// returns
 	//	 true if no errors occurred
-//	bool POST(const char* header, const uint8_t* payload, uint16_t payloadSize);
 	bool POST(const char* header, const uint8_t* payload, uint16_t payloadSize, const char* payloadHeader = NULL, const char* payloadFooter = NULL);
-
+	bool POST(const char* header, File fhandle, uint16_t payloadSize, const char* payloadHeader = NULL, const char* payloadFooter = NULL);
 
 	// receive Telegram server POST response
 	// returns
@@ -106,6 +107,9 @@ private:
 	char*           m_receivedData;
 	// get fingerprints from https://www.grc.com/fingerprints.htm
 	uint8_t m_fingerprint[20]{ 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 }; // use this preconfigured fingerprrint by default
+
+
+	bool POST(const char* header, const uint8_t* payload, File fhandle, uint16_t payloadSize, const char* payloadHeader, const char* payloadFooter);
 };
 
 #endif

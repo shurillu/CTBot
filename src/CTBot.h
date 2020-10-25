@@ -3,6 +3,7 @@
 #define CTBOT
 
 #include <Arduino.h>
+#include <SD.h>
 #include "CTBotSecureConnection.h"
 #include "CTBotWifiSetup.h"
 #include "CTBotDefines.h"
@@ -220,9 +221,40 @@ public:
 	//          false -> close connection after a member function call
 	void keepAlive(bool value);
 
+	// set the message parse mode, like markdown or html (or disable the functionality)
+	// VERY IMPORTANT!!!! IN MARKDOWN MODE SPECIAL CHARACTER (like "!") MUST BE ESCAPED!!!
+	// READ THIS https://core.telegram.org/bots/api#markdownv2-style
+	// EXAMPLE: to escape the "!" character, use double backslash -> "\\!"
+	//param
+	//   parseMode: new message parse mode 
+	void setParseMode(CTBotParseModeType parseMode);
+	
+	// set the message parse mode, like markdown or html (or disable the functionality)
+	// param
+	//   none
+	// returns
+	//   current parse mode
+	CTBotParseModeType getParseMode(void);
 
 
-	bool sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, char* filename);
+
+	bool sendImageEx(int64_t id, uint8_t* data, uint16_t dataSize);
+	bool sendImageEx(int64_t id, File fhandle, uint16_t dataSize);
+	bool sendImage(int64_t id, uint8_t* data, uint16_t dataSize);
+	bool sendImage(int64_t id, File fhandle, uint16_t dataSize);
+
+	bool sendRawDataEx(int64_t id, uint8_t* data, uint16_t dataSize, const char* filename);
+	bool sendRawDataEx(int64_t id, File Fhandle, uint16_t dataSize, const char* filename);
+	bool sendRawData(int64_t id, uint8_t* data, uint16_t dataSize, const char* filename);
+	bool sendRawData(int64_t id, File Fhandle, uint16_t dataSize, const char* filename);
+
+
+	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, const char* filename);
+	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, File fhandle, uint16_t dataSize, const char* filename);
+	bool sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, const char* filename);
+	bool sendBinaryData(int64_t id, CTBotDataType dataType, File fhandle, uint16_t dataSize, const char* filename);
+
+
 
 
 
@@ -230,10 +262,10 @@ public:
 private:
 	CTBotSecureConnection m_connection;
 	CTBotWifiSetup        m_wifi;
+	CTBotParseModeType    m_parseMode;
 	char*                 m_token;
 	int32_t               m_lastUpdate;
 	uint32_t              m_lastUpdateTimeStamp;
-//	bool                  m_isWaitingResponse;
 	bool                  m_keepAlive;
 
 	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api
@@ -247,6 +279,10 @@ private:
 #elif ARDUINOJSON_VERSION_MAJOR == 6
 	bool sendCommand(const char* command, const DynamicJsonDocument& jsonData);
 #endif
+
+
+	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint16_t dataSize, const char* filename);
+	bool sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint16_t dataSize, const char* filename);
 
 
 // -----------------------STUBS - for backward compatibility --------------------------------------------------------------------

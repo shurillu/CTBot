@@ -711,6 +711,9 @@ bool CTBot::editMessageTextEx(int64_t id, int32_t messageID, const char* message
 		root[FSTR("parse_mode")] = FSTR("HTML");
 	}
 	else if (CTBotParseModeMarkdown == m_parseMode) {
+		root[FSTR("parse_mode")] = FSTR("Markdown");
+	}
+	else if (CTBotParseModeMarkdownV2 == m_parseMode) {
 		root[FSTR("parse_mode")] = FSTR("MarkdownV2");
 	}
 	if (messageID != 0)
@@ -1015,15 +1018,6 @@ bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, ui
 bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, File fhandle, uint16_t dataSize, const char* filename) {
 	return sendBinaryData(id, dataType, NULL, fhandle, dataSize, filename);
 }
-
-
-
-
-
-
-
-
-
 
 
 

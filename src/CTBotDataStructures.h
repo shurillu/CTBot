@@ -5,9 +5,10 @@
 #include <Arduino.h>
 
 enum CTBotParseModeType {
-	CTBotParseModeDisabled = 0,
-	CTBotParseModeMarkdown = 1,
-	CTBotParseModeHTML     = 2
+	CTBotParseModeDisabled   = 0,
+	CTBotParseModeMarkdown   = 1,
+	CTBotParseModeHTML       = 2,
+	CTBotParseModeMarkdownV2 = 3
 };
 
 enum CTBotDataType {

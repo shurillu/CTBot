@@ -156,18 +156,6 @@ bool CTBot::sendCommand(const char* command, const DynamicJsonDocument& jsonData
 	return response;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 bool CTBot::sendMessageEx(int64_t id, const char* message, const char* keyboard) {
 	return editMessageTextEx(id, 0, message, keyboard);
 /*
@@ -656,7 +644,6 @@ bool CTBot::getMeEx() {
 #endif
 
 	response = sendCommand(CTBOT_COMMAND_GETME, root);
-
 	return response;
 }
 bool CTBot::getMe(TBUser& user) {

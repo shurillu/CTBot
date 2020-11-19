@@ -30,6 +30,7 @@ AsyncTelegram::AsyncTelegram() {
 #if defined(ESP8266) 
     telegramClient.setFingerprint(m_fingerprint);   
     telegramClient.setInsecure();
+    telegramClient.setBufferSizes(1024,1024);
     telegramClient.setNoDelay(true);
 #endif  
 }
@@ -392,6 +393,7 @@ MessageType AsyncTelegram::getNewMessage(TBMessage &message )
 bool AsyncTelegram::begin(){
 #if defined(ESP8266)
     telegramClient.setInsecure();
+    telegramClient.setBufferSizes(1024,1024);
     telegramClient.setNoDelay(true);
 #elif defined(ESP32)
     //Start Task with input parameter set to "this" class

@@ -75,8 +75,8 @@ public:
 	//   payloadSize: the size of the payload (in bytes)
 	// returns
 	//	 true if no errors occurred
-	bool POST(const char* header, const uint8_t* payload, uint16_t payloadSize, const char* payloadHeader = NULL, const char* payloadFooter = NULL);
-	bool POST(const char* header, File fhandle, uint16_t payloadSize, const char* payloadHeader = NULL, const char* payloadFooter = NULL);
+	bool POST(const char* header, const uint8_t* payload, uint32_t payloadSize, const char* payloadHeader = NULL, const char* payloadFooter = NULL);
+	bool POST(const char* header, File fhandle, uint32_t payloadSize, const char* payloadHeader = NULL, const char* payloadFooter = NULL);
 
 	// receive Telegram server POST response
 	// returns
@@ -109,7 +109,7 @@ private:
 	uint8_t m_fingerprint[20]{ 0xF2, 0xAD, 0x29, 0x9C, 0x34, 0x48, 0xDD, 0x8D, 0xF4, 0xCF, 0x52, 0x32, 0xF6, 0x57, 0x33, 0x68, 0x2E, 0x81, 0xC1, 0x90 }; // use this preconfigured fingerprrint by default
 
 
-	bool POST(const char* header, const uint8_t* payload, File fhandle, uint16_t payloadSize, const char* payloadHeader, const char* payloadFooter);
+	bool POST(const char* header, const uint8_t* payload, File fhandle, uint32_t payloadSize, const char* payloadHeader, const char* payloadFooter);
 };
 
 #endif

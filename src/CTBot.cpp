@@ -505,6 +505,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage & message) {
 			delay(CTBOT_DELAY_PARSERESPONSE);
 		i++;
 	}
+
 	if (!m_keepAlive)
 		m_connection.disconnect();
 	return result;
@@ -845,36 +846,36 @@ CTBotParseModeType CTBot::getParseMode(void) {
 	return m_parseMode;
 }
 
-bool CTBot::sendImageEx(int64_t id, uint8_t* data, uint16_t dataSize) {
+bool CTBot::sendImageEx(int64_t id, uint8_t* data, uint32_t dataSize) {
 	return sendBinaryDataEx(id, CTBotDataTypeJPEG, data, dataSize, CFSTR("pic.jpg"));
 }
-bool CTBot::sendImageEx(int64_t id, File fhandle, uint16_t dataSize) {
+bool CTBot::sendImageEx(int64_t id, File fhandle, uint32_t dataSize) {
 	return sendBinaryDataEx(id, CTBotDataTypeJPEG, fhandle, dataSize, CFSTR("pic.jpg"));
 }
-bool CTBot::sendImage(int64_t id, uint8_t* data, uint16_t dataSize) {
+bool CTBot::sendImage(int64_t id, uint8_t* data, uint32_t dataSize) {
 	return sendBinaryData(id, CTBotDataTypeJPEG, data, dataSize, CFSTR("pic.jpg"));
 }
-bool CTBot::sendImage(int64_t id, File fhandle, uint16_t dataSize) {
+bool CTBot::sendImage(int64_t id, File fhandle, uint32_t dataSize) {
 	return sendBinaryData(id, CTBotDataTypeJPEG, fhandle, dataSize, CFSTR("pic.jpg"));
 }
 
-bool CTBot::sendRawDataEx(int64_t id, uint8_t* data, uint16_t dataSize, const char* filename) {
+bool CTBot::sendRawDataEx(int64_t id, uint8_t* data, uint32_t dataSize, const char* filename) {
 	return sendBinaryDataEx(id, CTBotDataTypeRAW, data, dataSize, filename);
 }
-bool CTBot::sendRawDataEx(int64_t id, File Fhandle, uint16_t dataSize, const char* filename) {
+bool CTBot::sendRawDataEx(int64_t id, File Fhandle, uint32_t dataSize, const char* filename) {
 	return sendBinaryDataEx(id, CTBotDataTypeRAW, Fhandle, dataSize, filename);
 }
-bool CTBot::sendRawData(int64_t id, uint8_t* data, uint16_t dataSize, const char* filename) {
+bool CTBot::sendRawData(int64_t id, uint8_t* data, uint32_t dataSize, const char* filename) {
 	return sendBinaryData(id, CTBotDataTypeRAW, data, dataSize, filename);
 }
-bool CTBot::sendRawData(int64_t id, File Fhandle, uint16_t dataSize, const char* filename) {
+bool CTBot::sendRawData(int64_t id, File Fhandle, uint32_t dataSize, const char* filename) {
 	return sendBinaryData(id, CTBotDataTypeRAW, Fhandle, dataSize, filename);
 }
 
-bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint16_t dataSize, const char* filename)
+bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint32_t dataSize, const char* filename)
 {
 	bool response;
-	uint16_t headerSize, payloadHeaderSize, payloadFooterSize, contentTypeSize, payloadSize;
+	uint32_t headerSize, payloadHeaderSize, payloadFooterSize, contentTypeSize, payloadSize;
 	char* pheader, * ppayloadHeader, * ppayloadFooter, * pcontentType;
 	const char* telegramDataType, * command, * dataContentType;
 
@@ -967,14 +968,14 @@ bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, 
 
 	return response;
 }
-bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, const char* filename) {
+bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, uint32_t dataSize, const char* filename) {
 	return sendBinaryDataEx(id, dataType, data, File(), dataSize, filename);
 }
-bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, File fhandle, uint16_t dataSize, const char* filename) {
+bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, File fhandle, uint32_t dataSize, const char* filename) {
 	return sendBinaryDataEx(id, dataType, NULL, fhandle, dataSize, filename);
 }
 
-bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint16_t dataSize, const char* filename) {
+bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint32_t dataSize, const char* filename) {
 	CTBotMessageType result = CTBotMessageNoData;
 	TBMessage msg;
 	uint8_t i = 0;
@@ -999,10 +1000,10 @@ bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, Fi
 		return false;
 	return true;
 }
-bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, const char* filename) {
+bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint32_t dataSize, const char* filename) {
 	return sendBinaryData(id, dataType, data, File(), dataSize, filename);
 }
-bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, File fhandle, uint16_t dataSize, const char* filename) {
+bool CTBot::sendBinaryData(int64_t id, CTBotDataType dataType, File fhandle, uint32_t dataSize, const char* filename) {
 	return sendBinaryData(id, dataType, NULL, fhandle, dataSize, filename);
 }
 

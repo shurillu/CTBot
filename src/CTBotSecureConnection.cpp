@@ -111,15 +111,15 @@ void CTBotSecureConnection::disconnect(){
 	m_telegramServer.stop();
 }
 
-bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uint16_t payloadSize, const char* payloadHeader, const char* payloadFooter) { 
+bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uint32_t payloadSize, const char* payloadHeader, const char* payloadFooter) { 
 	return POST(header, payload, File(), payloadSize, payloadHeader, payloadFooter);
 }
 
-bool CTBotSecureConnection::POST(const char* header, File fhandle, uint16_t payloadSize, const char* payloadHeader, const char* payloadFooter) {
+bool CTBotSecureConnection::POST(const char* header, File fhandle, uint32_t payloadSize, const char* payloadHeader, const char* payloadFooter) {
 	return POST(header, NULL, fhandle, payloadSize, payloadHeader, payloadFooter);
 }
 
-bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, File fhandle, uint16_t payloadSize, const char* payloadHeader, const char* payloadFooter) {
+bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, File fhandle, uint32_t payloadSize, const char* payloadHeader, const char* payloadFooter) {
 	uint16_t dataSent;
 	char* buffer = NULL;
 
@@ -186,6 +186,7 @@ bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, Fil
 
 	// divide the payload in packets of CTBOT_PACKET_SIZE dimension
 	while (payloadSize > 0) {
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: Remaining data to send: %lu\n"), payloadSize);
 		uint16_t packetSize;
 		if (payloadSize > CTBOT_PACKET_SIZE)
 			packetSize = CTBOT_PACKET_SIZE;
@@ -198,6 +199,7 @@ bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, Fil
 		}
 		else if (payload != NULL) {
 			dataSent = m_telegramServer.write(payload, packetSize);
+			payload += packetSize;
 		}
 		
 		if (dataSent != packetSize) {
@@ -209,7 +211,6 @@ bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, Fil
 			return false;
 		}
 		payloadSize -= packetSize;
-		payload += packetSize;
 	}
 
 	if (buffer != NULL)

@@ -3,7 +3,7 @@
 #define CTBOT
 
 #include <Arduino.h>
-#include <SD.h>
+#include <fs.h>
 #include "CTBotSecureConnection.h"
 #include "CTBotWifiSetup.h"
 #include "CTBotDefines.h"
@@ -238,21 +238,21 @@ public:
 
 
 
-	bool sendImageEx(int64_t id, uint8_t* data, uint16_t dataSize);
-	bool sendImageEx(int64_t id, File fhandle, uint16_t dataSize);
-	bool sendImage(int64_t id, uint8_t* data, uint16_t dataSize);
-	bool sendImage(int64_t id, File fhandle, uint16_t dataSize);
+	bool sendImageEx(int64_t id, uint8_t* data, uint32_t dataSize);
+	bool sendImageEx(int64_t id, File fhandle, uint32_t dataSize);
+	bool sendImage(int64_t id, uint8_t* data, uint32_t dataSize);
+	bool sendImage(int64_t id, File fhandle, uint32_t dataSize);
 
-	bool sendRawDataEx(int64_t id, uint8_t* data, uint16_t dataSize, const char* filename);
-	bool sendRawDataEx(int64_t id, File Fhandle, uint16_t dataSize, const char* filename);
-	bool sendRawData(int64_t id, uint8_t* data, uint16_t dataSize, const char* filename);
-	bool sendRawData(int64_t id, File Fhandle, uint16_t dataSize, const char* filename);
+	bool sendRawDataEx(int64_t id, uint8_t* data, uint32_t dataSize, const char* filename);
+	bool sendRawDataEx(int64_t id, File Fhandle, uint32_t dataSize, const char* filename);
+	bool sendRawData(int64_t id, uint8_t* data, uint32_t dataSize, const char* filename);
+	bool sendRawData(int64_t id, File Fhandle, uint32_t dataSize, const char* filename);
 
 
-	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, const char* filename);
-	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, File fhandle, uint16_t dataSize, const char* filename);
-	bool sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint16_t dataSize, const char* filename);
-	bool sendBinaryData(int64_t id, CTBotDataType dataType, File fhandle, uint16_t dataSize, const char* filename);
+	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, uint32_t dataSize, const char* filename);
+	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, File fhandle, uint32_t dataSize, const char* filename);
+	bool sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint32_t dataSize, const char* filename);
+	bool sendBinaryData(int64_t id, CTBotDataType dataType, File fhandle, uint32_t dataSize, const char* filename);
 
 
 
@@ -281,8 +281,8 @@ private:
 #endif
 
 
-	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint16_t dataSize, const char* filename);
-	bool sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint16_t dataSize, const char* filename);
+	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint32_t dataSize, const char* filename);
+	bool sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, File fhandle, uint32_t dataSize, const char* filename);
 
 
 // -----------------------STUBS - for backward compatibility --------------------------------------------------------------------

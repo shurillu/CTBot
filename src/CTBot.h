@@ -3,7 +3,7 @@
 #define CTBOT
 
 #include <Arduino.h>
-#include <fs.h>
+#include <FS.h>
 #include "CTBotSecureConnection.h"
 #include "CTBotWifiSetup.h"
 #include "CTBotDefines.h"

@@ -186,7 +186,7 @@ bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, Fil
 
 	// divide the payload in packets of CTBOT_PACKET_SIZE dimension
 	while (payloadSize > 0) {
-		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: Remaining data to send: %lu\n"), payloadSize);
+		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->POST: Remaining data to send: %u\n"), payloadSize);
 		uint16_t packetSize;
 		if (payloadSize > CTBOT_PACKET_SIZE)
 			packetSize = CTBOT_PACKET_SIZE;

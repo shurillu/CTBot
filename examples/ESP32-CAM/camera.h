@@ -128,15 +128,14 @@ void cameraSetup(framesize_t frameSize){
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
+  config.fb_count = 1;
   //init with high specs to pre-allocate larger buffers
   if(psramFound() && frameSize == FRAMESIZE_UXGA){
     config.frame_size = FRAMESIZE_UXGA;
-    config.jpeg_quality = 10;
-    config.fb_count = 2;
+    config.jpeg_quality = 10;  
   } else {
     config.frame_size = frameSize;
     config.jpeg_quality = 15;
-    config.fb_count = 1;
   }
 
 #if defined(CAMERA_MODEL_ESP_EYE)

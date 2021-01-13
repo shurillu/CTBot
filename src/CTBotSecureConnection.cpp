@@ -398,8 +398,7 @@ void CTBotSecureConnection::flush(void) {
 			m_telegramServer.read();
 }
 
-bool CTBotSecureConnection::useDNS(bool value)
-{
+bool CTBotSecureConnection::useDNS(bool value) {
 	m_useDNS = value;
 	// check if there is an established connection..
 	if (isConnected()) {
@@ -410,8 +409,7 @@ bool CTBotSecureConnection::useDNS(bool value)
 	return false;
 }
 
-bool CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint)
-{
+bool CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint) {
 	if (NULL == newFingerprint) {
 		serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->setFingerprint: fingerprint can't be NULL\n"));
 		return false;

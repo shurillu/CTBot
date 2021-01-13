@@ -271,7 +271,7 @@ bool CTBot::getUpdates() {
 
 	// payload
 	root[FSTR("limit")]           = 1;
-	root[FSTR("allowed_updates")] = FSTR("message,callback_query");
+	root[FSTR("allowed_updates")] = FSTR("[\"message\",\"callback_query\"]");
 	root[FSTR("offset")]          = m_lastUpdate;
 
 	response = sendCommand(CTBOT_COMMAND_GETUPDATES, root);
@@ -491,6 +491,8 @@ CTBotMessageType CTBot::parseResponse(TBUser& user) {
 CTBotMessageType CTBot::getNewMessage(TBMessage & message) {
 	CTBotMessageType result = CTBotMessageNoData;
 	uint8_t i = 0;
+
+	message.messageType = CTBotMessageNoData;
 
 	if (!getUpdates()) {
 		flushTelegramResponses();

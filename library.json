@@ -16,6 +16,6 @@
   "platforms": "esp8266,esp32",
   "dependencies": {
     "name": "ArduinoJson",
-    "version": "6.16.1"
+    "version": "6.17.2"
   }
 }

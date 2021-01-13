@@ -179,7 +179,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
 	ltoa(m_lastUpdate, buf, 10);
 	// polling timeout: add &timeout=<seconds>
 	// default is zero (short polling).
-	parameters = FSTR("?limit=1&allowed_updates=message,callback_query");
+	parameters = FSTR("?limit=1&allowed_updates=[\"message\",\"callback_query\"]");
 	if (m_lastUpdate != 0)
 		parameters += (String)FSTR("&offset=") + (String)buf;
 

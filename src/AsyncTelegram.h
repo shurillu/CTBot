@@ -162,6 +162,8 @@ public:
     //    pollingTime: interval time in milliseconds
     void setUpdateTime(uint32_t pollingTime);
 
+    bool getUpdates();
+
     String userName ;
 
 private:
@@ -231,8 +233,6 @@ private:
     // returns
     //   true if no error occurred
     bool getMe(TBUser &user);
-
-    bool getUpdates();
 
     bool checkConnection();
 

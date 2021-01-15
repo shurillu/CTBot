@@ -508,6 +508,8 @@ void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, Strin
 
     root["chat_id"] = msg.sender.id;
     root["text"] = message;
+    if (msg.isMarkdownEnabled)
+        root["parse_mode"] = "Markdown";
     
     if (keyboard.length() != 0) {
         DynamicJsonDocument doc(512);

@@ -58,6 +58,7 @@ struct TBMessage {
 	int32_t          date;
 	String      	 text;
 	int32_t          chatInstance;
+	bool             isMarkdownEnabled = false;
 	const char*      callbackQueryData;
 	const char*   	 callbackQueryID;
 	TBLocation       location;

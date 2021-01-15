@@ -13,4 +13,4 @@ In order to run the example correctly, you have to provide:
 Don't you know how to setup a telegram bot? Check [this](https://core.telegram.org/bots#6-botfather).
 ___
 ### Screenshot
-![screenshot](/How_to_use.png)
+![screenshot](/examples/OTAupdate_ESP8266/How_to_use.png)

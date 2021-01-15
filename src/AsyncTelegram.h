@@ -61,6 +61,13 @@ public:
 
     bool updateFingerPrint(void);
 
+    // Get file link and size by unique document ID
+    // params
+    //   doc   : document structure
+    // returns
+    //   true if no error
+    bool getFile(TBDocument &doc);
+
     // use the URL style address "api.telegram.org" or the fixed IP address "149.154.167.198"
     // for all communication with the telegram server
     // Default value is true

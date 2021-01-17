@@ -61,6 +61,13 @@ public:
 
     bool updateFingerPrint(void);
 
+    // Get file link and size by unique document ID
+    // params
+    //   doc   : document structure
+    // returns
+    //   true if no error
+    bool getFile(TBDocument &doc);
+
     // use the URL style address "api.telegram.org" or the fixed IP address "149.154.167.198"
     // for all communication with the telegram server
     // Default value is true
@@ -155,6 +162,8 @@ public:
     //    pollingTime: interval time in milliseconds
     void setUpdateTime(uint32_t pollingTime);
 
+    bool getUpdates();
+
     String userName ;
 
 private:
@@ -224,8 +233,6 @@ private:
     // returns
     //   true if no error occurred
     bool getMe(TBUser &user);
-
-    bool getUpdates();
 
     bool checkConnection();
 

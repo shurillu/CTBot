@@ -12,7 +12,8 @@ enum MessageType {
 	MessageText     = 1,
 	MessageQuery    = 2,
 	MessageLocation = 3,
-	MessageContact  = 4
+	MessageContact  = 4,
+	MessageDocument = 5
 };
 
 struct TBUser {
@@ -42,6 +43,13 @@ struct TBContact {
 	const char*  vCard;
 };
 
+struct TBDocument {
+	const char*  file_id;
+	const char*  file_name;
+	String       file_path;
+	int32_t      file_size;
+	bool         file_exists;
+};
 
 struct TBMessage {
 	int32_t          messageID;
@@ -50,10 +58,12 @@ struct TBMessage {
 	int32_t          date;
 	String      	 text;
 	int32_t          chatInstance;
+	bool             isMarkdownEnabled = false;
 	const char*      callbackQueryData;
 	const char*   	 callbackQueryID;
 	TBLocation       location;
 	TBContact        contact;
+	TBDocument       document;
 	MessageType 	 messageType;
 };
 

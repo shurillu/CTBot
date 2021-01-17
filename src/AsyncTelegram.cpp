@@ -374,7 +374,15 @@ MessageType AsyncTelegram::getNewMessage(TBMessage &message )
                 message.contact.phoneNumber = root["result"][0]["message"]["contact"]["phone_number"];
                 message.contact.vCard       = root["result"][0]["message"]["contact"]["vcard"];
                 message.messageType = MessageContact;           
-            }       
+            }
+            else if(root["result"][0]["message"]["document"]){
+                // this is a document message
+                message.document.file_id      = root["result"][0]["message"]["document"]["file_id"];
+                message.document.file_name    = root["result"][0]["message"]["document"]["file_name"];
+                message.text                  = root["result"][0]["message"]["caption"].as<String>();
+                message.document.file_exists  = getFile(message.document);
+                message.messageType           = MessageDocument;
+            }
             else if (root["result"][0]["message"]["text"]) {
                 // this is a text message
                 message.text        = root["result"][0]["message"]["text"].as<String>();            
@@ -387,8 +395,44 @@ MessageType AsyncTelegram::getNewMessage(TBMessage &message )
     return MessageNoData;   // waiting for reply from server
 }
 
+bool AsyncTelegram::getFile(TBDocument &doc)
+{
+    String response((char *)0);
+    response.reserve(100);
 
+    // getFile has to be blocking (wait server reply)
+    String cmd = "getFile?file_id=" + String(doc.file_id);
+    response = postCommand(cmd.c_str(), "", true);
+    if (response.length() == 0)
+        return false;
 
+    DynamicJsonDocument root(BUFFER_SMALL);
+    deserializeJson(root, response);
+    httpData.payload.clear();
+
+    bool ok = root["ok"];
+    if (!ok) {
+        #if DEBUG_MODE > 0
+        serialLog("getFile error:");
+        serializeJson(root, Serial);
+        serialLog("\n");
+        #endif
+        return false;
+    }
+
+    #if DEBUG_MODE > 0
+    serialLog("getFile message:\n");
+    serializeJson(root, Serial);
+    serialLog("\n");
+    #endif
+
+    doc.file_path  = "https://api.telegram.org/file/bot";
+    doc.file_path += m_token;
+    doc.file_path += "/";
+    doc.file_path += root["result"]["file_path"].as<String>();
+    doc.file_size  = root["result"]["file_size"].as<long>();
+    return true;
+}
 
 bool AsyncTelegram::begin(){
 #if defined(ESP8266)
@@ -464,6 +508,8 @@ void AsyncTelegram::sendMessage(const TBMessage &msg, const char* message, Strin
 
     root["chat_id"] = msg.sender.id;
     root["text"] = message;
+    if (msg.isMarkdownEnabled)
+        root["parse_mode"] = "Markdown";
     
     if (keyboard.length() != 0) {
         DynamicJsonDocument doc(512);

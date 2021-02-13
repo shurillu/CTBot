@@ -146,7 +146,7 @@ public:
 	//   CTBotMessageACK     : the received message is an acknowledge (send/edit/delete message, qndQuery, etc)
 	//   CTBotMessageOK      : the received message is an acknowledge (getUpdates/getNewMessage with no new message)
 	CTBotMessageType parseResponse(TBMessage& message, bool destructive = true);
-	CTBotMessageType parseResponse(TBUser& user, bool destructive = true);
+	CTBotMessageType parseResponse(TBUser& user);
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard

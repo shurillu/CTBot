@@ -423,7 +423,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message, bool destructive) {
 	message.messageType = CTBotMessageNoData;
 	return CTBotMessageNoData;
 }
-CTBotMessageType CTBot::parseResponse(TBUser& user, bool destructive) {
+CTBotMessageType CTBot::parseResponse(TBUser& user) {
 	if (!m_connection.isConnected()) {
 		// no active connection -> reset the waiting response variable;
 		return CTBotMessageNoData;

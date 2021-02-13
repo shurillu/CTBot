@@ -279,7 +279,7 @@ bool CTBot::getUpdates() {
 	return response;
 }
 
-CTBotMessageType CTBot::parseResponse(TBMessage& message) {
+CTBotMessageType CTBot::parseResponse(TBMessage& message, bool destructive) {
 	if (!m_connection.isConnected()) 
 		return CTBotMessageNoData;
 	
@@ -356,7 +356,8 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 		message.messageType = CTBotMessageOK;
 		return CTBotMessageOK;
 	}
-	m_lastUpdate = updateID + 1;
+	if (destructive)
+		m_lastUpdate = updateID + 1;
 
 	if (root[FSTR("result")][0][FSTR("callback_query")][FSTR("id")]) {
 		// this is a callback query
@@ -422,7 +423,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message) {
 	message.messageType = CTBotMessageNoData;
 	return CTBotMessageNoData;
 }
-CTBotMessageType CTBot::parseResponse(TBUser& user) {
+CTBotMessageType CTBot::parseResponse(TBUser& user, bool destructive) {
 	if (!m_connection.isConnected()) {
 		// no active connection -> reset the waiting response variable;
 		return CTBotMessageNoData;
@@ -488,25 +489,32 @@ CTBotMessageType CTBot::parseResponse(TBUser& user) {
 	return CTBotMessageContact;
 }
 
-CTBotMessageType CTBot::getNewMessage(TBMessage & message) {
+CTBotMessageType CTBot::getNewMessage(TBMessage & message, CTBotGetMessageMode mode) {
 	CTBotMessageType result = CTBotMessageNoData;
 	uint8_t i = 0;
 
 	message.messageType = CTBotMessageNoData;
+	do {
+		if (!getUpdates()) {
+			flushTelegramResponses();
 
-	if (!getUpdates()) {
-		flushTelegramResponses();
-		if (!m_keepAlive)
-			m_connection.disconnect();
-		return CTBotMessageNoData;
-	}
-	
-	while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
-		result = parseResponse(message);
-		if (CTBotMessageNoData == result)
-			delay(CTBOT_DELAY_PARSERESPONSE);
-		i++;
-	}
+//			if (!m_keepAlive)
+//				m_connection.disconnect();
+//			return CTBotMessageNoData;
+		} else
+		while ((CTBotMessageNoData == result) && (i < CTBOT_MAX_PARSERESPONSE)) {
+			if ((mode & CTBotGetMessageDestructive) > 0) {
+				result = parseResponse(message, true);
+			}
+			else {
+				result = parseResponse(message, false);
+			}
+
+			if (CTBotMessageNoData == result)
+				delay(CTBOT_DELAY_PARSERESPONSE);
+			i++;
+		}
+	} while ((CTBotMessageNoData == result) && ((mode & CTBotGetMessageBlocking) > 0));
 
 	if (!m_keepAlive)
 		m_connection.disconnect();
@@ -1057,6 +1065,7 @@ int32_t CTBot::sendMessage(int64_t id, const String& message, CTBotReplyKeyboard
 }
 
 CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
+/*
 	CTBotMessageType result = CTBotMessageNoData;
 	if (blocking) {
 //		delay(CTBOT_GET_UPDATE_TIMEOUT);
@@ -1065,6 +1074,13 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
 		} while (CTBotMessageNoData == result);
 	}
 	return result;
+*/
+
+	if (blocking)
+		return getNewMessage(message, CTBotGetMessageBlockingDestructive);
+	else
+		return getNewMessage(message);
+
 }
 
 bool CTBot::removeReplyKeyboard(int64_t id, const String& message, bool selective) {

@@ -4,6 +4,12 @@
 
 #include <Arduino.h>
 
+enum CTBotGetMessageMode {
+	CTBotGetMessageNoOption            = 0,
+	CTBotGetMessageBlocking            = 1 << 0, 
+	CTBotGetMessageDestructive         = 1 << 1,
+	CTBotGetMessageBlockingDestructive = CTBotGetMessageBlocking | CTBotGetMessageDestructive
+};
 enum CTBotParseModeType {
 	CTBotParseModeDisabled   = 0,
 	CTBotParseModeMarkdown   = 1,

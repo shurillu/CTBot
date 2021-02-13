@@ -99,13 +99,18 @@ public:
 	// so a new getMessage will read the next message (if any).
 	// params
 	//   message : the data structure that will contains the data retrieved
+	//   mode    : change the behavior of the getNewMessage
+	//             CTBotGetMessageNoOption            - no blocking, no destructive
+	//             CTBotGetMessageDestructuve         - once read, the message is no more retrieved
+	//             CTBotGetMessageBlocking            - wait until a Telegram Server response
+	//             CTBotGetMEssageBlockingDestructive - the sum of the two effects
 	// returns
-	//   CTBotMessageNoData: an error has occurred
-	//   CTBotMessageText  : the received message is a text
-	//   CTBotMessageQuery : the received message is a query (from inline keyboards)
+	//   CTBotMessageNoData  : an error has occurred
+	//   CTBotMessageText    : the received message is a text
+	//   CTBotMessageQuery   : the received message is a query (from inline keyboards)
 	//   CTBotMessageLocation: the received message is a location
 	//   CTBotMessageContact : the received message is a contact
-	CTBotMessageType getNewMessage(TBMessage& message);
+	CTBotMessageType getNewMessage(TBMessage& message, CTBotGetMessageMode mode = CTBotGetMessageDestructive);
 
 	// send a message to the specified telegram user ID
 	// params
@@ -131,6 +136,7 @@ public:
 	//  to the Telegram server. To read the response, call this member function
 	// params
 	//   message/user : the data structure that will contains the data retrieved
+	//   destructive: set to read the retireved message (if any)
 	// returns
 	//   CTBotMessageNoData  : no data/an error has occurred
 	//   CTBotMessageText    : the received message is a text
@@ -139,8 +145,8 @@ public:
 	//   CTBotMessageContact : the received message is a contact
 	//   CTBotMessageACK     : the received message is an acknowledge (send/edit/delete message, qndQuery, etc)
 	//   CTBotMessageOK      : the received message is an acknowledge (getUpdates/getNewMessage with no new message)
-	CTBotMessageType parseResponse(TBMessage& message);
-	CTBotMessageType parseResponse(TBUser& user);
+	CTBotMessageType parseResponse(TBMessage& message, bool destructive = true);
+	CTBotMessageType parseResponse(TBUser& user, bool destructive = true);
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard

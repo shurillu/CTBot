@@ -42,7 +42,7 @@ void inline serialLog(uint8_t debugLevel, const char* format, ...) __attribute__
 
 #if CTBOT_DEBUG_MODE > 0
 void inline serialLog(uint8_t debugLevel, const char* format, ...) {
-	if ((debugLevel & CTBOT_DEBUG_MODE) != 0) {
+	if (((debugLevel) & (CTBOT_DEBUG_MODE)) != 0) {
 		va_list arg;
 		char* buf;
 		uint32_t size;

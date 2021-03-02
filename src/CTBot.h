@@ -227,6 +227,12 @@ public:
 	//          false -> close connection after a member function call
 	void keepAlive(bool value);
 
+	// Enable/disable the silent notification
+	// param
+	//   mode: true  -> enable the silent notification. No sound when an incoming message is received
+	//         false -> disable the silent notification
+	void silentNotification(bool mode);
+
 	// set the message parse mode, like markdown or html (or disable the functionality)
 	// VERY IMPORTANT!!!! IN MARKDOWN MODE SPECIAL CHARACTER (like "!") MUST BE ESCAPED!!!
 	// READ THIS https://core.telegram.org/bots/api#markdownv2-style
@@ -242,8 +248,6 @@ public:
 	//   current parse mode
 	CTBotParseModeType getParseMode(void);
 
-
-
 	bool sendImageEx(int64_t id, uint8_t* data, uint32_t dataSize);
 	bool sendImageEx(int64_t id, File fhandle, uint32_t dataSize);
 	bool sendImage(int64_t id, uint8_t* data, uint32_t dataSize);
@@ -254,16 +258,10 @@ public:
 	bool sendRawData(int64_t id, uint8_t* data, uint32_t dataSize, const char* filename);
 	bool sendRawData(int64_t id, File Fhandle, uint32_t dataSize, const char* filename);
 
-
 	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, uint32_t dataSize, const char* filename);
 	bool sendBinaryDataEx(int64_t id, CTBotDataType dataType, File fhandle, uint32_t dataSize, const char* filename);
 	bool sendBinaryData(int64_t id, CTBotDataType dataType, uint8_t* data, uint32_t dataSize, const char* filename);
 	bool sendBinaryData(int64_t id, CTBotDataType dataType, File fhandle, uint32_t dataSize, const char* filename);
-
-
-
-
-
 
 private:
 	CTBotSecureConnection m_connection;
@@ -273,6 +271,7 @@ private:
 	int32_t               m_lastUpdate;
 	uint32_t              m_lastUpdateTimeStamp;
 	bool                  m_keepAlive;
+	bool                  m_silentNotification;
 
 	// send commands to the telegram server. For info about commands, check the telegram api https://core.telegram.org/bots/api
 	// params

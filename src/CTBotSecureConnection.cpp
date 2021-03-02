@@ -15,6 +15,8 @@
 #define HTTP_RESPONSE_OK    CFSTR("HTTP/1.1 200 OK")
 #define HTTP_CONTENT_LENGTH CFSTR("Content-Length: ")
 
+
+
 // --------------------------------------------------------------------------------------------------
 
 CTBotSecureConnection::CTBotSecureConnection() {
@@ -28,7 +30,13 @@ CTBotSecureConnection::CTBotSecureConnection() {
 #endif
 	m_telegramServer.setBufferSizes(CTBOT_ESP8266_TCP_BUFFER_SIZE, CTBOT_ESP8266_TCP_BUFFER_SIZE);
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
-	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP32\n"));
+#if	 CTBOT_USE_FINGERPRINT == 0 // ESP32 no HTTPS verification
+	m_telegramServer.setInsecure();
+	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP32 no https verification\n"));
+#else
+	m_telegramServer.setCACert(m_CAcert);
+	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP32 with https verification\n"));
+#endif
 #endif
 
 	if (CTBOT_CONNECTION_TIMEOUT > 0)

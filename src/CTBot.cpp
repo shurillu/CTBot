@@ -60,6 +60,7 @@ CTBot::CTBot() {
 	m_lastUpdateTimeStamp = millis();
 	m_keepAlive = true;
 	m_parseMode = CTBotParseModeDisabled;
+	m_silentNotification = false;
 }
 
 CTBot::~CTBot() {
@@ -705,6 +706,8 @@ bool CTBot::editMessageTextEx(int64_t id, int32_t messageID, const char* message
 	// payload
 	root[FSTR("chat_id")]     = id;
 	root[FSTR("text")]        = message;
+	root[FSTR("disable_notification")] = m_silentNotification;
+
 	if (CTBotParseModeHTML == m_parseMode) {
 		root[FSTR("parse_mode")] = FSTR("HTML");
 	}
@@ -846,6 +849,10 @@ void CTBot::flushTelegramResponses() {
 
 void CTBot::keepAlive(bool value) {
 	m_keepAlive = value;
+}
+
+void CTBot::silentNotification(bool mode) {
+	m_silentNotification = mode;
 }
 
 void CTBot::setParseMode(CTBotParseModeType parseMode) {

@@ -50,7 +50,13 @@ String CTBotSecureConnection::send(const String& message)
 	serialLog(FSTR("ESP8266 with https verification"), CTBOT_DEBUG_CONNECTION);
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
 	WiFiClientSecure telegramServer;
-	serialLog(FSTR("ESP32"), CTBOT_DEBUG_CONNECTION);
+#if CTBOT_USE_FINGERPRINT == 0
+	telegramServer.setInsecure();
+	serialLog(FSTR("ESP32 no https verification"), CTBOT_DEBUG_CONNECTION);
+#else
+	telegramServer.setCACert(m_CAcert);
+	serialLog(FSTR("ESP32 with https verification"), CTBOT_DEBUG_CONNECTION);
+#endif
 #endif
 
 #if defined(ARDUINO_ARCH_ESP8266) // only for ESP8266 reduce drastically the heap usage (~15K more)

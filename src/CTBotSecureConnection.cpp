@@ -42,7 +42,7 @@ CTBotSecureConnection::CTBotSecureConnection() {
 	if (CTBOT_CONNECTION_TIMEOUT > 0)
 		m_telegramServer.setTimeout(CTBOT_CONNECTION_TIMEOUT);
 
-	m_useDNS = false;
+	m_useDNS = true;
 	m_receivedData = NULL;
 }
 
@@ -407,6 +407,10 @@ void CTBotSecureConnection::flush(void) {
 }
 
 bool CTBotSecureConnection::useDNS(bool value) {
+#if (defined(ARDUINO_ARCH_ESP32) && (CTBOT_USE_FINGERPRINT == 1))
+	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->useDNS: useDNS must be true for Telegram SSL certificate check.\n"));
+	return false;
+#else
 	m_useDNS = value;
 	// check if there is an established connection..
 	if (isConnected()) {
@@ -414,7 +418,8 @@ bool CTBotSecureConnection::useDNS(bool value) {
 		disconnect();
 		return connect();
 	}
-	return false;
+	return true;
+#endif
 }
 
 bool CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint) {

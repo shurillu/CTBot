@@ -144,7 +144,6 @@ private:
 		"-----END CERTIFICATE-----\n";
 #endif
 
-
 	bool POST(const char* header, const uint8_t* payload, File fhandle, uint32_t payloadSize, const char* payloadHeader, const char* payloadFooter);
 };
 

@@ -7,11 +7,15 @@
 #define TELEGRAM_PORT 443
 
 CTBotSecureConnection::CTBotSecureConnection() {
-	m_useDNS = false;
+	m_useDNS = true;
 }
 
-bool CTBotSecureConnection::useDNS(bool value)
-{
+bool CTBotSecureConnection::useDNS(bool value) {
+
+#if (defined(ARDUINO_ARCH_ESP32) && (CTBOT_USE_FINGERPRINT == 1))
+	serialLog(FSTR("useDNS must be true for Telegram SSL certificate check.\n"), CTBOT_DEBUG_CONNECTION);
+	return false;
+#else
 	m_useDNS = value;
 
 	// seems that it doesn't work with ESP32 - comment out for now
@@ -25,6 +29,7 @@ bool CTBotSecureConnection::useDNS(bool value)
 	//	}
 	//}
 	return true;
+#endif
 }
 
 void CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint)
@@ -33,13 +38,11 @@ void CTBotSecureConnection::setFingerprint(const uint8_t* newFingerprint)
 		m_fingerprint[i] = newFingerprint[i];
 }
 
-void CTBotSecureConnection::setStatusPin(int8_t pin)
-{
+void CTBotSecureConnection::setStatusPin(int8_t pin) {
 	m_statusPin.setPin(pin);
 }
 
-String CTBotSecureConnection::send(const String& message)
-{
+String CTBotSecureConnection::send(const String& message) {
 #if defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 0 // ESP8266 no HTTPS verification
 	WiFiClientSecure telegramServer;
 	telegramServer.setInsecure();

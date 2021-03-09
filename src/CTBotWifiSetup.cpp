@@ -61,7 +61,11 @@ bool CTBotWifiSetup::setIP(const char* ip, const char* gateway, const char* subn
 	}
 
 	if (WiFi.config(IP, GW, SN, DNS1, DNS2)) {
-		serialLog(CTBOT_DEBUG_WIFI, CFSTR("--->setIP: IP configuration done.\n"));
+		IPAddress ip = WiFi.localIP();
+		serialLog(CTBOT_DEBUG_WIFI, CFSTR("--->setIP: IP configuration done. New IP:"));
+		serialLog(CTBOT_DEBUG_WIFI, ip.toString().c_str());
+		serialLog(CTBOT_DEBUG_WIFI, "\n");
+
 		return true;
 	}
 

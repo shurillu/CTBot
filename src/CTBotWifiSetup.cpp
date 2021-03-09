@@ -67,8 +67,12 @@ bool CTBotWifiSetup::setIP(const String& ip, const String& gateway, const String
 			return false;
 		}
 	}
-	if (WiFi.config(IP, GW, SN, DNS1, DNS2))
+	if (WiFi.config(IP, GW, SN, DNS1, DNS2)) {
+		IPAddress ip = WiFi.localIP();
+		String message = (String)FSTR("New IP address: ") + ip.toString() + (String)"\n";
+		serialLog(message, CTBOT_DEBUG_WIFI);
 		return true;
+	}
 	else {
 		serialLog(FSTR("--- setIP: error on setting the static ip address (WiFi.config)\n"), CTBOT_DEBUG_WIFI);
 		return false;

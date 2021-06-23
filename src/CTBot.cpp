@@ -17,7 +17,8 @@
 // 2) Telegram API command 
 // 3) payload length/size
 // 4) content type
-#define CTBOT_HEADER_STRING CFSTR("POST /bot%s/%s HTTP/1.1\r\nHost: api.telegram.org\r\nContent-Length: %d\r\nContent-Type: %s\r\n\r\n")
+//#define CTBOT_HEADER_STRING CFSTR("POST /bot%s/%s HTTP/1.1\r\nHost: api.telegram.org\r\nContent-Length: %d\r\nContent-Type: %s\r\n\r\n")
+#define CTBOT_HEADER_STRING CFSTR("POST https://api.telegram.org/bot%s/%s HTTP/1.1\r\nHost: api.telegram.org\r\nContent-Length: %d\r\nContent-Type: %s\r\n\r\n")
 
 // payload header for binary messages
 // parameters:

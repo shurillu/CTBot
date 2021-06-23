@@ -27,7 +27,7 @@ CTBot::~CTBot() {
 String CTBot::sendCommand(const String& command, const String& parameters)
 {
 	// must filter command + parameters from escape sequences and spaces
-	const String URL = (String)"GET /bot" + m_token + (String)"/" + command + parameters;
+	const String URL = (String)"GET https://api.telegram.org/bot" + m_token + (String)"/" + command + parameters;
 
 	// send the HTTP request
 	return(m_connection.send(URL));

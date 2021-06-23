@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/shurillu/CTBot.git"
   },
-  "version": "2.1.5",
+  "version": "2.1.6",
   "authors": {
     "name": "Stefano Ledda",
     "email": "shurillu@tiscalinet.it"
@@ -16,6 +16,6 @@
   "platforms": "esp8266,esp32",
   "dependencies": {
     "name": "ArduinoJson",
-    "version": "6.17.2"
+    "version": "6.18.0"
   }
 }

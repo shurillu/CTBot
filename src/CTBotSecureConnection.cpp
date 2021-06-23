@@ -11,8 +11,7 @@ CTBotSecureConnection::CTBotSecureConnection() {
 }
 
 bool CTBotSecureConnection::useDNS(bool value) {
-
-#if (defined(ARDUINO_ARCH_ESP32) && (CTBOT_USE_FINGERPRINT == 1))
+#if (CTBOT_USE_FINGERPRINT == 1)
 	serialLog(FSTR("useDNS must be true for Telegram SSL certificate check.\n"), CTBOT_DEBUG_CONNECTION);
 	return false;
 #else

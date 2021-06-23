@@ -11,6 +11,7 @@
 #define CTBOT_DEBUG_ALL CTBOT_DEBUG_WIFI | CTBOT_DEBUG_JSON | CTBOT_DEBUG_MEMORY | CTBOT_DEBUG_CONNECTION
 
 // enable debugmode -> print debug data on the Serial; Zero -> debug disabled
+//#define CTBOT_DEBUG_MODE                 CTBOT_DEBUG_ALL 
 #define CTBOT_DEBUG_MODE                 CTBOT_DEBUG_DISABLED 
 
 #define CTBOT_STATION_MODE               1 // Station mode -> Set the mode to WIFI_STA (no access point)

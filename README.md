@@ -1,6 +1,6 @@
 # CTBot
 
-Branch: v3.0.0 - [![Build Status](https://travis-ci.com/shurillu/CTBot.svg?branch=v3.0.0)](https://travis-ci.com/shurillu/CTBot)
+Branch: v3.0.0 - [![Build Status](https://travis-ci.org/shurillu/CTBot.svg?branch=v3.0.0)](https://travis-ci.org/shurillu/CTBot)
 
 
 ___

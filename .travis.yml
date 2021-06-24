@@ -10,9 +10,9 @@ addons:
 
 before_install:
   - echo `pwd`
-  - wget https://www.arduino.cc/download.php?f=/arduino-1.8.13-linux64.tar.xz -O arduino.tar.xz 
+  - wget https://www.arduino.cc/download.php?f=/arduino-1.8.15-linux64.tar.xz -O arduino.tar.xz 
   - tar xf arduino.tar.xz
-  - cd arduino-1.8.13
+  - cd arduino-1.8.15
   - export PATH=$PATH:`pwd`
   - cd ..
   # the following iptables changes are just to suppress log-warnings where the arduinp-ide tries to make network connections
@@ -37,7 +37,7 @@ jobs:
         - echo `pwd`
         - echo $PATH
         - arduino --pref boardsmanager.additional.urls="http://arduino.esp8266.com/stable/package_esp8266com_index.json" --install-boards esp8266:esp8266
-        - arduino --install-library ArduinoJson:6.17.3
+        - arduino --install-library ArduinoJson:6.18.0
       script:
         - cd ${TRAVIS_BUILD_DIR}/examples
         - for d in */; do arduino --pref compiler.cpp.extra_flags="-Wall -Wextra -Werror" --board esp8266:esp8266:d1 --verify ${d}*.ino; done
@@ -47,7 +47,7 @@ jobs:
         - echo `pwd`
         - echo $PATH
         - arduino --pref boardsmanager.additional.urls="https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json" --install-boards esp32:esp32
-        - arduino --install-library ArduinoJson:6.17.3
+        - arduino --install-library ArduinoJson:6.18.0
       script:
         - cd ${TRAVIS_BUILD_DIR}/examples
         - for d in */; do arduino --pref compiler.cpp.extra_flags="-Wall -Wextra -Werror" --board esp32:esp32:WeMosBat --verify ${d}*.ino; done

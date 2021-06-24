@@ -49,6 +49,7 @@ A special thanks go to these people who helped me making this library
 + [x] ArduinoJSON 6 support
 
 ### Changelog
++ 2.1.6 Fix GET url adding full symbolic name
 + 2.1.5 Added SSL certificate verification for ESP32 SOC (fix for the ESP32 v1.0.5 toolchain library)
 + 2.1.4 Fix an issue involving the inline keyboard
 + 2.1.3 correct a platformIO library issue that doesn't download the CTBotWifiSetup.* files

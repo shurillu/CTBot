@@ -49,6 +49,7 @@ A special thanks go to these people who helped me making this library
 + [x] ArduinoJSON 6 support
 
 ### Changelog
++ 2.1.7 Telegram User ID is now int64 as Telegram Bot API changes
 + 2.1.6 Fix GET url adding full symbolic name
 + 2.1.5 Added SSL certificate verification for ESP32 SOC
 + 2.1.4 Fix an issue involving the inline keyboard 

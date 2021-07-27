@@ -13,7 +13,7 @@ enum CTBotMessageType {
 };
 
 struct TBUser {
-	int32_t  id;
+	int64_t  id;
 	bool     isBot;
 	String   firstName;
 	String   lastName;
@@ -35,7 +35,7 @@ struct TBContact {
 	String  phoneNumber;
 	String  firstName;
 	String  lastName;
-	int32_t id;
+	int64_t id;
 	String  vCard;
 };
 

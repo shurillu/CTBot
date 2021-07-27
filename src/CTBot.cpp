@@ -146,8 +146,8 @@ bool CTBot::getMe(TBUser &user) {
 #endif
 	serialLog("\n", CTBOT_DEBUG_JSON);
 #endif
-	user.id           = root[FSTR("result")][FSTR("id")];
-	user.isBot        = root[FSTR("result")][FSTR("is_bot")];
+	user.id           = root[FSTR("result")][FSTR("id")].as<int64_t>();
+	user.isBot        = root[FSTR("result")][FSTR("is_bot")].as<bool>();
 	user.firstName    = root[FSTR("result")][FSTR("first_name")].as<String>();
 	user.lastName     = root[FSTR("result")][FSTR("last_name")].as<String>();
 	user.username     = root[FSTR("result")][FSTR("username")].as<String>();
@@ -242,7 +242,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
 		message.messageID         = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("message_id")].as<int32_t>();
 		message.text              = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("text")].as<String>();
 		message.date              = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("date")].as<int32_t>();
-		message.sender.id         = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("id")].as<int32_t>();
+		message.sender.id         = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("id")].as<int64_t>();
 		message.sender.username   = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("username")].as<String>();
 		message.sender.firstName  = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("first_name")].as<String>();
 		message.sender.lastName   = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("last_name")].as<String>();
@@ -260,7 +260,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
 	else if (root[FSTR("result")][0][FSTR("message")][FSTR("message_id")]) {
 		// this is a message
 		message.messageID        = root[FSTR("result")][0][FSTR("message")][FSTR("message_id")].as<int32_t>();
-		message.sender.id        = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("id")].as<int32_t>();
+		message.sender.id        = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("id")].as<int64_t>();
 		message.sender.username  = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("username")].as<String>();
 		message.sender.firstName = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("first_name")].as<String>();
 		message.sender.lastName  = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("last_name")].as<String>();
@@ -297,7 +297,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
 		}
 		else if (root[FSTR("result")][0][FSTR("message")][FSTR("contact")]) {
 			// this is a contact message
-			message.contact.id          = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("user_id")].as<int32_t>();
+			message.contact.id          = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("user_id")].as<int64_t>();
 			message.contact.firstName   = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("first_name")].as<String>();
 			message.contact.lastName    = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("last_name")].as<String>();
 			message.contact.phoneNumber = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("phone_number")].as<String>();

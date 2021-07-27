@@ -28,7 +28,8 @@
 // 4) Telegram type data (photo - audio - document)
 // 5) Filename
 // 6) Content type
-#define CTBOT_PAYLOAD_HEADER_STRING CFSTR("--%s\r\nContent-Disposition: form-data; name=\"chat_id\"\r\n\r\n%" PRId64 "\r\n--%s\r\nContent-Disposition: form-data; name=\"%s\"; filename=\"%s\"\r\nContent-Type: %s\r\n\r\n")
+//#define CTBOT_PAYLOAD_HEADER_STRING CFSTR("--%s\r\nContent-Disposition: form-data; name=\"chat_id\"\r\n\r\n%" PRId64 "\r\n--%s\r\nContent-Disposition: form-data; name=\"%s\"; filename=\"%s\"\r\nContent-Type: %s\r\n\r\n")
+#define CTBOT_PAYLOAD_HEADER_STRING CFSTR("--%s\r\nContent-Disposition: form-data; name=\"chat_id\"\r\n\r\n%lld\r\n--%s\r\nContent-Disposition: form-data; name=\"%s\"; filename=\"%s\"\r\nContent-Type: %s\r\n\r\n")
 // payload footer for binary messages
 // parameters:
 // 1) form boundary
@@ -345,7 +346,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message, bool destructive) {
 		if (root[FSTR("result")].size() > 0) {
 			// no updateID but result not empty -> ack (sendMessage/editMessage, endQuery, deleteMessage, etc)
 			message.messageID        = root[FSTR("result")][FSTR("message_id")].as<int32_t>();
-			message.sender.id        = root[FSTR("result")][FSTR("from")][FSTR("id")].as<int32_t>();
+			message.sender.id        = root[FSTR("result")][FSTR("from")][FSTR("id")].as<int64_t>();
 			message.sender.username  = root[FSTR("result")][FSTR("from")][FSTR("username")].as<String>();
 			message.sender.firstName = root[FSTR("result")][FSTR("from")][FSTR("first_name")].as<String>();
 			message.date             = root[FSTR("result")][FSTR("date")].as<int32_t>();
@@ -367,7 +368,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message, bool destructive) {
 		message.text              = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("text")].as<String>();
 		message.date              = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("date")].as<int32_t>();
 		message.group.id          = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("chat")][FSTR("id")].as<int64_t>();
-		message.sender.id         = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("id")].as<int32_t>();
+		message.sender.id         = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("id")].as<int64_t>();
 		message.sender.username   = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("username")].as<String>();
 		message.sender.firstName  = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("first_name")].as<String>();
 		message.sender.lastName   = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("last_name")].as<String>();
@@ -381,7 +382,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message, bool destructive) {
 	else if (root[FSTR("result")][0][FSTR("message")][FSTR("message_id")]) {
 		// this is a message
 		message.messageID        = root[FSTR("result")][0][FSTR("message")][FSTR("message_id")].as<int32_t>();
-		message.sender.id        = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("id")].as<int32_t>();
+		message.sender.id        = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("id")].as<int64_t>();
 		message.sender.username  = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("username")].as<String>();
 		message.sender.firstName = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("first_name")].as<String>();
 		message.sender.lastName  = root[FSTR("result")][0][FSTR("message")][FSTR("from")][FSTR("last_name")].as<String>();
@@ -410,7 +411,7 @@ CTBotMessageType CTBot::parseResponse(TBMessage& message, bool destructive) {
 		}
 		else if (root[FSTR("result")][0][FSTR("message")][FSTR("contact")]) {
 			// this is a contact message
-			message.contact.id          = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("user_id")].as<int32_t>();
+			message.contact.id          = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("user_id")].as<int64_t>();
 			message.contact.firstName   = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("first_name")].as<String>();
 			message.contact.lastName    = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("last_name")].as<String>();
 			message.contact.phoneNumber = root[FSTR("result")][0][FSTR("message")][FSTR("contact")][FSTR("phone_number")].as<String>();
@@ -484,7 +485,7 @@ CTBotMessageType CTBot::parseResponse(TBUser& user) {
 #endif
 
 	user.firstName    = root[FSTR("result")][FSTR("first_name")].as<String>();
-	user.id           = root[FSTR("result")][FSTR("id")].as<int32_t>();
+	user.id           = root[FSTR("result")][FSTR("id")].as<int64_t>();
 	user.isBot        = root[FSTR("result")][FSTR("is_bot")].as<bool>();
 	user.username     = root[FSTR("result")][FSTR("username")].as<String>();
 
@@ -930,7 +931,8 @@ bool CTBot::sendBinaryDataEx(int64_t id, CTBotDataType dataType, uint8_t* data, 
 		serialLog(CTBOT_DEBUG_MEMORY, CFSTR("--->sendBinaryData: unable to allocate memory\n"));
 		return false;
 	}
-	snprintf_P(ppayloadHeader, payloadHeaderSize, (char*)CTBOT_PAYLOAD_HEADER_STRING, CTBOT_FORM_BOUNDARY, id, CTBOT_FORM_BOUNDARY,
+//	snprintf_P(ppayloadHeader, payloadHeaderSize, (char*)CTBOT_PAYLOAD_HEADER_STRING, CTBOT_FORM_BOUNDARY, id, CTBOT_FORM_BOUNDARY,
+	snprintf_P(ppayloadHeader, payloadHeaderSize, CTBOT_PAYLOAD_HEADER_STRING, CTBOT_FORM_BOUNDARY, id, CTBOT_FORM_BOUNDARY,
 		telegramDataType, filename, dataContentType);
 
 	//payload footer

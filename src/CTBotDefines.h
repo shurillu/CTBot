@@ -2,6 +2,10 @@
 #ifndef CTBOTDEFINES
 #define CTBOTDEFINES
 
+#define CTBOT_VERSION_MAJOR 3
+#define CTBOT_VERSION_MINOR 0
+#define CTBOT_VERSION_PATCH 0
+
 #define CTBOT_DEBUG_DISABLED             0  // no debug message on the serial console
 #define CTBOT_DEBUG_WIFI            1 << 0  // WiFi debug messages
 #define CTBOT_DEBUG_JSON            1 << 1  // JSON debug messages

@@ -47,7 +47,7 @@ void loop() {
 	TBMessage msg;
 
 	// if there is an incoming message...
-	if (myBot.getNewMessage(msg)) {
+	if (CTBotMessageText == myBot.getNewMessage(msg)) {
 
 		if (msg.text.equalsIgnoreCase("LIGHT ON")) {              // if the received message is "LIGHT ON"...
 			digitalWrite(led, LOW);                               // turn on the LED (inverted logic!)

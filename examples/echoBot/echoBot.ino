@@ -35,7 +35,7 @@ void loop() {
 	TBMessage msg;
 
 	// if there is an incoming message...
-	if (myBot.getNewMessage(msg))
+	if (CTBotMessageText == myBot.getNewMessage(msg))
 		// ...forward it to the sender
 		myBot.sendMessage(msg.sender.id, msg.text);
 	 

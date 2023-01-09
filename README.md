@@ -13,7 +13,7 @@ Don't you know Telegram bots and how to setup one? Check [this](https://core.tel
 + **_Now ArduinoJson version 5 and 6 are supported!_**
 + **_getNewMessage method now is more responsive!!_**
 
-###IMPORTANT - There are some incompatibilities with the ArduinoJson v 6.20.0. The last supported version is the 6.19.4
+### IMPORTANT - There are some incompatibilities with the ArduinoJson v 6.20.0. The last supported version is the 6.19.4
 
 ### News
 + ESP32 supported

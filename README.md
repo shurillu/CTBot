@@ -51,32 +51,33 @@ A special thanks go to these people who helped me making this library
 + [x] ArduinoJSON 6 support
 
 ### Changelog
-+ 2.1.9 ESP8266 fingerprint key updated
-+ 2.1.8 Fixed echobot and lightbot examples
-+ 2.1.7 Telegram User ID is now int64 as Telegram Bot API changes
-+ 2.1.6 Fix GET url adding full symbolic name
-+ 2.1.5 Added SSL certificate verification for ESP32 SOC
-+ 2.1.4 Fix an issue involving the inline keyboard 
-+ 2.1.3 correct a platformIO library issue that doesn't download the CTBotWifiSetup.* files
-+ 2.1.2 getNewMessage is no more blocking as before; moved all static strings to FLASH (only for ESP8266 - +1 KB heap free)
-+ 2.1.1 Memory optimization
-+ 2.1.0 ArduinoJSON 5 and 6 support
-+ 2.0.0 ESP32 support
-+ 1.4.1 New Telegram Server IP and fingerprint update
-+ 1.4.0 Reply keyboard added. Contact messages functionality added
-+ 1.3.2 Bug fixing and new functionalities:
++ 2.1.10 ESP8266 fingerprint key updated
++ 2.1.9  ESP8266 fingerprint key updated
++ 2.1.8  Fixed echobot and lightbot examples
++ 2.1.7  Telegram User ID is now int64 as Telegram Bot API changes
++ 2.1.6  Fix GET url adding full symbolic name
++ 2.1.5  Added SSL certificate verification for ESP32 SOC
++ 2.1.4  Fix an issue involving the inline keyboard 
++ 2.1.3  correct a platformIO library issue that doesn't download the CTBotWifiSetup.* files
++ 2.1.2  getNewMessage is no more blocking as before; moved all static strings to FLASH (only for ESP8266 - +1 KB heap free)
++ 2.1.1  Memory optimization
++ 2.1.0  ArduinoJSON 5 and 6 support
++ 2.0.0  ESP32 support
++ 1.4.1  New Telegram Server IP and fingerprint update
++ 1.4.0  Reply keyboard added. Contact messages functionality added
++ 1.3.2  Bug fixing and new functionalities:
   + URL encoding: now it is possible to send all kind of characters
   + Added group infos (ID and Group title) in the TBMessage structure
-+ 1.3.1 Fixed an issue that doesn't support negative and 64 bit values for chatID/groupID: now it use int64 numbers. This issue involved the CTBot::sendMessage() method.
-+ 1.3.0 added new functionalities:
++ 1.3.1  Fixed an issue that doesn't support negative and 64 bit values for chatID/groupID: now it use int64 numbers. This issue involved the CTBot::sendMessage() method.
++ 1.3.0  added new functionalities:
   + 2.5.0 ESP8266 toolchain support
   + Telegram server fingerprint authentication added
   + bugfixing:
     + 'TBUser' data now are populated correctly
     + Fixed a bug that doesn't send correctly some kind of messages
-+ 1.2.0 Added localization messages, bug fixing
-+ 1.1.1 Minor bug fixing
-+ 1.1.0 Added inline keyboards, bug fixing
-+ 1.0.1 Better performance, new algorithm for Telegram server queries: now sending and receiving messages requires almost no time.
-+ 1.0.0 Initial version
++ 1.2.0  Added localization messages, bug fixing
++ 1.1.1  Minor bug fixing
++ 1.1.0  Added inline keyboards, bug fixing
++ 1.0.1  Better performance, new algorithm for Telegram server queries: now sending and receiving messages requires almost no time.
++ 1.0.0  Initial version
 

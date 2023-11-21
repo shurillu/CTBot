@@ -242,6 +242,7 @@ CTBotMessageType CTBot::getNewMessage(TBMessage& message, bool blocking) {
 		message.messageID         = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("message_id")].as<int32_t>();
 		message.text              = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("text")].as<String>();
 		message.date              = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("date")].as<int32_t>();
+		message.group.id          = root[FSTR("result")][0][FSTR("callback_query")][FSTR("message")][FSTR("chat")][FSTR("id")].as<int64_t>();
 		message.sender.id         = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("id")].as<int64_t>();
 		message.sender.username   = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("username")].as<String>();
 		message.sender.firstName  = root[FSTR("result")][0][FSTR("callback_query")][FSTR("from")][FSTR("first_name")].as<String>();

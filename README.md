@@ -51,6 +51,7 @@ A special thanks go to these people who helped me making this library
 + [x] ArduinoJSON 6 support
 
 ### Changelog
++ 2.1.12 No more fingerprint certificate validation for ESP8266
 + 2.1.11 Fixed an issue on group/chat ID in callback queries
 + 2.1.10 ESP8266 fingerprint key updated
 + 2.1.9  ESP8266 fingerprint key updated

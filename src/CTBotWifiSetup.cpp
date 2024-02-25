@@ -110,8 +110,41 @@ bool CTBotWifiSetup::wifiConnect(const String& ssid, const String& password) {
 		delay(500);
 		if (m_wifiConnectionTries != 0) tries++;
 	}
+	serialLog("\n", CTBOT_DEBUG_WIFI);
 
 	if (WiFi.status() == WL_CONNECTED) {
+
+#if defined(ARDUINO_ARCH_ESP8266) 
+		// Set time via NTP, as required for x.509 validation
+		configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+		serialLog("--->connect: Waiting for NTP time sync: ", CTBOT_DEBUG_WIFI);
+
+		if (0 == m_wifiConnectionTries)
+			tries = -1;
+		else
+			tries = 0;
+
+		time_t now = time(nullptr);
+		while ((now < 8 * 3600 * 2) && (tries < m_wifiConnectionTries)) {
+			delay(500);
+			serialLog(".", CTBOT_DEBUG_WIFI);
+			now = time(nullptr);
+			m_statusPin.toggle();
+			if (m_wifiConnectionTries != 0) tries++;
+		}
+
+		if (now < 8 * 3600 * 2) {
+			serialLog("\n--->connect: Unable to sync time data.\n", CTBOT_DEBUG_WIFI);
+			WiFi.disconnect();
+			return false;
+		}
+		struct tm timeinfo;
+		gmtime_r(&now, &timeinfo);
+		serialLog("\nCurrent time: ", CTBOT_DEBUG_WIFI);
+		serialLog(asctime(&timeinfo), CTBOT_DEBUG_WIFI);
+		serialLog("\n", CTBOT_DEBUG_WIFI);
+#endif
+
 		IPAddress ip = WiFi.localIP();
 		message = (String)FSTR("\nWiFi connected\nIP address: ") + ip.toString() + (String)"\n";
 		serialLog(message, CTBOT_DEBUG_WIFI);

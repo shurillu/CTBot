@@ -25,7 +25,9 @@ CTBotSecureConnection::CTBotSecureConnection() {
 	m_telegramServer.setInsecure();
 	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP8266 no https verification\n"));
 #else// ESP8266 with HTTPS verification
-	m_telegramServer.setFingerprint(m_fingerprint);
+//	m_telegramServer.setFingerprint(m_fingerprint);
+	m_cert.append(m_CAcert);
+	m_telegramServer.setTrustAnchors(&m_cert);
 	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP8266 with https verification\n"));
 #endif
 	m_telegramServer.setBufferSizes(CTBOT_ESP8266_TCP_BUFFER_SIZE, CTBOT_ESP8266_TCP_BUFFER_SIZE);
@@ -122,17 +124,14 @@ void CTBotSecureConnection::disconnect(){
 bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, uint32_t payloadSize, const char* payloadHeader, const char* payloadFooter) { 
 	return POST(header, payload, File(), payloadSize, payloadHeader, payloadFooter);
 }
-
 bool CTBotSecureConnection::POST(const char* header, File fhandle, uint32_t payloadSize, const char* payloadHeader, const char* payloadFooter) {
 	return POST(header, NULL, fhandle, payloadSize, payloadHeader, payloadFooter);
 }
-
 bool CTBotSecureConnection::POST(const char* header, const uint8_t* payload, File fhandle, uint32_t payloadSize, const char* payloadHeader, const char* payloadFooter) {
 	uint16_t dataSent;
 	char* buffer = NULL;
 
 	freeMemory();
-
 	if (!isConnected()) {
 		if (!connect())
 			return false;

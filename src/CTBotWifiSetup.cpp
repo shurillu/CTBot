@@ -119,9 +119,39 @@ bool CTBotWifiSetup::connect(const char* ssid, const char* password) {
 		delay(500);
 		if (m_wifiConnectionTries != 0) tries++;
 	}
+	serialLog(CTBOT_DEBUG_WIFI, "\n");
 
 	if (WiFi.status() == WL_CONNECTED) {
 		//connected to the wifi network
+
+#if defined(ARDUINO_ARCH_ESP8266) 
+		// Set time via NTP, as required for x.509 validation
+		configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+		serialLog(CTBOT_DEBUG_WIFI, CFSTR("--->connect: Waiting for NTP time sync: "));
+
+		if (0 == m_wifiConnectionTries)
+			tries = -1;
+		else
+			tries = 0;
+
+		time_t now = time(nullptr);
+		while ((now < 8 * 3600 * 2) && (tries < m_wifiConnectionTries)) {
+			delay(500);
+			serialLog(CTBOT_DEBUG_WIFI, CFSTR("."));
+			now = time(nullptr);
+			m_statusPin.toggle();
+			if (m_wifiConnectionTries != 0) tries++;
+		}
+
+		if (now < 8 * 3600 * 2) {
+			serialLog(CTBOT_DEBUG_WIFI, CFSTR("\n--->connect: Unable to sync time data.\n"));
+			WiFi.disconnect();
+			return false;
+		}
+		struct tm timeinfo;
+		gmtime_r(&now, &timeinfo);
+		serialLog(CTBOT_DEBUG_WIFI, CFSTR("\nCurrent time: %s\n"), asctime(&timeinfo));
+#endif
 
 		IPAddress ip = WiFi.localIP();
 		serialLog(CTBOT_DEBUG_WIFI, CFSTR("\n--->connect: WiFi connected\n--->connect: IP address: %s\n"), ip.toString().c_str());
@@ -156,6 +186,7 @@ bool CTBotWifiSetup::connect(const char* ssid, const char* password) {
 			}
 			memccpy_P(m_password, password, 1, strlen_P(password) + 1);
 		}
+
 		return true;
 	}
 	else {

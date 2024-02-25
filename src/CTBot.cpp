@@ -147,9 +147,7 @@ bool CTBot::sendCommand(const char* command, const DynamicJsonDocument& jsonData
 		return false;
 	}
 	snprintf_P(pheader, headerSize, CTBOT_HEADER_STRING, m_token, command, payloadSize, CTBOT_CONTENT_TYPE_JSON);
-
 	response = m_connection.POST(pheader, (uint8_t*)ppayload, payloadSize);
-
 	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendCommand: Header\n%s\n", pheader);
 	serialLog(CTBOT_DEBUG_CONNECTION, "--->sendCommand: Payload\n%s\n", ppayload);
 
@@ -656,7 +654,6 @@ bool CTBot::getMeEx() {
 #elif ARDUINOJSON_VERSION_MAJOR == 6
 	DynamicJsonDocument root(CTBOT_JSON6_BUFFER_SIZE);
 #endif
-
 	response = sendCommand(CTBOT_COMMAND_GETME, root);
 	return response;
 }

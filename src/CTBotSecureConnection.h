@@ -97,23 +97,26 @@ private:
 #if defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 0 // ESP8266 no HTTPS verification
 	WiFiClientSecure m_telegramServer;
 #elif defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 1 // ESP8266 with HTTPS verification
-	BearSSL::WiFiClientSecure m_telegramServer;
+//	BearSSL::WiFiClientSecure m_telegramServer;
+	WiFiClientSecure m_telegramServer;
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
 	WiFiClientSecure m_telegramServer;
 #endif
-
+#if defined(ARDUINO_ARCH_ESP8266)
+	X509List        m_cert;
+#endif
 	bool            m_useDNS;
 	CTBotStatusPin  m_statusPin;
 	char*           m_receivedData;
+	// this should be useless now - CACert even for ESP8266
 	// get fingerprints from https://www.grc.com/fingerprints.htm
 //	uint8_t m_fingerprint[20]{ 0x07, 0x36, 0x89, 0x3D, 0x0F, 0xCC, 0x8C, 0xF7, 0xD0, 0x19, 0xB7, 0x83, 0x39, 0xC4, 0xD5, 0x15, 0x70, 0x9A, 0xC6, 0x5D }; // use this preconfigured fingerprrint by default (2022/04/29)
 	uint8_t m_fingerprint[20]{ 0x8A, 0x10, 0xB5, 0xB9, 0xB1, 0x57, 0xAB, 0xDA, 0x19, 0x74, 0x5B, 0xAB, 0x62, 0x1F, 0x38, 0x03, 0x72, 0xFE, 0x8E, 0x47 };
 
-	// only for ESP32 SSL Certificate validation
-	// get the certificate by running
+	// Get the certificate by running
 	//   openssl s_client -showcerts -connect api.telegram.org:443
 	// and copy the Root Certificate
-#if defined(ARDUINO_ARCH_ESP32)
+//#if defined(ARDUINO_ARCH_ESP32)
 	const char* m_CAcert = \
 		"-----BEGIN CERTIFICATE-----\n" \
 		"MIIE0DCCA7igAwIBAgIBBzANBgkqhkiG9w0BAQsFADCBgzELMAkGA1UEBhMCVVMx\n" \
@@ -143,7 +146,7 @@ private:
 		"GIo/ikGQI31bS/6kA1ibRrLDYGCD+H1QQc7CoZDDu+8CL9IVVO5EFdkKrqeKM+2x\n" \
 		"LXY2JtwE65/3YR8V3Idv7kaWKK2hJn0KCacuBKONvPi8BDAB\n" \
 		"-----END CERTIFICATE-----\n";
-#endif
+//#endif
 
 	bool POST(const char* header, const uint8_t* payload, File fhandle, uint32_t payloadSize, const char* payloadHeader, const char* payloadFooter);
 };

@@ -8,8 +8,9 @@
 
 CTBotSecureConnection::CTBotSecureConnection() {
 	m_useDNS = true;
+#if defined(ARDUINO_ARCH_ESP8266) 
 	m_cert.append(m_CAcert);
-
+#endif
 }
 
 bool CTBotSecureConnection::useDNS(bool value) {

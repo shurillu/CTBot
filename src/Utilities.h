@@ -4,13 +4,14 @@
 #include <Arduino.h>
 #include "CTBotDefines.h"
 
+
 // convert an UNICODE coded string to a UTF8 coded string
 // params
 //   unicode: the UNICODE string to convert
 //   utf8   : the string result of UNICODE to UTF8 conversion 
 // returns
 //   true if no error occurred
-bool unicodeToUTF8(String unicode, String &utf8);
+bool unicodeToUTF8(String unicode, String& utf8);
 
 // convert an int64 value to an ASCII string
 // params
@@ -26,22 +27,41 @@ String int64ToAscii(int64_t value);
 //   the encoded string
 String URLEncodeMessage(String message);
 
+// convert the message string from unicode to UTF8
+void toUTF8(char* message);
+
+// convert a unicode charachter into the UTF8 equivalent
+bool unicodeToUTF8(char* str);
+
 // send data to the serial port. It work only if the CTBOT_DEBUG_MODE is enabled.
 // params
-//    message   : the message to send
+//    format    : the message to send, formatted like printf
 //    debugLevel: debug level. Useful to filter debug messages wanted
+//    ...       : depending on the format string, the list of the additional parameters
+void inline serialLog(uint8_t debugLevel, const char* format, ...) __attribute__((format(printf, 2, 3)));
+
 #if CTBOT_DEBUG_MODE > 0
-inline void serialLog(String message, uint8_t debugLevel) {
-	if ((debugLevel & CTBOT_DEBUG_MODE) != 0)
-		Serial.print(message);
-}
-inline void serialLog(int32_t value, uint8_t debugLevel) {
-	if ((debugLevel & CTBOT_DEBUG_MODE) != 0)
-		Serial.print(value);
+void inline serialLog(uint8_t debugLevel, const char* format, ...) {
+	if (((debugLevel) & (CTBOT_DEBUG_MODE)) != 0) {
+		va_list arg;
+		char* buf;
+		uint32_t size;
+		va_start(arg, format);
+		size = vsnprintf(NULL, 0, format, (__VALIST)arg) + 1;
+		buf = (char*)malloc(size);
+		if (NULL == buf) {
+			Serial.println(FSTR("--->serialLog: unable to allocate memory."));
+			return;
+		}
+		vsnprintf(buf, size, format, (__VALIST)arg);
+		Serial.printf(CFSTR("%s"), buf);
+		free(buf);
+		va_end(arg);
+	}
 }
 #else
-inline void serialLog(String, uint8_t) {}
-inline void serialLog(int64_t, uint8_t) {}
+void inline serialLog(uint8_t , const char* , ...) {}
 #endif
+
 
 #endif

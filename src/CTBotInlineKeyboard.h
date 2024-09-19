@@ -3,9 +3,9 @@
 #define CTBOT_INLINE_KEYBOARD
 
 // for using int_64 data
-#define ARDUINOJSON_USE_LONG_LONG 1 
+#define ARDUINOJSON_USE_LONG_LONG 1
 // for decoding UTF8/UNICODE
-#define ARDUINOJSON_DECODE_UNICODE 1 
+#define ARDUINOJSON_DECODE_UNICODE 1
 
 #if defined(ARDUINO_ARCH_ESP8266) // ESP8266
 // for strings stored in FLASH - only for ESP8266
@@ -15,9 +15,10 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
-enum CTBotInlineKeyboardButtonType {
-	CTBotKeyboardButtonURL    = 1,
-	CTBotKeyboardButtonQuery  = 2
+enum CTBotInlineKeyboardButtonType
+{
+	CTBotKeyboardButtonURL = 1,
+	CTBotKeyboardButtonQuery = 2
 };
 
 class CTBotInlineKeyboard
@@ -25,16 +26,20 @@ class CTBotInlineKeyboard
 private:
 #if ARDUINOJSON_VERSION_MAJOR == 5
 	DynamicJsonBuffer m_jsonBuffer;
-	JsonObject* m_root;
-	JsonArray* m_rows;
-	JsonArray* m_buttons;
+	JsonObject *m_root;
+	JsonArray *m_rows;
+	JsonArray *m_buttons;
 #elif ARDUINOJSON_VERSION_MAJOR == 6
-	DynamicJsonDocument* m_root;
+	DynamicJsonDocument *m_root;
+	JsonArray m_rows;
+	JsonArray m_buttons;
+#elif ARDUINOJSON_VERSION_MAJOR == 7
+	JsonDocument m_root;
 	JsonArray m_rows;
 	JsonArray m_buttons;
 #endif
 	bool m_isRowEmpty;
-
+	char *m_pkeyboard;
 	void initialize(void);
 
 public:
@@ -56,15 +61,15 @@ public:
 	//            callback query data (if buttonType is CTBotKeyboardButtonQuery)
 	// return:
 	//    true if no error occurred
-	bool addButton(const String& text, const String& command, CTBotInlineKeyboardButtonType buttonType);
+	bool addButton(const String &text, const String &command, CTBotInlineKeyboardButtonType buttonType);
+	bool addButton(const char *text, const char *command, CTBotInlineKeyboardButtonType buttonType);
 
-	// generate a string that contains the inline keyboard formatted in a JSON structure. 
+	// generate a string that contains the inline keyboard formatted in a JSON structure.
 	// Useful for CTBot::sendMessage()
 	// returns:
-	//   the JSON of the inline keyboard 
-	String getJSON(void);
+	//   the JSON of the inline keyboard
+	//	String getJSON(void);
+	const char *getJSON(void);
 };
-
-
 
 #endif

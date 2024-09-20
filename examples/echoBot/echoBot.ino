@@ -1,33 +1,46 @@
 /*
  Name:		    echoBot.ino
- Created:	    12/21/2017
+ Created:	    20/09/2024
  Author:	    Stefano Ledda <shurillu@tiscalinet.it>
+ Ported Arduino JSON v7: Alexander Drovosekov <alexander.drovosekov@gmail.com>
  Description: a simple example that check for incoming messages
               and reply the sender with the received message
 */
-#include "CTBot.h"
+#include <ESP8266WiFi.h>
+#include "CTBot.h" 
+
+String ssid  = "YOUR_SSID"; 		 // REPLACE mySSID WITH YOUR WIFI SSID
+String pass  = "YOUR_WIFI_PASSWORD"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+String token = "TELEGRAM_TOKEN"   ;  // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+
 CTBot myBot;
-
-String ssid  = "mySSID"    ; // REPLACE mySSID WITH YOUR WIFI SSID
-String pass  = "myPassword"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-String token = "myToken"   ; // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
-
+ 
 void setup() {
-	// initialize the Serial
-	Serial.begin(115200);
-	Serial.println("Starting TelegramBot...");
+  // initialize the Serial
+  Serial.begin(115200);
+  Serial.println("Starting TelegramBot...");
 
-	// connect the ESP8266 to the desired access point
-	myBot.wifiConnect(ssid, pass);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, pass);
 
-	// set the telegram bot token
-	myBot.setTelegramToken(token);
-	
-	// check if all things are ok
-	if (myBot.testConnection())
-		Serial.println("\ntestConnection OK");
-	else
-		Serial.println("\ntestConnection NOK");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  // set the telegram bot token
+  myBot.setTelegramToken(token);
+  
+  // check if all things are ok
+  if (myBot.testConnection())
+    Serial.println("testConnection OK");
+  else
+    Serial.println("testConnection NOK");
 }
 
 void loop() {

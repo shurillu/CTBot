@@ -1,7 +1,8 @@
 /*
 Name:        inlineKeyboard.ino
-Created:     29/05/2018
+Created:     20/09/2024
 Author:      Stefano Ledda <shurillu@tiscalinet.it>
+Ported Arduino JSON v7: Alexander Drovosekov <alexander.drovosekov@gmail.com>
 Description: a simple example that do:
              1) if a "show keyboard" text message is received, show the inline custom keyboard, 
                 otherwise reply the sender with "Try 'show keyboard'" message
@@ -10,18 +11,20 @@ Description: a simple example that do:
              4) if "see docs" inline keyboard button is pressed, 
                 open a browser window with URL "https://github.com/shurillu/CTBot"
 */
-#include "CTBot.h"
+#include <ESP8266WiFi.h>
+#include "CTBot.h" 
+
+String ssid  = "YOUR_SSID"; 		 // REPLACE mySSID WITH YOUR WIFI SSID
+String pass  = "YOUR_WIFI_PASSWORD"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+String token = "TELEGRAM_TOKEN"   ;  // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
 #define LIGHT_ON_CALLBACK  "lightON"  // callback data sent when "LIGHT ON" button is pressed
 #define LIGHT_OFF_CALLBACK "lightOFF" // callback data sent when "LIGHT OFF" button is pressed
 
 CTBot myBot;
 CTBotInlineKeyboard myKbd;  // custom inline keyboard object helper
-
-String ssid = "mySSID";     // REPLACE mySSID WITH YOUR WIFI SSID
-String pass = "myPassword"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-String token = "myToken";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
-uint8_t led = 2;            // the onboard ESP8266 LED.    
+ 
+#define LED_PIN 2           // the onboard ESP8266 LED.    
                             // If you have a NodeMCU you can use the BUILTIN_LED pin
                             // (replace 2 with BUILTIN_LED) 
                             // ATTENTION: this led use inverted logic
@@ -31,21 +34,31 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Starting TelegramBot...");
 
-  // connect the ESP8266 to the desired access point
-  myBot.wifiConnect(ssid, pass);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, pass);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 
   // set the telegram bot token
   myBot.setTelegramToken(token);
 
   // check if all things are ok
   if (myBot.testConnection())
-    Serial.println("\ntestConnection OK");
+    Serial.println("testConnection OK");
   else
-    Serial.println("\ntestConnection NOK");
+    Serial.println("testConnection NOK");
 
   // set the pin connected to the LED to act as output pin
-  pinMode(led, OUTPUT);
-  digitalWrite(led, HIGH); // turn off the led (inverted logic!)
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH); // turn off the led (inverted logic!)
 
   // inline keyboard customization
   // add a query button to the first row of the inline keyboard
@@ -79,12 +92,12 @@ void loop() {
       // received a callback query message
       if (msg.callbackQueryData.equals(LIGHT_ON_CALLBACK)) {
         // pushed "LIGHT ON" button...
-        digitalWrite(led, LOW); // ...turn on the LED (inverted logic!)
+        digitalWrite(LED_PIN, LOW); // ...turn on the LED (inverted logic!)
         // terminate the callback with an alert message
         myBot.endQuery(msg.callbackQueryID, "Light on", true);
       } else if (msg.callbackQueryData.equals(LIGHT_OFF_CALLBACK)) {
         // pushed "LIGHT OFF" button...
-        digitalWrite(led, HIGH); // ...turn off the LED (inverted logic!)
+        digitalWrite(LED_PIN, HIGH); // ...turn off the LED (inverted logic!)
         // terminate the callback with a popup message
         myBot.endQuery(msg.callbackQueryID, "Light off");
       }

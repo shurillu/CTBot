@@ -1,7 +1,8 @@
 /*
 Name:        replyKeyboard.ino
-Created:     07/10/2019
+Created:     20/09/2024
 Author:      Stefano Ledda <shurillu@tiscalinet.it>
+Ported Arduino JSON v7: Alexander Drovosekov <alexander.drovosekov@gmail.com>
 Description: a simple example that do:
 			 1) if a "show keyboard" text message is received, show the reply keyboard,
 				otherwise reply the sender with "Try 'show keyboard'" message
@@ -17,26 +18,36 @@ CTBot myBot;
 CTBotReplyKeyboard myKbd;   // reply keyboard object helper
 bool isKeyboardActive;      // store if the reply keyboard is shown
 
-String ssid = "mySSID";     // REPLACE mySSID WITH YOUR WIFI SSID
-String pass = "myPassword"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
-String token = "myToken";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+String ssid  = "YOUR_SSID"; 		 // REPLACE mySSID WITH YOUR WIFI SSID
+String pass  = "YOUR_WIFI_PASSWORD"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+String token = "TELEGRAM_TOKEN"   ;  // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
 void setup() {
 	// initialize the Serial
 	Serial.begin(115200);
 	Serial.println("Starting TelegramBot...");
 
-	// connect the ESP8266 to the desired access point
-	myBot.wifiConnect(ssid, pass);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, pass);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 
 	// set the telegram bot token
 	myBot.setTelegramToken(token);
 
 	// check if all things are ok
 	if (myBot.testConnection())
-		Serial.println("\ntestConnection OK");
+		Serial.println("testConnection OK");
 	else
-		Serial.println("\ntestConnection NOK");
+		Serial.println("testConnection NOK");
 
 	// reply keyboard customization
 	// add a button that send a message with "Simple button" text

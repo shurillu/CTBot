@@ -9,6 +9,10 @@
 CTBotSecureConnection::CTBotSecureConnection() {
 	m_useDNS = true;
 #if defined(ARDUINO_ARCH_ESP8266) 
+	// moved from CTBotWiFiSetup::wifiConnect() to here. Time must be synch here because wifiSetup could be not used 
+	// (user defined wifi connection i.e. WiFiManager)
+	configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+	m_timeSynch = false;
 	m_cert.append(m_CAcert);
 #endif
 }
@@ -52,6 +56,18 @@ String CTBotSecureConnection::send(const String& message) {
 #elif defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 1 // ESP8266 with HTTPS verification
 	BearSSL::WiFiClientSecure telegramServer;
 //	telegramServer.setFingerprint(m_fingerprint);
+
+	// moved from CTBotWiFiSetup::wifiConnect() to here. Time must be synch here because wifiSetup could be not used 
+	// (user defined wifi connection i.e. WiFiManager)
+	if (!m_timeSynch) {
+		time_t now = time(nullptr);
+		if (now < 8 * 3600 * 2) {
+			serialLog("\n--->connect: Unable to sync time data.\n", CTBOT_DEBUG_WIFI);
+		}
+		else
+			m_timeSynch = true;
+	}
+
 	telegramServer.setTrustAnchors(&m_cert);
 	serialLog(FSTR("ESP8266 with https verification"), CTBOT_DEBUG_CONNECTION);
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
@@ -79,7 +95,7 @@ String CTBotSecureConnection::send(const String& message) {
 			IPAddress telegramServerIP;
 			telegramServerIP.fromString(TELEGRAM_IP);
 			if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-				serialLog(FSTR("\nUnable to connect to Telegram server\n"), CTBOT_DEBUG_CONNECTION);
+				serialLog(FSTR("\nUnable to connect to Telegram server (URL)\n"), CTBOT_DEBUG_CONNECTION);
 				return("");
 			}
 			else {
@@ -96,7 +112,7 @@ String CTBotSecureConnection::send(const String& message) {
 		IPAddress telegramServerIP; // (149, 154, 167, 220);
 		telegramServerIP.fromString(TELEGRAM_IP);
 		if (!telegramServer.connect(telegramServerIP, TELEGRAM_PORT)) {
-			serialLog(FSTR("\nUnable to connect to Telegram server\n"), CTBOT_DEBUG_CONNECTION);
+			serialLog(FSTR("\nUnable to connect to Telegram server (IP)\n"), CTBOT_DEBUG_CONNECTION);
 			return("");
 		}
 		else

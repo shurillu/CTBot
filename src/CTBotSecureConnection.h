@@ -44,6 +44,7 @@ public:
 private:
 	bool            m_useDNS;
 	CTBotStatusPin  m_statusPin;
+	bool            m_timeSynch;
 
 #if defined(ARDUINO_ARCH_ESP8266)
 	X509List        m_cert;

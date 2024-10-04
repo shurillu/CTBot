@@ -52,6 +52,7 @@ A special thanks go to these people who helped me making this library
 + [x] ArduinoJSON 6 support
 
 ### Changelog
++ 2.1.14 ESP8266 authentication issue when user defined WiFi connection 
 + 2.1.13 ESP32 compile error
 + 2.1.12 No more fingerprint certificate validation for ESP8266
 + 2.1.11 Fixed an issue on group/chat ID in callback queries

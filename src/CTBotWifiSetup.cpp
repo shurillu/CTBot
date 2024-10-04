@@ -114,6 +114,9 @@ bool CTBotWifiSetup::wifiConnect(const String& ssid, const String& password) {
 
 	if (WiFi.status() == WL_CONNECTED) {
 
+// moved in CTBotSecureConnection::Send() + constructor because the user can manage by himself the wifi connection
+		// i.e. WifiManager
+/*
 #if defined(ARDUINO_ARCH_ESP8266) 
 		// Set time via NTP, as required for x.509 validation
 		configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
@@ -144,6 +147,8 @@ bool CTBotWifiSetup::wifiConnect(const String& ssid, const String& password) {
 		serialLog(asctime(&timeinfo), CTBOT_DEBUG_WIFI);
 		serialLog("\n", CTBOT_DEBUG_WIFI);
 #endif
+*/
+
 
 		IPAddress ip = WiFi.localIP();
 		message = (String)FSTR("\nWiFi connected\nIP address: ") + ip.toString() + (String)"\n";

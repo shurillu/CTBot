@@ -98,6 +98,7 @@ private:
 	WiFiClientSecure m_telegramServer;
 #elif defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 1 // ESP8266 with HTTPS verification
 //	BearSSL::WiFiClientSecure m_telegramServer;
+	bool             m_timeSynch;
 	WiFiClientSecure m_telegramServer;
 #elif defined(ARDUINO_ARCH_ESP32) // ESP32
 	WiFiClientSecure m_telegramServer;

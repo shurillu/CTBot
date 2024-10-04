@@ -27,6 +27,12 @@ CTBotSecureConnection::CTBotSecureConnection() {
 	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP8266 no https verification\n"));
 #else// ESP8266 with HTTPS verification
 //	m_telegramServer.setFingerprint(m_fingerprint);
+
+	// moved from CTBotWiFiSetup::wifiConnect() to here. Time must be synch here because wifiSetup could be not used 
+	// (user defined wifi connection i.e. WiFiManager)
+	configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+	m_timeSynch = false;
+
 	m_cert.append(m_CAcert);
 	m_telegramServer.setTrustAnchors(&m_cert);
 	serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->CTBotSecureConnection: ESP8266 with https verification\n"));
@@ -62,6 +68,22 @@ bool CTBotSecureConnection::connect()
 		return true;
 
 	freeMemory();
+
+
+#if defined(ARDUINO_ARCH_ESP8266) && CTBOT_USE_FINGERPRINT == 1 // ESP8266 with HTTPS verification
+
+	// moved from CTBotWiFiSetup::wifiConnect() to here. Time must be synch here because wifiSetup could be not used 
+	// (user defined wifi connection i.e. WiFiManager)
+	if (!m_timeSynch) {
+		time_t now = time(nullptr);
+		if (now < 8 * 3600 * 2) {
+			serialLog(CTBOT_DEBUG_CONNECTION, CFSTR("--->connect: Unable to sync time data.\n"));
+		}
+		else
+			m_timeSynch = true;
+	}
+#endif
+
 
 	// check for using symbolic URLs
 	if (m_useDNS) {
